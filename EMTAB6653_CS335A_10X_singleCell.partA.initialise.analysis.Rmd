@@ -1,0 +1,941 @@
+---
+title: "Setup Single-cell Project"
+author: "Stefan Boeing"
+lab: "Thienpont Lab"
+scientist: "Thienpont Lab"
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+
+output: 
+    html_document:
+        code_folding: hide
+        df_print: tibble
+        toc: true
+        toc_depth: 5
+        toc_float: true
+        css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
+
+always_allow_html: yes
+
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    #fig.path = "path/to/figures/",
+    tidy = FALSE,
+    tidy.opts = list(width.cutoff = 120),
+    message = FALSE,
+    warning = FALSE
+)
+
+```
+
+```{r hpc_notes, include=FALSE}
+
+## Get interactive session ##
+#  srun --time=08:00:00 --mem=40G -p int --pty bash
+
+# module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;R;
+
+# sbatch --time=12:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runA.r" --job-name="rA" -p hmem --mem=300G -o rA.slurm >> commands.txt
+
+# --mem-per-cpu=14G -p hmem --pty bash
+
+```
+
+## Data Preparation
+### Create Environment and set parameters
+```{r init, eval=T, echo=T}
+###############################################################################
+## Create biologic Object for visualization                                  ##
+singleCellClusterParameter <- 0.3
+NtopGenes <- 2000
+singleCellSeuratMtCutoff <- c(10)
+singleCellSeuratNpcs4PCA <- 30
+SeuratNrnaMaxFeatures <- 20000
+SeuratNrnaMinFeatures <- 500
+## Done                                                                      ##
+###############################################################################
+
+```
+
+
+```{r dbpwd, eval=T, echo=F}
+#Create the environment and load a suitable version of R, e.g. so:
+#library(keyring)
+
+```
+
+### Set Parameters
+```{r set_directories, eval=T}
+## Setup plot collection object
+VersionPdfExt <- paste0(".V", gsub("-", "", Sys.Date()), ".pdf")
+
+if (dir.exists("/Volumes/babs/working/boeings/")){
+    hpc.mount <- "/Volumes/babs/working/boeings/"
+} else if (dir.exists("Y:/working/boeings/")){
+    hpc.mount <- "Y:/working/boeings/"
+} else if (dir.exists("/camp/stp/babs/working/boeings/")){
+    hpc.mount <- "/camp/stp/babs/working/boeings/"
+} else {
+    hpc.mount <- ""
+}
+
+source(
+    paste0(
+        hpc.mount,
+        "Stefan/protocol_files/github/boeings/packages/packageSourceCode/SBwebtools.pckg.r"
+    )
+)
+
+source(
+    paste0(
+        hpc.mount,
+        "Stefan/protocol_files/github/boeings/packages/scTools/scTools.r"
+    )
+)
+
+
+if (length(.libPaths()) > 2){
+    .libPaths(.libPaths()[2:3])
+}
+
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+library(tidyr)
+library(knitr)
+library(Seurat)
+library(DT)
+
+
+###############################################################################
+## Create sampleDetail List                                                  ##
+
+# type must be in c("TenX", "matrixFiles", "loomFiles", "hdf5Files")
+
+sampleDetailList <- list(
+#     "P2_middle" = list(
+#         "type" = "matrixFiles",
+#         "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P5_2_middle.txt",
+#         "singleCellClusterParameter" = singleCellClusterParameter,
+#         "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+#         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+#         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+#         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+#         "limsId"= "LAT293A6",
+#         "singleCellChemistry" = NULL,
+# 	    "singleCellCellrangerVersion" = NULL, 
+#         "machine" = NULL
+#     ),
+    "P2_edge" = list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P6_2_edge.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),
+    ## Just 114 cells ##
+#     "P2_core" = list(
+#         "type" = "matrixFiles",
+#         "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P4_2_core.txt",
+#         "singleCellClusterParameter" = singleCellClusterParameter,
+#         "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+#         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+#         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+#         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+#         "limsId"= "LAT293A6",
+#         "singleCellChemistry" = NULL,
+# 	    "singleCellCellrangerVersion" = NULL, 
+#         "machine" = NULL
+#     ),
+    "P2_normal" = list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P7_2_normal.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),
+    "P1_core" = list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P1_1_core.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),
+    "P1_middle" =  list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P2_1_middle.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),  
+   "P1_edge" = list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P3_1_edge.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),   
+   "P3_edge" = list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P10_3_edge.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),   
+   "P3_middle" =  list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P9_3_middle.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),    
+    "P3_core" = list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P8_3_core.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),     
+   "P3_normal" = list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P11_3_normal.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),     
+    "P4_normal" = list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P15_4_normal.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),        
+    "P4_edge" =  list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P14_4_edge.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),      
+    "P4_middle" =  list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P13_4_middle.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),      
+    "P4_core" =  list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P12_4_core.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),        
+    "P5_core" = list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P16_5_core.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),        
+    "P5_edge" = list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P18_5_edge.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),        
+    "P5_middle" = list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P17_5_middle.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL,
+        "machine" = NULL
+    ),         
+     "P5_normal" =  list(
+        "type" = "matrixFiles",
+        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P19_5_normal.txt",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "LAT293A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL,
+        "machine" = NULL
+    )
+)
+
+##                                                                           ##
+###############################################################################
+
+###############################################################################
+## dbDetailList                                                              ##
+dbDetailList <- list(
+    "primDataDB" = "csl_data",
+    "ref.cat.db" = "reference_categories_db_new",
+     "db.user" = "boeingS",
+     "host" = "10.27.241.82"
+)
+## End dbDetailList                                                          ##
+###############################################################################
+
+###############################################################################
+## Project detail list                                                       ##
+projectDetailList <- list(
+    "folder" = "swantonc/dhruva.biswas/335A_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/",
+    "sra.id.vector" = "",
+    "gse.id.vector" = "",
+    "asf.id" = "",
+    "experiment.type" = "sc_rna_seq",   
+    "species" = "homo_sapiens", 
+    "release" = "release-89", 
+    "project_id" = "EMTAB6653",
+    "labname" = "Thienpont",
+    "timecourse.units" = "",
+    "count.table.headline" = "lg10 Expr for all Samples",
+    "count.table.sidelabel" = "lg10 Expr",
+    "heamap.headline.text" = "Heatmap: Row-averaged Expr"
+)
+## End project detail list                                                   ##
+###############################################################################
+
+
+###############################################################################
+## Project detail list                                                       ##
+scDetailList <- list(
+    "NtopGenes" =  NtopGenes,
+    "singleCellClusterParameter" = singleCellClusterParameter,
+    "singleCellClusterString" = paste0("integrated_snn_res.", singleCellClusterParameter),
+    "scIntegrationMethod" = "SCT", # "SCT" or "standard"
+    "scNintegrationFeatures" = 3000,
+    "primReduction" = "umap"
+)
+## End project detail list                                                   ##
+###############################################################################
+
+###############################################################################
+## Reference Table List                                                      ##
+referenceTableList = list(
+    "Hallmark Signatures" = "mysigdb_h_hallmarks",
+    "Pathways" = "mysigdb_c2_1329_canonical_pathways",
+    "GO-BP" = "mysigdb_c5_BP",                               
+    "GO-MF" = "mysigdb_c5_MF",
+    "TF Motifs" = "TRANSFAC_and_JASPAR_PWMs",
+    "Protein Complexes" = "networkcategories",
+    "GO-BP" = "GO_Biological_Process_2017",
+    "Allen Atlas" = "Allen_Brain_Atlas",
+    "LINCS Down" = "LINCS_L1000_Chem_Pert_down",
+    "LINCS Up" = "LINCS_L1000_Chem_Pert_up"
+)
+    # Allen_Brain_Atlas                            |
+    # CORUM                                        |
+    # ChEA_2016                                    |
+    # DEPOD_phosphatase_substrates                 |
+    # ENCODE_TF_ChIP_seq_2015                      |
+    # GO_Biological_Process_2017                   |
+    #LINCS_L1000_Chem_Pert_down                   |
+    #LINCS_L1000_Chem_Pert_down_backup            |
+    # LINCS_L1000_Chem_Pert_up                     |
+    # LINCS_L1000_Chem_Pert_up_backup              |
+    # NCBI_homologene_table                        |
+    # Old_CMAP_down                                |
+    # Old_CMAP_up                                  |
+    # SGP_from_GEO_up_down_combined                |
+    # SILAC_Phosphoproteomics                      |
+    # TRANSFAC_and_JASPAR_PWMs                     |
+    # UK_Biobank_GWAS                              |
+    # ag_lab_categories                            |
+    # as_lab_categories                            |
+    # bader_lab_hESC_reference                     |
+    # bt_lab_categories                            |
+    # cat_selection_default                        |
+    # cs_lab_categories                            |
+    # da_lab_categories                            |
+    # es_lab_categories                            |
+    # esl111_cat_reference_db_table                |
+    # et_lab_categories                            |
+    # exploration_categories                       |
+    # fg_lab_categories                            |
+    # fi_lab_categories                            |
+    # gk_lab_categories                            |
+    # innateDB_PPI                                 |
+    # jb_lab_categories                            |
+    # js_lab_categories                            |
+    # kn_lab_categories                            |
+    # mysigdb_c1_positional                        |
+    # mysigdb_c2_1329_canonical_pathways           |
+    # mysigdb_c2_KEGG                              |
+    # mysigdb_c2_REACTOME                          |
+    # mysigdb_c2_biocarta                          |
+    # mysigdb_c2_chemical_and_genetic_pertubations |
+    # mysigdb_c3_TF_targets                        |
+    # mysigdb_c3_miRNA_targets 
+
+## Done                                                                      ##
+###############################################################################
+
+# Species has to be "mus_musculus", "homo_sapiens", "danio_rerio" 
+# release-86, release-89
+
+Obio = new(
+    "bioLOGIC",
+    dbDetailList = dbDetailList,        
+    projectDetailList = projectDetailList,
+    sampleDetailList = sampleDetailList, 
+    referenceTableList = referenceTableList,
+    parameterList = list(
+        "lab.categories.table" = "sc_lab_categories",
+        "folder" = projectDetailList$folder,
+        "sra.id.vector" = "",
+        "gse.id.vector" = "",
+       "lims.id"= "",
+        "asf.id" = "",
+        "machine" = NULL,
+        "experiment.type" = "sc_rna_seq",   
+        "species" = "homo_sapiens", 
+        "release" = "release-89", 
+        "project_id" = "EMTAB6653",
+        "labname" = "Thienpont",
+        "db.user" = "boeingS",
+        "host" = "10.27.241.82",
+        "timecourse.units" = "",
+        "count.table.headline" = "lg10 Expr for all Samples",
+        "count.table.sidelabel" = "lg10 Expr",
+        "heamap.headline.text" = "Heatmap: Row-averaged Expr",
+        "loadR" = "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;R;",
+        "pathToSeqStorageFolder" = NULL,
+        "matrixFiles" = NULL,
+        "loomFiles" = NULL,
+        "addFullTPMtable" = FALSE,
+        "hpcMount" = "",
+        "parallelProcessing" = FALSE,
+        "timeseries" = TRUE,
+        "NtopGenes" =  NtopGenes,
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellClusterString" = paste0("integrated_snn_res.", singleCellClusterParameter),
+        "singleCellPercExpressedMinCutOff" = 10,
+        "singleCellTranscriptome"="GRCh38",
+	    "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "scIntegrationMethod" = "SCT", # "SCT" or "standard"
+        "scNintegrationFeatures" = 3000,
+        "SeuratNrnaMaxFeatures" = 20000,
+        "SeuratNrnaMinFeatures" = 500,
+        "primReduction" = "umap",
+        "qcReports" = list(),
+        "catRefFile" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335A_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/csl335A.AUC.cat.reference.table.txt",
+        referenceTableList = referenceTableList
+    )
+)
+
+
+Obio <- setMountingPoint(Obio)
+Obio <- setAnalysisPaths(Obio)
+Obio <- setCrickGenomeAndGeneNameTable(Obio)
+Obio <- createAnalysisFolders(
+    Obio,
+    baseDir="/camp/stp/babs/working/boeings/Projects/",
+    localBaseDir = paste0(hpc.mount, "Projects/")
+)
+Obio <- setDataBaseParameters(Obio)
+
+
+Obio@parameterList[["reportFigDir"]] <- paste0(Obio@parameterList$localWorkDir,Obio@parameterList$project_id, "/report_figures/")
+
+####
+
+FN <- paste0(hpc.mount, "Projects/reference_data/documentation/BC.parameters.txt")
+dbTable <- read.delim(
+    FN, 
+    sep = "\t",
+    stringsAsFactors = F
+)
+
+db.pwd <- as.vector(dbTable[1,1])
+
+## Create outputfolders ##
+if (!dir.exists(paste0(Obio@parameterList$localWorkDir,Obio@parameterList$project_id))){
+    dir.create(paste0(Obio@parameterList$localWorkDir,Obio@parameterList$project_id))
+}
+
+if (!dir.exists(Obio@parameterList$reportFigDir)){
+    dir.create(Obio@parameterList$reportFigDir)
+}
+
+
+figureCount <- 1
+
+## Load R module load R/3.5.1-foss-2018b ##
+#setwd(Obio@parameterList$localWorkDir)
+```
+
+
+
+```{r saveobject, eval=TRUE, echo=T, results=F}
+### Will save Obio object here, so it can be re-used with different parameters
+save(Obio, 
+     file = paste0(
+         Obio@parameterList$localWorkDir,
+         Obio@parameterList$project_id,
+         ".bioLOGIC.Robj"
+     )
+)
+
+print("R bioLOGIC single cell object initialized.")
+
+```
+
+## QC Section
+### Create First figure
+
+### Create QC Table
+```{r create_QC_Table, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
+
+tableCreated <- FALSE
+sampleNames <- names(Obio@sampleDetailList)
+
+for (i in 1:length(sampleNames)){
+    if (Obio@sampleDetailList[[sampleNames[i]]]$type == "TenX"){
+        baseFN <- Obio@sampleDetailList[[sampleNames[i]]]$path
+        summaryFN <- gsub("filtered_feature_bc_matrix", "metrics_summary.csv", baseFN)
+        if (file.exists(summaryFN)){
+            dfTemp <- read.csv(summaryFN)
+            dfTemp[["sampleName"]] <- sampleNames[i]
+            if (!tableCreated){
+                tableCreated = TRUE
+                dfRes <- dfTemp
+            } else {
+                dfRes <- rbind(
+                    dfRes,
+                    dfTemp
+                )
+            }
+        }
+    }
+}
+
+if (exists("dfRes")){
+dfRes <- data.frame(t(dfRes))
+colVec <- as.vector(t(dfRes["sampleName",]))
+names(dfRes) <- colVec
+
+dfRes <- dfRes[!(row.names(dfRes) %in% c("sampleName")),]
+dfRes[["Parameter"]] <- row.names(dfRes)
+row.names(dfRes) <- NULL
+colVec <- c("Parameter", colVec)
+dfRes <- dfRes[,colVec]
+dfRes$Parameter <- gsub("[.]", " ", dfRes$Parameter)
+
+
+###############################################################################
+## Write table to Excel File                                                 ##
+
+createXLSXoutput(
+    dfTable = dfRes,
+    outPutFN = paste0(Obio@parameterList$outputDir, "/",Obio@parameterList$project_id, "_QC_Parameter_Table.xlsx"),
+    tableName = paste0(Obio@parameterList$project_id, "_QC_Parameter_Table")
+)
+
+## Done creating Excel output table                                          ##
+###############################################################################
+
+Obio@parameterList$reportTableDir <- gsub("report_figures", "report_tables",Obio@parameterList$reportFigDir)
+
+if (!dir.exists(Obio@parameterList$reportTableDir)){
+    dir.create(Obio@parameterList$reportTableDir)
+}
+
+FNbase <- paste0(Obio@parameterList$project_id, "_QC_Parameter_Table.xlsx")
+FN <- paste0(Obio@parameterList$reportTableDir, FNbase)
+FNrel <- paste0("report_tables/", FNbase)
+
+
+tabDownloadLink <- paste0("The quality measures table can be downloaded [here](",FNrel,")")
+
+tabLegend = paste0(
+    "**Table: ** QC Parameters for all 10X single-cell samples in this experiment. ",
+    tabDownloadLink
+)
+
+chnkVec <- paste0(
+        #"#### ", names(dtList),
+        "\n```{r QC_datatable, results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        tabLegend,"'}\n",
+        "\n",
+        "\n datatable(dfRes,rownames = FALSE,  escape = FALSE)",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+}    
+## Done creating one table per cluster                                      ##
+##############################################################################
+```
+
+```{r render_QCTable, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
+
+if (exists("dfRes")){
+    cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+}
+```
+
+### Turn QC Table into figures
+
+### CellRanger QC {.tabset .tabset-fade .tabset-pills}
+```{r QC_raw_data, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
+
+###############################################################################
+## Create Cell Ranger QC Plots                                               ##
+if (exists("dfRes")){
+## Add if clause to check 10X
+resList <- doCRplots(
+    obj = Obio,
+    figureCount = figureCount,
+    VersionPdfExt = VersionPdfExt,
+    tocSubLevel = 4,
+    dotsize = 0.5
+) 
+
+plotListQC1 <- resList$plotListQC1
+chnkVec <- resList$chnkVec
+figureCount <- resList$figureCount
+}
+
+## Done create cellRanger QC plots                                           ##
+###############################################################################
+
+```
+
+```{r Plot_tsne_data_plotting, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+if (exists("dfRes")){
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+}
+
+```
+
+
+## Determining Parameters for Subsequent Single-cell Analysis
+### Make Sample List for single-sample assessment
+```{r start_seurat, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
+
+SampleList <- createSampleListQC(
+    obj = Obio
+)
+
+```
+
+
+### Create PercentMT Historgrams Plots {.tabset .tabset-fade .tabset-pills}
+```{r percent_mt, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
+###############################################################################
+## Do percent mt plots                                                       ##
+resList <- doPercMT_plotSL(
+        SampleList = SampleList,
+        obj = Obio,
+        figureCount = figureCount,
+        VersionPdfExt = ".pdf",
+        tocSubLevel = 4
+)
+
+
+plotListRF <- resList$plotListRF
+chnkVec <- resList$chnkVec
+figureCount <- resList$figureCount
+
+## Done create cellRanger QC plots                                           ##
+###############################################################################
+
+```
+
+```{r Plot_percentMT_hist, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+```
+
+### Create RNA Feature Historgrams Plots {.tabset .tabset-fade .tabset-pills}
+```{r nFeature_data, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
+###############################################################################
+## Do percent mt plots                                                       ##
+resList <- doRNAfeat_plotSL(
+        SampleList,
+        obj = Obio,
+        figureCount = figureCount,
+        VersionPdfExt = ".pdf",
+        tocSubLevel = 4
+)
+
+plotListRF <- resList$plotListRF
+chnkVec <- resList$chnkVec
+figureCount <- resList$figureCount
+
+## Done create cellRanger QC plots                                           ##
+###############################################################################
+
+```
+
+```{r Plot_nFeatureRNA_hist, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+```
+
+### Plot UMAP Per Sample {.tabset .tabset-fade .tabset-pills}
+```{r UMAP_data, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
+###############################################################################
+## Do percent mt plots                                                       ##
+resList <- doUMAP_plotSL(
+        SampleList,
+        obj = Obio,
+        figureCount = figureCount,
+        VersionPdfExt = ".pdf",
+        tocSubLevel = 4,
+        dotsize = 0.5
+)
+
+plotListSQCUMAP <- resList$plotListSQCUMAP
+chnkVec <- resList$chnkVec
+figureCount <- resList$figureCount
+
+## Done create cellRanger QC plots                                           ##
+###############################################################################
+
+```
+
+```{r Plot_UMAP, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+```
+
+### Plot Per Sample Doublet Estimate {.tabset .tabset-fade .tabset-pills}
+```{r DF_data, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
+###############################################################################
+## Do percent mt plots                                                       ##
+resList <-  doDF_plotSL(
+        SampleList,
+        obj = Obio,
+        figureCount = figureCount,
+        VersionPdfExt = ".pdf",
+        tocSubLevel = 4,
+        dotsize = 0.5
+)
+    
+ 
+
+plotListDF <- resList$plotListDF
+chnkVec <- resList$chnkVec
+figureCount <- resList$figureCount
+Obio@dataTableList[["DF_resultlist"]] <- resList$addList
+        
+## Done create cellRanger QC plots                                           ##
+###############################################################################
+
+```
+
+```{r Plot_DF, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+```
+
+### Plot Per Sample MT Percentage {.tabset .tabset-fade .tabset-pills}
+```{r UMAP_percentage, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
+###############################################################################
+## Do percent mt plots                                                       ##
+
+resList <- doUMAP_plot_percMT(
+    SampleList,
+    obj =  Obio,
+    figureCount = figureCount,
+    VersionPdfExt = ".pdf",
+    tocSubLevel = 4,
+    dotsize = 0.5
+)
+ 
+
+plotListUMT <- resList$plotListUMT
+chnkVec <- resList$chnkVec
+figureCount <- resList$figureCount
+
+        
+## Done create cellRanger QC plots                                           ##
+###############################################################################
+
+```
+
+```{r Plot_percent_MT, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+```
+
+### Plot Per Sample nFeatures RNA {.tabset .tabset-fade .tabset-pills}
+```{r UMAP_nFeatures, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
+###############################################################################
+## Do percent mt plots                                                       ##
+
+resList <- doUMAP_plot_nFeatRNA(
+    SampleList,
+    obj =  Obio,
+    figureCount = figureCount,
+    VersionPdfExt = ".pdf",
+    tocSubLevel = 4,
+    dotsize = 0.5
+)
+ 
+
+plotListNC <- resList$plotListNC
+chnkVec <- resList$chnkVec
+figureCount <- resList$figureCount
+
+        
+## Done create cellRanger QC plots                                           ##
+###############################################################################
+
+```
+
+```{r Plot_nFeatureRNA, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+```
+
+
+
+```{r saveobject_end, eval=TRUE, echo=T, results=F}
+### Will save Obio object here, so it can be re-used with different parameters
+save(Obio, 
+     file = paste0(
+         Obio@parameterList$localWorkDir,
+         Obio@parameterList$project_id,
+         ".bioLOGIC.Robj"
+     )
+)
+
+print("R bioLOGIC single cell object initialized.")
+
+```
+
+```{r saveSampleList, eval=TRUE, echo=T, results=F}
+### Will save Obio object here, so it can be re-used with different parameters
+save(SampleList, 
+     file = paste0(
+         Obio@parameterList$localWorkDir,
+         Obio@parameterList$project_id,
+         "SampleList.Robj"
+     )
+)
+
+print("R bioLOGIC single cell object initialized.")
+
+```
+
+### Most up/down-regulated genes
+### Cluster gene set enrichment
+
+## Documentation
+```{r documentation, eval=TRUE, echo=T, results=T}
+sessionInfo()
+```                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
