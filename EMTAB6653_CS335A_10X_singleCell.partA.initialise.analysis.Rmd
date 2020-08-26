@@ -50,10 +50,10 @@ knitr::opts_chunk$set(
 ## Create biologic Object for visualization                                  ##
 singleCellClusterParameter <- 0.3
 NtopGenes <- 2000
-singleCellSeuratMtCutoff <- c(10)
+singleCellSeuratMtCutoff <- c(12.5)
 singleCellSeuratNpcs4PCA <- 30
 SeuratNrnaMaxFeatures <- 20000
-SeuratNrnaMinFeatures <- 500
+SeuratNrnaMinFeatures <- 100
 ## Done                                                                      ##
 ###############################################################################
 
@@ -423,7 +423,7 @@ referenceTableList = list(
     "TF Motifs" = "TRANSFAC_and_JASPAR_PWMs",
     "Protein Complexes" = "networkcategories",
     "GO-BP" = "GO_Biological_Process_2017",
-    "Allen Atlas" = "Allen_Brain_Atlas",
+    "Immunologic Signatures" = "mysigdb_c7_immunologic_signatures",
     "LINCS Down" = "LINCS_L1000_Chem_Pert_down",
     "LINCS Up" = "LINCS_L1000_Chem_Pert_up"
 )
@@ -470,6 +470,52 @@ referenceTableList = list(
     # mysigdb_c2_chemical_and_genetic_pertubations |
     # mysigdb_c3_TF_targets                        |
     # mysigdb_c3_miRNA_targets 
+# et_lab_categories                            |
+# | exploration_categories                       |
+# | fg_lab_categories                            |
+# | fgl391_cat_reference_db_table                |
+# | fi_lab_categories                            |
+# | gk_lab_categories                            |
+# | innateDB_PPI                                 |
+# | jb_lab_categories                            |
+# | js_lab_categories                            |
+# | kn_lab_categories                            |
+# | mysigdb_c1_positional                        |
+# | mysigdb_c2_1329_canonical_pathways           |
+# | mysigdb_c2_KEGG                              |
+# | mysigdb_c2_REACTOME                          |
+# | mysigdb_c2_biocarta                          |
+# | mysigdb_c2_chemical_and_genetic_pertubations |
+# | mysigdb_c3_TF_targets                        |
+# | mysigdb_c3_miRNA_targets                     |
+# | mysigdb_c5_BP                                |
+# | mysigdb_c5_CC                                |
+# | mysigdb_c5_MF                                |
+# | mysigdb_c6_oncogenic_signatures              |
+# | mysigdb_c7_immunologic_signatures            |
+# | mysigdb_h_hallmarks                          |
+# | networkcategories                            |
+# | nl_lab_categories                            |
+# | pa_lab_categories                            |
+# | pb_lab_categories                            |
+# | pfam_interpro                                |
+# | pp_lab_categories                            |
+# | project_db_table                             |
+# | project_db_table_backup                      |
+# | project_description_table                    |
+# | pt_lab_categories                            |
+# | re_lab_categories                            |
+# | reference_categories_db_new                  |
+# | rl_lab_categories                            |
+# | sb_lab_categories                            |
+# | sc_lab_categories                            |
+# | sl_lab_categories                            |
+# | sl_lab_categories_backup                     |
+# | ss_lab_categories                            |
+# | st_lab_categories                            |
+# | temp_categories                              |
+# | vp_lab_categories                            |
+# | vt_lab_categories
 
 ## Done                                                                      ##
 ###############################################################################

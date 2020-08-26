@@ -162,43 +162,45 @@ OsC <- addDf2seuratMetaData(
     dfAdd = dfAdd
 )
 
-###############################################################################
-## Load extra annotation data                                                ##
-FN <- "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/MetaData.txt"
-
-dfExtra <- read.delim(
-    FN,
-    header = T,
-    sep = "\t",
-    stringsAsFactors = F
-)
-
-dfExtra <- dfExtra[dfExtra$cell %in% row.names(OsC@meta.data),]
-
-names(dfExtra) <- gsub("^cluster$", "Article_Cluster", names(dfExtra))
-names(dfExtra) <- gsub("^CellType$", "Article_Cell_Type", names(dfExtra))
-names(dfExtra) <- gsub("^CellType$", "Article_Cell_Type", names(dfExtra))
-names(dfExtra) <- gsub("^CellType$", "Article_Cell_Type", names(dfExtra))
-
-dfExtra[["Patient"]] <- sapply(dfExtra$Patient_piece, function(x) unlist(strsplit(x, "_"))[1])
-dfExtra$Patient <- paste0("P", dfExtra$Patient)
-dfExtra[["Region"]] <- sapply(dfExtra$Patient_piece, function(x) unlist(strsplit(x, "_"))[2])
-dfExtra$CellFromTumor <- as.character(dfExtra$CellFromTumor)
-dfExtra$CellFromTumor[dfExtra$CellFromTumor == "TRUE"] <- "Tumor"
-dfExtra$CellFromTumor[dfExtra$CellFromTumor == "FALSE"] <- "Non-Tumor"
-
-row.names(dfExtra) <- dfExtra$cell
-
-selVec <- c("CellFromTumor", "Patient", "Region")
-dfAdd <- dfExtra[,selVec]
-
-OsC <- addDf2seuratMetaData(
-            obj = OsC,
-            dfAdd = dfAdd
-        )
-
-## Done extra annotation                                                     ##
-###############################################################################
+# ###############################################################################
+# ## Load extra annotation data                                                ##
+# FN <- "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/MetaData.txt"
+# 
+# dfExtra <- read.delim(
+#     FN,
+#     header = T,
+#     sep = "\t",
+#     stringsAsFactors = F
+# )
+# 
+# dfExtra <- dfExtra[dfExtra$cell %in% row.names(OsC@meta.data),]
+# 
+# names(dfExtra) <- gsub("^cluster$", "Article_Cluster", names(dfExtra))
+# names(dfExtra) <- gsub("^CellType$", "Article_Cell_Type", names(dfExtra))
+# names(dfExtra) <- gsub("^CellType$", "Article_Cell_Type", names(dfExtra))
+# names(dfExtra) <- gsub("^CellType$", "Article_Cell_Type", names(dfExtra))
+# 
+# dfExtra[["Patient"]] <- sapply(dfExtra$Patient_piece, function(x) unlist(strsplit(x, "_"))[1])
+# dfExtra$Patient <- paste0("P", dfExtra$Patient)
+# dfExtra[["Region"]] <- sapply(dfExtra$Patient_piece, function(x) unlist(strsplit(x, "_"))[2])
+# dfExtra$CellFromTumor <- as.character(dfExtra$CellFromTumor)
+# dfExtra$CellFromTumor[dfExtra$CellFromTumor == "TRUE"] <- "Tumor"
+# dfExtra$CellFromTumor[dfExtra$CellFromTumor == "FALSE"] <- "Non-Tumor"
+# 
+# 
+# 
+# row.names(dfExtra) <- dfExtra$cell
+# 
+# selVec <- c("CellFromTumor", "Patient", "Region")
+# dfAdd <- dfExtra[,selVec]
+# 
+# OsC <- addDf2seuratMetaData(
+#             obj = OsC,
+#             dfAdd = dfAdd
+#         )
+# 
+# ## Done extra annotation                                                     ##
+# ###############################################################################
 
 
 
@@ -297,7 +299,68 @@ dfdbTable[dfdbTable$Patient %in% c("P2", "P3", "P5"), "Gender"] <- "Male"
 
 ## done 
 
+###############################################################################
+##                                                                           ##
 
+# XYsel <- c(
+#     names(dfdbTable)[grep("UMAP", names(dfdbTable))],
+#     names(dfdbTable)[grep("PC", names(dfdbTable))],
+#     names(dfdbTable)[grep("DM_Pseudotime", names(dfdbTable))],
+#     #names(dfdbTable)[grep("DF_Classification", names(dfdbTable))],
+#     names(dfdbTable)[grep("nCount", names(dfdbTable))],
+#     names(dfdbTable)[grep("nFeatures", names(dfdbTable))],
+#     names(dfdbTable)[grep("percent", names(dfdbTable))],
+#     names(dfdbTable)[grep("seurat_clusters", names(dfdbTable))],
+#     names(dfdbTable)[grep("Gender", names(dfdbTable))],
+#     names(dfdbTable)[grep("CellFromTumor", names(dfdbTable))],
+#     names(dfdbTable)[grep("Patient", names(dfdbTable))],
+#     names(dfdbTable)[grep("Region", names(dfdbTable))],
+#     names(dfdbTable)[grep("Article_Cell_Type", names(dfdbTable))]
+# )
+# 
+# allColorOptions <- c(
+#     #"Log10 Expresson" = "lg10Expr",
+#     "DM Pseudotime"  = "DM_Pseudotime",
+#     "SampleID" = "sampleID",
+#     "WT vs. IDH" = "WT_IDH",
+#     "Gender" = "Gender",
+#     "Cells From Tumor" = "CellFromTumor",
+#     "Patient" = "Patient",
+#     "Region" = "Region",
+#     "Article Cell Type" = "Article Cell Type",
+#     "Doublet Classification" = "DF_Classification" ,
+#     "Cluster" = "seurat_clusters",
+#     "Sub-clusters Ex Neurons" = "sub_clusters_ExNeurons",
+#     "Sub-sub Clusters" = "sub_sub_clusters_ExNeurons",
+#     "SubCluster_2" = "sub_cluster_3",
+#     "nCount_RNA" = "nCount_RNA",
+#     "nFeature_RNA" = "nFeature_RNA",
+#     "percent_mt" = "percent_mt",
+#     "S Phase Score" = "S_Score",
+#     "G2M Score" = "G2M_Score",
+#     "Cell Cycle Phase" = "Phase",
+#     "Uniform" = "all"
+# )
+# 
+# splitOptions <- c(
+#   "Patient" = "Patient",
+#   "Gender" = "Gender",
+#   "Cells From Tumor" = "CellFromTumor",
+#   "Region" = "Region",
+#   "Article Cell Type" = "Article Cell Type",
+#   "Doublet Classification" = "DF_Classification" ,
+#   "SampleID" = "sampleID",
+#   "None" = "all",
+#   "WT vs. IDH" = "WT_IDH",
+#   "Gender" = "Gender",
+#   "Doublet Classification" = "DF_Classification" ,
+#   "Cluster" = "seurat_clusters",
+#   "Sub-clusters Ex Neurons" = "sub_clusters_ExNeurons",
+#   "Sub-sub Clusters" = "sub_sub_clusters_ExNeurons",
+#   "SubCluster_2" = "sub_cluster_3",
+#   "Cell Cycle Phase" = "Phase"
+#   
+# )
 
 
 ##                                                                           ##
@@ -934,6 +997,32 @@ if (length(pos) > 0){
 ## Done
 #############################
 
+###########################
+## Variation
+pos <- grep("dfVariation", names(Obio@dataTableList))
+
+if (length(pos) > 0){
+    dfAdd <- Obio@dataTableList[[pos]]
+    #rmVec <- grep("_padj_", names(dfAdd))
+    #if (length(rmVec) > 0){
+    #    dfAdd <- unique(dfAdd[,-rmVec])
+    #}
+    
+    database.table <- merge(
+        database.table, 
+        dfAdd, 
+        by.x = Obio@parameterList$geneIDcolumn,
+        by.y = "gene",
+        all = TRUE
+    )
+    
+    database.table[is.na(database.table)] <- 0
+    
+}
+
+## Done
+#############################
+
 ###############################################################################
 ## Create main database table                                                ##
 ## Select for heatmap ##
@@ -1005,7 +1094,7 @@ cmd.vec <- upload.datatable.to.database(
         "VARCHAR(1) CHARACTER SET latin1 COLLATE latin1_swedish_ci" = c("ppos", "amino_acid", "charge","known_site"),
         "BIGINT(8) NULL DEFAULT NULL" = c("row_names"),
         "INT(8) NULL DEFAULT NULL" = c("DEseq2Normalized","CoVarOrder","row_id", "cluster_order","cluster_id", "count_cut_off", "^position$", "raw_counts"),
-        "DECIMAL(6,3) NULL DEFAULT NULL" = c("avg_diff_Cluster","add_counts_",  "lg2BaseMean","lg2baseMean","contrast_P_PCA_estimatePCA","^CoVar$","NES", "logFC", "lg2_avg","norm_counts", "intensity", "^int", "iBAQ","^localization_prob$", "stat", "lg10p","contrast_x_"),
+        "DECIMAL(6,3) NULL DEFAULT NULL" = c("avg_diff_Cluster","add_counts_",  "lg2BaseMean","lg2baseMean","contrast_P_PCA_estimatePCA","^CoVar$","NES", "logFC", "lg2_avg","norm_counts", "intensity", "^int", "iBAQ","^localization_prob$", "stat", "lg10p","contrast_x_", "_AvgExpr$", "_var_std$"),
         "DECIMAL(6,5) NULL DEFAULT NULL" = c("r2_PCA","padj", "pvalue","^pep$", "p_value_PCA")
     ),
     new.table = TRUE,
@@ -1019,6 +1108,7 @@ killDbConnections()
 ```{r create_ref, eval=TRUE, echo=F, results=F}
 labCatName <-  paste0(Obio@parameterList$labname, " Lab")
 
+if (is.null(Obio@referenceTableList)){
 Obio@referenceTableList <- list(
     "Hallmark Signatures" = "mysigdb_h_hallmarks",
     "Pathways" = "mysigdb_c2_1329_canonical_pathways",
@@ -1029,6 +1119,7 @@ Obio@referenceTableList <- list(
     "Protein Complexes" = "networkcategories",
     "Allen Brain Atlas" = "Allen_Brain_Atlas"
 )
+}
 
 Obio@referenceTableList[[labCatName]] <- Obio@parameterList$lab.categories.table
 
@@ -1274,7 +1365,7 @@ createSettingsFile(
         "contrast_X_logFC_Expressed_in_N_Percent_Cells",
        "contrast_A_logFC",
        "contrast_A_lg10p",
-        #"add_counts_",
+        "add_counts_",
         "norm_count",
         "add_counts_PCA_Dim"
     ),
