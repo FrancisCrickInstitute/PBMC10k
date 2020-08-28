@@ -78,12 +78,22 @@ db.pwd <- as.vector(dbTable[1,1])
 
 
 
-source(
-    paste0(
-        hpc.mount,
-        "Stefan/protocol_files/github/boeings/packages/packageSourceCode/SBwebtools.pckg.r"
-    )
-)
+# source(
+#     paste0(
+#         hpc.mount,
+#         "Stefan/protocol_files/github/boeings/packages/packageSourceCode/SBwebtools.pckg.r"
+#     )
+# )
+
+# source(
+#     paste0(
+#         hpc.mount,
+#         "Stefan/protocol_files/github/boeings/packages/scTools/scTools.r"
+#     )
+# )
+
+# source("assets/scTools.r")
+source("assets/SBwebtools.pckg.r")
 
 
 if (length(.libPaths()) > 2){

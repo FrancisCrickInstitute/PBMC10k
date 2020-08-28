@@ -100,19 +100,23 @@ if (dir.exists("/Volumes/babs/working/boeings/")){
     hpc.mount <- ""
 }
 
-source(
-    paste0(
-        hpc.mount,
-        "Stefan/protocol_files/github/boeings/packages/packageSourceCode/SBwebtools.pckg.r"
-    )
-)
+# source(
+#     paste0(
+#         hpc.mount,
+#         "Stefan/protocol_files/github/boeings/packages/packageSourceCode/SBwebtools.pckg.r"
+#     )
+# )
 
-source(
-    paste0(
-        hpc.mount,
-        "Stefan/protocol_files/github/boeings/packages/scTools/scTools.r"
-    )
-)
+# source(
+#     paste0(
+#         hpc.mount,
+#         "Stefan/protocol_files/github/boeings/packages/scTools/scTools.r"
+#     )
+# )
+
+source("assets/scTools.r")
+source("assets/SBwebtools.pckg.r")
+
 
 
 ####
