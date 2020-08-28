@@ -1,9 +1,12 @@
 ---
-title: "Setup Single-cell Project"
-author: "Stefan Boeing"
-lab: "Thienpont Lab"
-scientist: "Thienpont Lab"
+title: "QC for Project AGL315"
+subtitle: "Drug-treatment assessment"
+author: 
+  -Stefan Boeing^[The Francis Crick Institute, stefan.boeing@crick.ac.uk]
+lab: "Gould Lab"
+scientist: "Andrew Bailey"
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+
 
 output: 
     html_document:
@@ -48,12 +51,12 @@ knitr::opts_chunk$set(
 ```{r init, eval=T, echo=T}
 ###############################################################################
 ## Create biologic Object for visualization                                  ##
-singleCellClusterParameter <- 0.3
+singleCellClusterParameter <- 0.5
 NtopGenes <- 2000
-singleCellSeuratMtCutoff <- c(12.5)
+singleCellSeuratMtCutoff <- c(20)
 singleCellSeuratNpcs4PCA <- 30
 SeuratNrnaMaxFeatures <- 20000
-SeuratNrnaMinFeatures <- 100
+SeuratNrnaMinFeatures <- 500
 ## Done                                                                      ##
 ###############################################################################
 
@@ -115,252 +118,30 @@ library(DT)
 # type must be in c("TenX", "matrixFiles", "loomFiles", "hdf5Files")
 
 sampleDetailList <- list(
-#     "P2_middle" = list(
-#         "type" = "matrixFiles",
-#         "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P5_2_middle.txt",
-#         "singleCellClusterParameter" = singleCellClusterParameter,
-#         "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-#         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-#         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-#         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-#         "limsId"= "LAT293A6",
-#         "singleCellChemistry" = NULL,
-# 	    "singleCellCellrangerVersion" = NULL, 
-#         "machine" = NULL
-#     ),
-    "P2_edge" = list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P6_2_edge.txt",
+    "Ctrl" = list(
+        "type" = "TenX",
+        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190614_K00102_0353_BH7T3WBBXY/count/SC18275/BAI253A3/outs/filtered_feature_bc_matrix",
         "singleCellClusterParameter" = singleCellClusterParameter,
         "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
+        "limsId"= "BAI253A3",
         "singleCellChemistry" = NULL,
 	    "singleCellCellrangerVersion" = NULL, 
         "machine" = NULL
     ),
-    ## Just 114 cells ##
-#     "P2_core" = list(
-#         "type" = "matrixFiles",
-#         "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P4_2_core.txt",
-#         "singleCellClusterParameter" = singleCellClusterParameter,
-#         "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-#         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-#         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-#         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-#         "limsId"= "LAT293A6",
-#         "singleCellChemistry" = NULL,
-# 	    "singleCellCellrangerVersion" = NULL, 
-#         "machine" = NULL
-#     ),
-    "P2_normal" = list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P7_2_normal.txt",
+    "Prad" = list(
+        "type" = "TenX",
+        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190614_K00102_0353_BH7T3WBBXY/count/SC18275/BAI253A4/outs/filtered_feature_bc_matrix",
         "singleCellClusterParameter" = singleCellClusterParameter,
         "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
+        "limsId"= "BAI253A4",
         "singleCellChemistry" = NULL,
 	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),
-    "P1_core" = list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P1_1_core.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),
-    "P1_middle" =  list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P2_1_middle.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),  
-   "P1_edge" = list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P3_1_edge.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),   
-   "P3_edge" = list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P10_3_edge.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),   
-   "P3_middle" =  list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P9_3_middle.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),    
-    "P3_core" = list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P8_3_core.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),     
-   "P3_normal" = list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P11_3_normal.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),     
-    "P4_normal" = list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P15_4_normal.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),        
-    "P4_edge" =  list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P14_4_edge.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),      
-    "P4_middle" =  list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P13_4_middle.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),      
-    "P4_core" =  list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P12_4_core.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),        
-    "P5_core" = list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P16_5_core.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),        
-    "P5_edge" = list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P18_5_edge.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),        
-    "P5_middle" = list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P17_5_middle.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL,
-        "machine" = NULL
-    ),         
-     "P5_normal" =  list(
-        "type" = "matrixFiles",
-        "path" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/P19_5_normal.txt",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "LAT293A6",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL,
         "machine" = NULL
     )
 )
@@ -371,7 +152,7 @@ sampleDetailList <- list(
 ###############################################################################
 ## dbDetailList                                                              ##
 dbDetailList <- list(
-    "primDataDB" = "csl_data",
+    "primDataDB" = "agl_data",
     "ref.cat.db" = "reference_categories_db_new",
      "db.user" = "boeingS",
      "host" = "10.27.241.82"
@@ -382,15 +163,15 @@ dbDetailList <- list(
 ###############################################################################
 ## Project detail list                                                       ##
 projectDetailList <- list(
-    "folder" = "swantonc/dhruva.biswas/335A_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/",
+    "folder" = "goulda/andrew.bailey/315A_scRNASeq_Tumor_Disc_Development_single_cell_SC18275/",
     "sra.id.vector" = "",
     "gse.id.vector" = "",
-    "asf.id" = "",
+    "asf.id" = "SC18275",
     "experiment.type" = "sc_rna_seq",   
     "species" = "homo_sapiens", 
     "release" = "release-89", 
-    "project_id" = "EMTAB6653",
-    "labname" = "Thienpont",
+    "project_id" = "agl315A",
+    "labname" = "Gould",
     "timecourse.units" = "",
     "count.table.headline" = "lg10 Expr for all Samples",
     "count.table.sidelabel" = "lg10 Expr",
@@ -425,8 +206,14 @@ referenceTableList = list(
     "GO-BP" = "GO_Biological_Process_2017",
     "Immunologic Signatures" = "mysigdb_c7_immunologic_signatures",
     "LINCS Down" = "LINCS_L1000_Chem_Pert_down",
-    "LINCS Up" = "LINCS_L1000_Chem_Pert_up"
+    "LINCS Up" = "LINCS_L1000_Chem_Pert_up",
+    "Allen Brain Atlas" = "Allen_Brain_Atlas",
+    "Cell Type Signatures" = "mysigdb_sc_sig",
+    "Cell Type Signatures" = "cibersort_L22"
 )
+
+    # mysigdb_sc_sig
+    # cibersort_L22
     # Allen_Brain_Atlas                            |
     # CORUM                                        |
     # ChEA_2016                                    |
@@ -530,7 +317,7 @@ Obio = new(
     sampleDetailList = sampleDetailList, 
     referenceTableList = referenceTableList,
     parameterList = list(
-        "lab.categories.table" = "sc_lab_categories",
+        "lab.categories.table" = "ag_lab_categories", # default NULL
         "folder" = projectDetailList$folder,
         "sra.id.vector" = "",
         "gse.id.vector" = "",
@@ -538,10 +325,10 @@ Obio = new(
         "asf.id" = "",
         "machine" = NULL,
         "experiment.type" = "sc_rna_seq",   
-        "species" = "homo_sapiens", 
+        "species" = projectDetailList$species, 
         "release" = "release-89", 
-        "project_id" = "EMTAB6653",
-        "labname" = "Thienpont",
+        "project_id" = projectDetailList$project_id,
+        "labname" = projectDetailList$labname,
         "db.user" = "boeingS",
         "host" = "10.27.241.82",
         "timecourse.units" = "",
@@ -566,12 +353,12 @@ Obio = new(
         "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
         "scIntegrationMethod" = "SCT", # "SCT" or "standard"
-        "scNintegrationFeatures" = 3000,
-        "SeuratNrnaMaxFeatures" = 20000,
-        "SeuratNrnaMinFeatures" = 500,
+        "scNintegrationFeatures" = scDetailList$scNintegrationFeatures,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
         "primReduction" = "umap",
         "qcReports" = list(),
-        "catRefFile" = "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335A_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/csl335A.AUC.cat.reference.table.txt",
+        "catRefFile" = "/camp/stp/babs/working/boeings/Projects/goulda/andrew.bailey/315A_scRNASeq_Tumor_Disc_Development_single_cell_SC18275/basedata/agl315.AUC.cat.reference.table.txt",
         referenceTableList = referenceTableList
     )
 )
@@ -984,4 +771,4 @@ print("R bioLOGIC single cell object initialized.")
 ## Documentation
 ```{r documentation, eval=TRUE, echo=T, results=T}
 sessionInfo()
-```                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+```
