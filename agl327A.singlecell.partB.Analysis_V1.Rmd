@@ -139,14 +139,14 @@ ObioFN <- paste0("../", list.files("..")[grep(".bioLOGIC.Robj", list.files("..")
 
 load(ObioFN)
 
-checkFile = paste0(
-         Obio@parameterList$project_id,
-         ".bioLOGIC.Robj"
-)
-
-if (ObioFN != checkFile){
-    exit()
-}
+# checkFile = paste0(
+#          Obio@parameterList$project_id,
+#          ".bioLOGIC.Robj"
+# )
+# 
+# if (ObioFN != checkFile){
+#     exit()
+# }
 
 
 Obio <- setMountingPoint(Obio)

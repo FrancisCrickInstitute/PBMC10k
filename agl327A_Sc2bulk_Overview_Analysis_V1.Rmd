@@ -1,0 +1,259 @@
+---
+title: "sc2bulk Overview Analysis"
+author: "Stefan Boeing"
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+
+output: 
+    html_document:
+        code_folding: hide
+        df_print: tibble
+        toc: true
+        toc_depth: 3
+        toc_float: true
+        css:
+
+always_allow_html: yes
+
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    tidy = TRUE,
+    tidy.opts = list(width.cutoff = 120),
+    message = FALSE,
+    warning = FALSE
+)
+```
+
+
+## Part B Database
+
+
+```{r hpc_notes, include=FALSE}
+
+# module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;R;
+
+## Get interactive session ##
+#  srun --time=08:00:00 --mem=40G -p int --pty bash
+
+# module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;R;
+
+# sbatch --time=12:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runD.r" --job-name="rD" -p hmem --mem=300G -o rD.slurm >> commands.txt
+
+# --mem-per-cpu=14G -p hmem --pty bash
+
+```
+
+
+```{r populate_meta_data_database, eval=TRUE, echo=F, results=F}
+###############################################################################
+## Load single-cell project, transform into bulk project and process         ##
+
+##                                                                           ##
+###############################################################################
+
+
+###############################################################################
+## Initiate Analysis                                                         ##
+
+library(tidyverse)
+library(Seurat)
+
+VersionPdfExt <- paste0(".V", gsub("-", "", Sys.Date()), ".pdf")
+
+if (dir.exists("/Volumes/babs/working/boeings/")){
+    hpc.mount <- "/Volumes/babs/working/boeings/"
+} else if (dir.exists("Y:/working/boeings/")){
+    hpc.mount <- "Y:/working/boeings/"
+} else if (dir.exists("/camp/stp/babs/working/boeings/")){
+    hpc.mount <- "/camp/stp/babs/working/boeings/"
+} else {
+    hpc.mount <- ""
+}
+
+#Create the environment and load a suitable version of R, e.g. so:
+FN <- paste0(hpc.mount, "Projects/reference_data/documentation/BC.parameters.txt")
+dbTable <- read.delim(
+    FN, 
+    sep = "\t",
+    stringsAsFactors = F
+)
+
+db.pwd <- as.vector(dbTable[1,1])
+
+##                                                                           ##
+###############################################################################
+
+
+
+# source("assets/scTools.r")
+source("assets/SBwebtools.pckg.r")
+
+
+if (length(.libPaths()) > 2){
+    .libPaths(.libPaths()[2:3])
+}
+
+ObioFN <- paste0("../", list.files("..")[grep(".bioLOGIC.Robj", list.files(".."))])
+
+if (file.exists(ObioFN)){
+    load(paste0(ObioFN))
+    print(paste0("Obio object ", Obio@parameterList$localWorkDir, ObioFN, " exists and is loaded."))
+} else {
+    exit()
+}
+
+## Reset paths to local environment
+Obio <- setMountingPoint(Obio)
+Obio <- setAnalysisPaths(Obio)
+Obio <- setCrickGenomeAndGeneNameTable(Obio)
+Obio <- createAnalysisFolders(
+    Obio,
+    baseDir="/camp/stp/babs/working/boeings/Projects/",
+    localBaseDir = paste0(hpc.mount, "Projects/")
+)
+Obio <- setDataBaseParameters(Obio)
+
+##                                                                           ##
+###############################################################################
+
+###############################################################################
+## Load R-Object                                                             ##
+
+SeuratFN <- paste0(Obio@parameterList$localWorkDir,list.files(Obio@parameterList$localWorkDir)[grep(".Seurat.Robj", list.files(Obio@parameterList$localWorkDir))])
+
+
+if (file.exists(SeuratFN)){
+    load(SeuratFN)
+    print(paste0("Obio object ", Obio@parameterList$localWorkDir,SeuratFN, " exists and is loaded."))
+    
+} else {
+    exit()
+}
+
+
+if (Obio@parameterList$scIntegrationMethod == "SCT"){
+    resultSlot = "SCT"
+} else {
+    resultSlot = "RNA"
+}
+
+##                                                                           ##
+###############################################################################
+```
+
+```{r create read-count matrix, eval=TRUE, echo=T, results=F}
+
+###############################################################################
+## Create split identity                                                     ##
+
+OsC@meta.data[["bulk_samples"]] <- ""
+
+## naming convention [dataseries]_[sampleGroup]_[replicate] ##
+
+OsC@meta.data[["bulk_samples"]] <- paste0(
+    OsC@meta.data$sampleID,
+    "_C",
+    OsC@meta.data$seurat_clusters
+)
+
+sampleVec <- unique(OsC@meta.data$bulk_samples)
+
+
+###############################################################################
+## Create replicates
+Nreplicates <- 3
+
+for (i in 1:length(sampleVec)){
+    repVec <- as.vector(
+        OsC@meta.data[OsC@meta.data$bulk_samples == sampleVec[i], "bulk_samples"]
+    )
+    Nrep <- ceiling(length(repVec)/Nreplicates)
+    addVec <- as.vector(NULL, mode = "character")
+    for (k in 1:Nreplicates){
+        addVec <- paste0("_", rep(k, Nrep))
+    }
+    addVec <- addVec[1:length(repVec)]
+    
+    OsC@meta.data[OsC@meta.data$bulk_samples == sampleVec[i], "bulk_samples"] <- paste0(OsC@meta.data[OsC@meta.data$bulk_samples == sampleVec[i], "bulk_samples"], addVec)
+    
+    
+}
+
+## Done creating replicates                                                  ##
+###############################################################################
+
+Idents(OsC) <- "bulk_samples"
+
+cluster.averages <- AverageExpression(
+    OsC, 
+    return.seurat = T,
+    slot = "counts",
+    assays = "RNA"
+)
+
+dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@counts)
+dfAvgExpr <- data.frame(apply(dfAvgExpr, 2, ceiling))
+
+selVec <- c(
+    "X",
+    names(dfAvgExpr)
+)
+
+sampleVec <- names(dfAvgExpr)
+
+dfAvgExpr[["X"]] <- row.names(dfAvgExpr)
+dfAvgExpr <- dfAvgExpr[,selVec]
+
+## Change gene names > ENSG/ENSMUSG ##
+dfAnno <- unique(Obio@dfGeneAnnotation[,c(Obio@parameterList$primaryAlignmentGeneID, Obio@parameterList$geneIDcolumn)])
+
+dfAnno <- dfAnno[dfAnno[,Obio@parameterList$geneIDcolumn] %in% dfAvgExpr[,"X"] ,]
+dfAnno <- dfAnno[!duplicated(dfAnno[,Obio@parameterList$geneIDcolumn]),]
+
+dfAvgExpr <- merge(
+    dfAvgExpr, 
+    dfAnno, 
+    by.x = "X",
+    by.y = Obio@parameterList$geneIDcolumn
+)
+
+dfAvgExpr[["X"]] <- dfAvgExpr[,Obio@parameterList$primaryAlignmentGeneID]
+dfAvgExpr[,Obio@parameterList$primaryAlignmentGeneID] <- NULL
+
+## replace gene names with ENSG/ENSMUSG ##
+
+RSEMdir <- paste0(
+    Obio@parameterList$workdir,
+    "RSEM/"
+)
+
+if (!dir.exists(RSEMdir)){
+    dir.create(RSEMdir)
+}
+
+
+Obio@parameterList$RSEMcountDataFile <- paste0(
+    RSEMdir,
+    Obio@parameterList$project_id,
+    ".count.data.txt"
+)
+
+write.table(
+    dfAvgExpr,
+    Obio@parameterList$RSEMcountDataFile,
+    sep = "\t"
+)
+
+##                                                                           ##
+###############################################################################
+
+```
+
+```{r create design_file, eval=TRUE, echo=T, results=F}
+
+dfDesign <- data.frame(sample.id = sampleVec)
+dfDesign <- completeDesignBasedOnSampleID(dfDesign)
+
+```
