@@ -100,7 +100,7 @@ if (length(.libPaths()) > 2){
     .libPaths(.libPaths()[2:3])
 }
 
-ObioFN <- list.files()[grep(".bioLOGIC.Robj", list.files())]
+ObioFN <- paste0("../", list.files("..")[grep(".bioLOGIC.Robj", list.files(".."))])
 
 if (file.exists(ObioFN)){
     load(paste0(ObioFN))
@@ -120,15 +120,16 @@ Obio <- createAnalysisFolders(
 )
 Obio <- setDataBaseParameters(Obio)
 
-Obio@parameterList$primDataDB <- "csl_data"
+
 
 ## Load Seurat object
-SeuratFN <- list.files()[grep(".Seurat.Robj", list.files(Obio@parameterList$localWorkDir))]
-load(SeuratFN)
+SeuratFN <- paste0(Obio@parameterList$localWorkDir,list.files(Obio@parameterList$localWorkDir)[grep(".Seurat.Robj", list.files(Obio@parameterList$localWorkDir))])
 
-if (file.exists(paste0(Obio@parameterList$localWorkDir,SeuratFN))){
+
+if (file.exists(SeuratFN)){
+    load(SeuratFN)
     print(paste0("Obio object ", Obio@parameterList$localWorkDir,SeuratFN, " exists and is loaded."))
-    load(paste0(Obio@parameterList$localWorkDir, SeuratFN))
+    
 } else {
     exit()
 }
@@ -141,21 +142,21 @@ if (Obio@parameterList$scIntegrationMethod == "SCT"){
 }
 
 ## External database credentials ##
-#Obio@parameterList$host <- "10.27.241.82"
-#Obio@parameterList$db.user <- "boeingS"
+#Obio@dbDetailList$host <- "10.27.241.82"
+#Obio@dbDetailList$db.user <- "boeingS"
 
 ## Internal database credentials ##
-#Obio@parameterList$host <- "10.27.241.234"
-#Obio@parameterList$db.user <- "boeingS"
+#Obio@dbDetailList$host <- "10.27.241.234"
+#Obio@dbDetailList$db.user <- "boeingS"
 
 ## External database credentials ##
-# Obio@parameterList$host <- "www.biologic-db.org"
-# Obio@parameterList$db.user <- "boeings"
+# Obio@dbDetailList$host <- "www.biologic-db.org"
+# Obio@dbDetailList$db.user <- "boeings"
 # db.pwd <- "5+3f4nB04042018"
 
 ## Upload metadata table > p315_PCA
-# Obio@parameterList$host <- "10.152.22.193"
-# Obio@parameterList$db.user <- "boeingS"
+# Obio@dbDetailList$host <- "10.152.22.193"
+# Obio@dbDetailList$db.user <- "boeingS"
 # db.pwd <- "5+3f4nB04042018"
 
 
@@ -301,10 +302,10 @@ if (length(grep("DF_Classification", names(dfdbTable)) > 0)){
 
 
 upload.datatable.to.database(
-    host = Obio@parameterList$host,
-    user = Obio@parameterList$db.user,
+    host = Obio@dbDetailList$host,
+    user = Obio@dbDetailList$db.user,
     password = db.pwd,
-    prim.data.db = Obio@parameterList$primDataDB,
+    prim.data.db = Obio@dbDetailList$primDataDB,
     dbTableName = Obio@parameterList$PCAdbTableName,
     df.data = dfdbTable,
     db.col.parameter.list = list(
@@ -368,10 +369,10 @@ dfIDTable <- dfIDTable[order(dfIDTable$gene, decreasing = F), ]
 dfIDTable[["gene_id"]] <- 1:nrow(dfIDTable)
 
 upload.datatable.to.database(
-    host = Obio@parameterList$host,
-    user = Obio@parameterList$db.user,
+    host = Obio@dbDetailList$host,
+    user = Obio@dbDetailList$db.user,
     password = db.pwd,
-    prim.data.db = Obio@parameterList$primDataDB,
+    prim.data.db = Obio@dbDetailList$primDataDB,
     dbTableName = paste0(Obio@parameterList$project_id, "_geneID_tb"),
     df.data = dfIDTable,
     db.col.parameter.list = list(
@@ -449,12 +450,20 @@ doQuery <- function(
     library(RMySQL)
 dbDB <- dbConnect(
     drv = RMySQL::MySQL(), 
-    user = Obio@parameterList$db.user, 
+    user = Obio@dbDetailList$db.user, 
     password = db.pwd, 
-    host = Obio@parameterList$host,
-    dbname = Obio@parameterList$primDataDB
+    host = Obio@dbDetailList$host,
+    dbname = Obio@dbDetailList$primDataDB
 ) 
-dbGetQuery(dbDB, query)
+
+tryCatch(dbGetQuery(dbDB, query), error = function(c) {
+    c$message <- paste0("Error in ", query, ".")
+  })
+
+
+
+
+
 dbDisconnect(dbDB)
 
 }
@@ -521,7 +530,7 @@ query <- c(query, query5)
 # 
 
 ## check if shiny dir exists and get user name and password from there if it does
-if (Obio@parameterList$host == "10.27.241.234"){
+if (Obio@dbDetailList$host == "10.27.241.234"){
     shinyBasePath <- "/camp/stp/babs/www/shiny/boeings/"
     FvDir <- paste0("/camp/stp/babs/www/boeings/bioLOGIC/data/", Obio@parameterList$project_id)
 
@@ -530,15 +539,24 @@ if (Obio@parameterList$host == "10.27.241.234"){
     FvDir <- paste0("/camp/stp/babs/www/boeings/bioLOGIC_external/data/", Obio@parameterList$project_id)
 
 }
-shinyProjectPath <-paste0(shinyBasePath, Obio@parameterList$project_id,"_app")
-shinyDataPath <-paste0(shinyProjectPath, "/connect/")
+
+shinyProjectPath <-paste0(
+    shinyBasePath, 
+    Obio@parameterList$project_id, "_app"
+)
+
 if (!dir.exists(shinyProjectPath)){
     dir.create(shinyProjectPath)
 }
 
+shinyDataPath <-paste0(shinyProjectPath, "/connect/")
+if (!dir.exists(shinyDataPath)){
+    dir.create(shinyDataPath)
+}
+
 shinyParamPath <-paste0(shinyProjectPath, "/parameters/")
-if (!dir.exists(shinyProjectPath)){
-    dir.create(shinyProjectPath)
+if (!dir.exists(shinyParamPath)){
+    dir.create(shinyParamPath)
 }
 
 aFN <- paste0(shinyDataPath, "db.txt")
@@ -578,28 +596,28 @@ if (file.exists(aFN)){
 }
 
 query7 <- paste0(
-    "GRANT SELECT on ", Obio@parameterList$primDataDB,".",Obio@parameterList$PCAdbTableName, " TO ",sUser,"@'shiny-bioinformatics.crick.ac.uk';"
+    "GRANT SELECT on ", Obio@dbDetailList$primDataDB,".",Obio@parameterList$PCAdbTableName, " TO ",sUser,"@'shiny-bioinformatics.crick.ac.uk';"
 )
 
 doQuery(Obio, query = query7)
 query <- c(query, query7)
 
 query7a <- paste0(
-    "GRANT SELECT on ", Obio@parameterList$primDataDB,".",Obio@parameterList$PCAdbTableName, " TO ",sUser,"@'10.%';"
+    "GRANT SELECT on ", Obio@dbDetailList$primDataDB,".",Obio@parameterList$PCAdbTableName, " TO ",sUser,"@'10.%';"
 )
 
 doQuery(Obio, query = query7a)
 query <- c(query, query7a)
 
 query8 <- paste0(
-    "GRANT SELECT on ", Obio@parameterList$primDataDB,".",expDbTable, " TO ",sUser,"@'shiny-bioinformatics.crick.ac.uk';"
+    "GRANT SELECT on ", Obio@dbDetailList$primDataDB,".",expDbTable, " TO ",sUser,"@'shiny-bioinformatics.crick.ac.uk';"
 )
 
 doQuery(Obio, query = query8)
 query <- c(query, query8)
 
 query8a <- paste0(
-    "GRANT SELECT on ", Obio@parameterList$primDataDB,".",expDbTable, " TO ",sUser,"@'10.%';"
+    "GRANT SELECT on ", Obio@dbDetailList$primDataDB,".",expDbTable, " TO ",sUser,"@'10.%';"
 )
 
 doQuery(Obio, query = query8a)
@@ -607,7 +625,7 @@ query <- c(query, query8a)
 
 geneTb <- paste0(Obio@parameterList$project_id, "_geneID_tb")
 query9 <- paste0(
-    "GRANT SELECT on ", Obio@parameterList$primDataDB,".",geneTb, " TO ",sUser,"@'shiny-bioinformatics.crick.ac.uk';"
+    "GRANT SELECT on ", Obio@dbDetailList$primDataDB,".",geneTb, " TO ",sUser,"@'shiny-bioinformatics.crick.ac.uk';"
 )
 
 doQuery(Obio, query = query9)
@@ -615,7 +633,7 @@ query <- c(query, query9)
 
 geneTb <- paste0(Obio@parameterList$project_id, "_geneID_tb")
 query9a <- paste0(
-    "GRANT SELECT on ", Obio@parameterList$primDataDB,".",geneTb, " TO ",sUser,"@'10.%';"
+    "GRANT SELECT on ", Obio@dbDetailList$primDataDB,".",geneTb, " TO ",sUser,"@'10.%';"
 )
 
 doQuery(Obio, query = query9a)
@@ -632,19 +650,28 @@ query <- c(query, query9a)
 
 
 ## Create log-in file ##
-url <- Obio@parameterList$host
+url <- Obio@dbDetailList$host
 id <- sUser
 id2 <- sPwd
-db <- Obio@parameterList$primDataDB
+db <- Obio@dbDetailList$primDataDB
 coordTb <- Obio@parameterList$PCAdbTableName
 exprTb <- paste0(Obio@parameterList$project_id, "_gene_expr_tb")
 geneTb <- paste0(Obio@parameterList$project_id, "_geneID_tb")
 
 dfPercCellsExpr <- Obio@dataTableList$dfPercCellsExpr
-dfPercCellsExpr <- dfPercCellsExpr[dfPercCellsExpr$gene %in% Obio@dataTableList$referenceList$top100var, ]
+dfPercCellsExpr <- dfPercCellsExpr[dfPercCellsExpr$gene %in% Obio@dataTableList$referenceList$integrated_top30var, ]
 dfPercCellsExpr <- dfPercCellsExpr[order(dfPercCellsExpr$count_cut_off, decreasing = T),]
 
 default <- as.vector(dfPercCellsExpr[1,"gene"])
+
+if (is.na(default)){
+  if (Obio@parameterList$geneIDcolumn == "mgi_symbol"){
+    default = GAPDH  
+  } else {
+    default = Gapdh
+  }
+  
+}
 
 dfID <- data.frame(
     url,
@@ -721,9 +748,6 @@ cat('<body>');cat("\n");
 cat(paste0('<iframe src="https://shiny-bioinformatics.crick.ac.uk/shiny/boeings/',Obio@parameterList$project_id,'_app/" title="',Obio@parameterList$labname, ' Lab"></iframe>'));cat("\n");
 cat('</body>');cat("\n");
 cat('</html>');cat("\n");
-
-        
-
 sink()
 
 ## Feature View Created ##
@@ -1022,9 +1046,9 @@ if (length(unique(OsC@meta.data$sampleID)) > 1){
 dfAddCounts <- import.db.table.from.db(
     dbtable = "agl298_rna_seq_table",
     dbname = "agl_data",
-    user = Obio@parameterList$db.user,
+    user = Obio@dbDetailList$db.user,
     password = db.pwd,
-    host = Obio@parameterList$host
+    host = Obio@dbDetailList$host
 )
 # # 
 selVec <- c(
@@ -1249,10 +1273,10 @@ Obio@databaseTable$Gene_description <- NULL
 
 
 cmd.vec <- upload.datatable.to.database(
-    host = Obio@parameterList$host, 
-    user = Obio@parameterList$db.user,
+    host = Obio@dbDetailList$host, 
+    user = Obio@dbDetailList$db.user,
     password = db.pwd,
-    prim.data.db = Obio@parameterList$primDataDB,
+    prim.data.db = Obio@dbDetailList$primDataDB,
     dbTableName = Obio@parameterList$rnaseqdbTableName,
     df.data = Obio@databaseTable, #[Obio@databaseTable$count_cut_off > 1, ],
     db.col.parameter.list = list(
@@ -1306,9 +1330,9 @@ for (i in 1:length(Obio@referenceTableList)) {
     df.ref <- import.db.table.from.db(
         dbname = Obio@parameterList$ref.cat.db,
         dbtable = Obio@referenceTableList[[i]],
-        user = Obio@parameterList$db.user,
+        user = Obio@dbDetailList$db.user,
         password = db.pwd,
-        host = Obio@parameterList$host
+        host = Obio@dbDetailList$host
     )
     
     ## Remove temp categories ##
@@ -1370,10 +1394,10 @@ dim(df.db.table)
 ## Lab categories ##
 df.ref <- import.db.table.from.db(
     dbname = Obio@parameterList$ref.cat.db,
-    user = Obio@parameterList$db.user,
+    user = Obio@dbDetailList$db.user,
     dbtable = Obio@parameterList$lab.categories.table,
     password = db.pwd,
-    host = Obio@parameterList$host
+    host = Obio@dbDetailList$host
 )
 
 ## Remove all project temp categories from df.ref
@@ -1397,13 +1421,13 @@ if (exists("df.ref") & nrow(df.ref) > 0){
 ###############################################################################
 ## Upload to database                                                        ##
 ###############################################################################
-Obio@parameterList$cat.ref.db <- Obio@parameterList$primDataDB
+
 
 upload.datatable.to.database(
-    host = Obio@parameterList$host, 
-    user = Obio@parameterList$db.user,
+    host = Obio@dbDetailList$host, 
+    user = Obio@dbDetailList$db.user,
     password = db.pwd,
-    prim.data.db = Obio@parameterList$cat.ref.db,
+    prim.data.db =  Obio@dbDetailList$primDataDB,
     dbTableName = Obio@parameterList$cat.ref.db.table,
     df.data = df.db.table,
     db.col.parameter.list = list(

@@ -140,7 +140,7 @@ setGeneric(
     name="setDataBaseParameters",
     def=function(obj){
         ## Primary data table
-        #obj@parameterList$primDataDB <- paste0(
+        #obj@dbDetailList$primDataDB <- paste0(
         #    substr(obj@parameterList$project_id, 1,3),
         #    "_data"
         #)
@@ -170,7 +170,7 @@ setGeneric(
             "_cat_reference_db_table"
         )
         
-        obj@parameterList$cat.ref.db <- obj@parameterList$primDataDB
+        obj@parameterList$cat.ref.db <- obj@dbDetailList$primDataDB
         
         obj@parameterList$enriched.categories.dbTableName <- paste0(
             obj@parameterList$project_id,
@@ -7531,7 +7531,7 @@ createSettingsFile <- function(
         "    /*",
         "    * Experiment settings",
         "    */",
-        paste0("    'data_db_name' => '",obj@parameterList$primDataDB,"',"),
+        paste0("    'data_db_name' => '",obj@dbDetailList$primDataDB,"',"),
         "    'data_db' => array(",
         paste0("            'cat_table_name' => '",obj@parameterList$cat.ref.db.table,"'"),
         "    ),",

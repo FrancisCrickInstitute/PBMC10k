@@ -1,5 +1,5 @@
 ---
-title: "QC for Project AGL315"
+title: "QC for Project AGL327A"
 subtitle: "Drug-treatment assessment"
 author: 
   -Stefan Boeing^[The Francis Crick Institute, stefan.boeing@crick.ac.uk]
@@ -23,6 +23,8 @@ always_allow_html: yes
 
 
 ```{r setup, include=FALSE}
+
+rm(list = ls())
 knitr::opts_chunk$set(
     #fig.path = "path/to/figures/",
     tidy = FALSE,
@@ -51,12 +53,12 @@ knitr::opts_chunk$set(
 ```{r init, eval=T, echo=T}
 ###############################################################################
 ## Create biologic Object for visualization                                  ##
-singleCellClusterParameter <- 0.5
+singleCellClusterParameter <- 0.3
 NtopGenes <- 2000
 singleCellSeuratMtCutoff <- c(20)
 singleCellSeuratNpcs4PCA <- 30
-SeuratNrnaMaxFeatures <- 20000
-SeuratNrnaMinFeatures <- 500
+SeuratNrnaMaxFeatures <- 10000
+SeuratNrnaMinFeatures <- 200
 ## Done                                                                      ##
 ###############################################################################
 
@@ -122,28 +124,81 @@ library(DT)
 # type must be in c("TenX", "matrixFiles", "loomFiles", "hdf5Files")
 
 sampleDetailList <- list(
-    "Ctrl" = list(
+    "NormCon" = list(
         "type" = "TenX",
-        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190614_K00102_0353_BH7T3WBBXY/count/SC18275/BAI253A3/outs/filtered_feature_bc_matrix",
+        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190906_K00102_0390_AHCL5KBBXY/count/SC18275/BAI253A5/outs/filtered_feature_bc_matrix",
         "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratMtCutoff" = 20,
         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "BAI253A3",
+        "limsId"= "BAI253A5",
         "singleCellChemistry" = NULL,
 	    "singleCellCellrangerVersion" = NULL, 
         "machine" = NULL
     ),
-    "Prad" = list(
+    "HypCon" = list(
         "type" = "TenX",
-        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190614_K00102_0353_BH7T3WBBXY/count/SC18275/BAI253A4/outs/filtered_feature_bc_matrix",
+        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190906_K00102_0390_AHCL5KBBXY/count/SC18275/BAI253A6/outs/filtered_feature_bc_matrix",
         "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratMtCutoff" = 20,
         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "BAI253A4",
+        "limsId"= "BAI253A6",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),
+    
+    "NormPrad" = list(
+        "type" = "TenX",
+        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190906_K00102_0390_AHCL5KBBXY/count/SC18275/BAI253A7/outs/filtered_feature_bc_matrix",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = 20,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "BAI253A7",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),
+    "HypPrad" = list(
+        "type" = "TenX",
+        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190906_K00102_0390_AHCL5KBBXY/count/SC18275/BAI253A8/outs/filtered_feature_bc_matrix",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = 20,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "BAI253A8",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),
+    "NormAZ" = list(
+        "type" = "TenX",
+        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190906_K00102_0390_AHCL5KBBXY/count/SC18275/BAI253A9/outs/filtered_feature_bc_matrix",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = 10,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "BAI253A9",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),
+    "HypAZ" = list(
+        "type" = "TenX",
+        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190906_K00102_0390_AHCL5KBBXY/count/SC18275/BAI253A10/outs/filtered_feature_bc_matrix",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = 10,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "BAI253A10",
         "singleCellChemistry" = NULL,
 	    "singleCellCellrangerVersion" = NULL, 
         "machine" = NULL
@@ -167,14 +222,14 @@ dbDetailList <- list(
 ###############################################################################
 ## Project detail list                                                       ##
 projectDetailList <- list(
-    "folder" = "goulda/andrew.bailey/315A_scRNASeq_Tumor_Disc_Development_single_cell_SC18275/",
+    "folder" = "goulda/andrew.bailey/327A_scRNASeq_Tumor_Disc_Development_cell_lines__part_B_SC18275/",
     "sra.id.vector" = "",
     "gse.id.vector" = "",
     "asf.id" = "SC18275",
     "experiment.type" = "sc_rna_seq",   
     "species" = "homo_sapiens", 
     "release" = "release-89", 
-    "project_id" = "agl315A",
+    "project_id" = "agl327A",
     "labname" = "Gould",
     "timecourse.units" = "",
     "count.table.headline" = "lg10 Expr for all Samples",
@@ -354,7 +409,7 @@ Obio = new(
         "singleCellTranscriptome"="GRCh38",
 	    "singleCellChemistry" = NULL,
 	    "singleCellCellrangerVersion" = NULL, 
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratMtCutoff" = c(20,20,20,20,10,10),
         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
         "scIntegrationMethod" = "SCT", # "SCT" or "standard"
         "scNintegrationFeatures" = scDetailList$scNintegrationFeatures,

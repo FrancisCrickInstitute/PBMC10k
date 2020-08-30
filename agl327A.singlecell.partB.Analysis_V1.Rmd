@@ -135,18 +135,18 @@ if (length(.libPaths()) > 2){
     .libPaths(.libPaths()[2:3])
 }
 
-ObioFN <- list.files()[grep(".bioLOGIC.Robj", list.files())]
+ObioFN <- paste0("../", list.files("..")[grep(".bioLOGIC.Robj", list.files(".."))])
 
 load(ObioFN)
 
-checkFile = paste0(
-         Obio@parameterList$project_id,
-         ".bioLOGIC.Robj"
-)
-
-if (ObioFN != checkFile){
-    exit()
-}
+# checkFile = paste0(
+#          Obio@parameterList$project_id,
+#          ".bioLOGIC.Robj"
+# )
+# 
+# if (ObioFN != checkFile){
+#     exit()
+# }
 
 
 Obio <- setMountingPoint(Obio)
