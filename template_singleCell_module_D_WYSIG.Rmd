@@ -209,7 +209,22 @@ if (Obio@parameterList$scIntegrationMethod == "SCT"){
 # ## Done extra annotation                                                     ##
 # ###############################################################################
 
+###############################################################################
+## Add additonal split                                                       ##
+# "NormCon"  "HypCon"   "NormPrad" "HypPrad"  "NormAZ"   "HypAZ"
 
+OsC@meta.data[["Norm_Hyp"]] <- ""
+OsC@meta.data[grep("Norm", OsC@meta.data$sampleID), "Norm_Hyp"] <- "Norm"
+OsC@meta.data[grep("Hyp", OsC@meta.data$sampleID), "Norm_Hyp"] <- "Hyp"
+
+OsC@meta.data[["Con_Prad_AZ"]] <- ""
+OsC@meta.data[grep("Con", OsC@meta.data$sampleID), "Con_Prad_AZ"] <- "Con"
+OsC@meta.data[grep("Prad", OsC@meta.data$sampleID), "Con_Prad_AZ"] <- "Prad"
+OsC@meta.data[grep("AZ", OsC@meta.data$sampleID), "Con_Prad_AZ"] <- "AZ"
+
+
+## Done adding additonal split                                               ##
+###############################################################################
 
 
 dfdbTable <- OsC@meta.data
@@ -309,7 +324,7 @@ upload.datatable.to.database(
     dbTableName = Obio@parameterList$PCAdbTableName,
     df.data = dfdbTable,
     db.col.parameter.list = list(
-        "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("cellType","cellIdent","sample_","cellID","orig_ident","old_ident","clustIdent", "hmIdent","sampleID", "CellFromTumor", "Patient", "Region",  "Article_Cell_Type", "Gender"),
+        "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("cellType","cellIdent","sample_","cellID","orig_ident","old_ident","clustIdent", "hmIdent","sampleID", "CellFromTumor", "Patient", "Region",  "Article_Cell_Type", "Gender","Norm_Hyp", "Con_Prad_AZ"),
        "VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("all","included","Phase", gsub("[.]", "_", Obio@parameterList$singleCellClusterString), "seurat_clusters"),
         "BIGINT(8) NULL DEFAULT NULL" = c("row_names"),
         "INT(8) NULL DEFAULT NULL" = c("nCount_", "nFeature_","DF_Classification"),
