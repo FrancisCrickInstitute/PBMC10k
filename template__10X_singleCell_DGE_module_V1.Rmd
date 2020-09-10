@@ -77,7 +77,7 @@ if (length(.libPaths()) > 2){
 }
 ## Create biologic Object for visualization ##
 
-ObioFN <- list.files()[grep(".bioLOGIC.Robj", list.files())]
+ObioFN <- paste0("../", list.files("..")[grep(".bioLOGIC.Robj", list.files(".."))])
 
 load(ObioFN)
 
@@ -110,7 +110,12 @@ load(paste0(
 )
 )
 
+OsC@meta.data[["WT_IDH"]] <- ""
+OsC@meta.data[grep("WT", OsC@meta.data$sampleID), "WT_IDH"] <- "WT"
+OsC@meta.data[grep("IDH", OsC@meta.data$sampleID), "WT_IDH"] <- "IDH"
 
+OsC@meta.data[["Gender"]] <- "Male"
+OsC@meta.data[OsC@meta.data$sampleID %in% c("WT2", "WT4"), "Gender"] <- "Female"
 # Non-proliferating Glia - Cluster (2, 4, 5)
 # Proliferating Glia - Cluster (1, 6, 8)
 # Early and late Progenitors - Cluster (0, 9)
@@ -118,8 +123,8 @@ load(paste0(
 # Remaining neurons from dissociation (but not happy cells) - Cluster 10
 # Unknowns and/or not happy cells?- Cluster 3
 dfTemp <- import.db.table.from.db(
-    dbtable= "asl319_PCA",   
-    dbname= "asl_data",   
+    dbtable= "agl372A_PCA",   
+    dbname= "agl_data",   
     user= "boeingS",     
     password= db.pwd, 
     host= Obio@parameterList$host
@@ -161,6 +166,7 @@ for (i in 1:length(DGEsampleList)){
 
 dfMeta <- obj@meta.data
 dfMeta <- dfMeta[dfMeta[,colName] != "",]
+dfMeta$cellID <- row.names(dfMeta)
 
 
 cellVec <- dfMeta$cellID
@@ -245,16 +251,16 @@ DGEtagVec <- as.vector(NULL, mode = "character")
 ###############################################################################
 ## First 
 
-colName <- "M1_vs_M2"
+colName <- "WT_vs_IDH"
 
 resList <- doDGEsc(
     obj = OsC,
-    DGEselCol = "sub_clusters_ExNeurons",
+    DGEselCol = "WT_IDH",
     colName = colName,
     contrastTag = "contrast_1_",
     DGEsampleList = list(
-      "M1" = c(5),
-      "M2" = c(1)
+      "WT" = c("WT"),
+      "IDH" = c("IDH")
     )
 )
 
@@ -277,16 +283,16 @@ DGEtagVec <- c(
 ###############################################################################
 ## Second                                                                    ##
 
-colName <- "M1_vs_M3"
+colName <- "Male_vs_Female"
 
 resList <- doDGEsc(
     obj = OsC,
-    DGEselCol = "sub_clusters_ExNeurons",
+    DGEselCol = "Gender",
     colName = colName,
     contrastTag = "contrast_2_",
     DGEsampleList = list(
-    "M1" = c(5),
-    "M3" = c(7)
+    "Male" = "Male",
+    "Female" = "Female"
   )
 )
 
@@ -307,16 +313,20 @@ DGEtagVec <- c(
 
 ###############################################################################
 ## Third                                                                     ##
-colName <- "M2_vs_M3"
+colName <- "WT_PC1_neg_vs_WT_PC1_pos"
+
+OsC@meta.data[["WT_PC1"]] <- ""
+OsC@meta.data[OsC@meta.data$WT_IDH == "WT" & OsC@meta.data$PC_1 > 0, "WT_PC1"] <- "WT_PC1_pos"
+OsC@meta.data[OsC@meta.data$WT_IDH == "WT" & OsC@meta.data$PC_1 < 0, "WT_PC1"] <- "WT_PC1_neg"
 
 resList <- doDGEsc(
     obj = OsC,
-    DGEselCol = "sub_clusters_ExNeurons",
+    DGEselCol = "WT_PC1",
     colName = colName,
     contrastTag = "contrast_3_",
     DGEsampleList =  list(
-    "M2" = c(1),
-    "M3" = c(7)
+    "WT_PC1_neg" = "WT_PC1_neg",
+    "WT_PC1_pos" = "WT_PC1_pos"
     )
 )
 
@@ -337,36 +347,6 @@ DGEtagVec <- c(
 
 
 
-###############################################################################
-## Fourtht                                                                   ##
-colName <- "M_vs_T"
-
-resList <- doDGEsc(
-    obj = OsC,
-    DGEselCol = "sub_clusters_ExNeurons",
-    colName = colName,
-    contrastTag = "contrast_4_",
-    DGEsampleList =  list(
-    "M" = c(1,5,7),
-    "T" = c(0,4,6)
-    )
-)
-
-comp_1 <- resList$DGEtable
-OsC <- resList$OsC
-
-tag <- paste0("DGE_", colName)
-
-Obio@dataTableList[[tag]] <- data.frame(NULL)
-Obio@dataTableList[[tag]] <- comp_1
-
-DGEtagVec <- c(
-  DGEtagVec,
-  tag
-)
-
-## Done DGE                                                                  ##
-###############################################################################
 
 for (i in 1:length(DGEtagVec)){
   if (i ==1){
@@ -440,10 +420,10 @@ dfTemp[dfTemp$gene %in% refGenes, "ref_gene"] <- "+"
 
 library(openxlsx)
 
-baseFN <- "asl319.DGE.table.New.xlsx"
+baseFN <- "agl372A.DGE.table.xlsx"
 outPutFN <- paste0(
   gsub("working/boeings/","", hpc.mount),
-  "www/boeings/bioLOGIC_external/data/asl319/html/report_table/asl319.DGE.table.1.percent.min.xlsx"
+  "www/boeings/bioLOGIC_external/data/agl372A/html/report_tables/agl372A.DGE.table.xlsx"
 )
 
 FNrel <- paste0("report_table/", baseFN)
@@ -478,8 +458,8 @@ saveWorkbook(
 ############
 ## Add to main dbTable
 database.table <- import.db.table.from.db(
-    dbtable= "asl319_sc_rna_seq_table",   
-    dbname= "asl_data",   
+    dbtable= "agl372A_sc_rna_seq_table",   
+    dbname= "agl_data",   
     user= "boeingS",     
     password= db.pwd, 
     host= Obio@parameterList$host
@@ -507,7 +487,7 @@ Obio@databaseTable <- data.frame(NULL)
 Obio@databaseTable <- database.table
 
 Obio@databaseTable$Gene_description <- NULL
-Obio@parameterList$primDataDB <- "asl_data"
+Obio@parameterList$primDataDB <- "agl_data"
 
 cmd.vec <- upload.datatable.to.database(
     host = Obio@parameterList$host, 
@@ -522,7 +502,7 @@ cmd.vec <- upload.datatable.to.database(
         "VARCHAR(1) CHARACTER SET latin1 COLLATE latin1_swedish_ci" = c("ppos", "amino_acid", "charge","known_site"),
         "BIGINT(8) NULL DEFAULT NULL" = c("row_names"),
         "INT(8) NULL DEFAULT NULL" = c("DEseq2Normalized","CoVarOrder","row_id", "cluster_order","cluster_id", "count_cut_off", "^position$", "raw_counts"),
-        "DECIMAL(6,3) NULL DEFAULT NULL" = c("add_counts_",  "lg2BaseMean","lg2baseMean","contrast_P_PCA_estimatePCA","^CoVar$","NES", "logFC", "lg2_avg","norm_counts", "intensity", "^int", "iBAQ","^localization_prob$", "stat", "lg10p","contrast_x_"),
+        "DECIMAL(6,3) NULL DEFAULT NULL" = c("Integrated_Samples_","_avg_diff_","Ind_var","add_counts_",  "lg2BaseMean","lg2baseMean","contrast_P_PCA_estimatePCA","^CoVar$","NES", "logFC", "lg2_avg","norm_counts", "intensity", "^int", "iBAQ","^localization_prob$", "stat", "lg10p","contrast_x_"),
         "DECIMAL(6,5) NULL DEFAULT NULL" = c("r2_PCA","padj", "pvalue","^pep$", "p_value_PCA")
     ),
     new.table = TRUE,
@@ -613,9 +593,7 @@ webSiteDir <- Obio@parameterList$localWorkDir
 
 project.code <- gsub(substr(Obio@parameterList$project_id, 1, 3), "p", Obio@parameterList$project_id)
 
-Obio@dbDetailList <- list(
-  
-)
+
 ###############################################################################
 ## Deploy next generation website                                            ##
 createSettingsFile(
