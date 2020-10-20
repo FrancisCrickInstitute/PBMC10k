@@ -1,5 +1,5 @@
 ---
-title: "DGE Module ASL319"
+title: "DGE Module ASL315A"
 author: "Stefan Boeing"
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 
@@ -109,13 +109,14 @@ load(paste0(
     ".Seurat.Robj"
 )
 )
-
-OsC@meta.data[["WT_IDH"]] <- ""
-OsC@meta.data[grep("WT", OsC@meta.data$sampleID), "WT_IDH"] <- "WT"
-OsC@meta.data[grep("IDH", OsC@meta.data$sampleID), "WT_IDH"] <- "IDH"
-
-OsC@meta.data[["Gender"]] <- "Male"
-OsC@meta.data[OsC@meta.data$sampleID %in% c("WT2", "WT4"), "Gender"] <- "Female"
+OsC@meta.data[["sampleID"]] <- ""
+OsC@meta.data[["sampleID"]] <- OsC@meta.data[["orig.ident"]] 
+# OsC@meta.data[["WT_IDH"]] <- ""
+# OsC@meta.data[grep("WT", OsC@meta.data$sampleID), "WT_IDH"] <- "WT"
+# OsC@meta.data[grep("IDH", OsC@meta.data$sampleID), "WT_IDH"] <- "IDH"
+# 
+# OsC@meta.data[["Gender"]] <- "Male"
+# OsC@meta.data[OsC@meta.data$sampleID %in% c("WT2", "WT4"), "Gender"] <- "Female"
 # Non-proliferating Glia - Cluster (2, 4, 5)
 # Proliferating Glia - Cluster (1, 6, 8)
 # Early and late Progenitors - Cluster (0, 9)
@@ -123,8 +124,8 @@ OsC@meta.data[OsC@meta.data$sampleID %in% c("WT2", "WT4"), "Gender"] <- "Female"
 # Remaining neurons from dissociation (but not happy cells) - Cluster 10
 # Unknowns and/or not happy cells?- Cluster 3
 dfTemp <- import.db.table.from.db(
-    dbtable= "agl372A_PCA",   
-    dbname= "agl_data",   
+    dbtable= "agl315A_PCA",   
+    dbname= "csl_data",   
     user= "boeingS",     
     password= db.pwd, 
     host= Obio@parameterList$host
@@ -251,16 +252,19 @@ DGEtagVec <- as.vector(NULL, mode = "character")
 ###############################################################################
 ## First 
 
-colName <- "WT_vs_IDH"
+
+
+colName <- "Prad_vs_Ctrl"
 
 resList <- doDGEsc(
     obj = OsC,
-    DGEselCol = "WT_IDH",
+    DGEselCol = "sampleID",
     colName = colName,
     contrastTag = "contrast_1_",
     DGEsampleList = list(
-      "WT" = c("WT"),
-      "IDH" = c("IDH")
+      "Prad" = c("Prad"),
+      "Ctrl" = c("Ctrl")
+      
     )
 )
 
@@ -280,70 +284,6 @@ DGEtagVec <- c(
 ## Done DGE                                                                  ##
 ###############################################################################
 
-###############################################################################
-## Second                                                                    ##
-
-colName <- "Male_vs_Female"
-
-resList <- doDGEsc(
-    obj = OsC,
-    DGEselCol = "Gender",
-    colName = colName,
-    contrastTag = "contrast_2_",
-    DGEsampleList = list(
-    "Male" = "Male",
-    "Female" = "Female"
-  )
-)
-
-comp_1 <- resList$DGEtable
-OsC <- resList$OsC
-
-tag <- paste0("DGE_", colName)
-
-Obio@dataTableList[[tag]] <- data.frame(NULL)
-Obio@dataTableList[[tag]] <- comp_1
-
-DGEtagVec <- c(
-  DGEtagVec,
-  tag
-)
-## Done DGE                                                                  ##
-###############################################################################
-
-###############################################################################
-## Third                                                                     ##
-colName <- "WT_PC1_neg_vs_WT_PC1_pos"
-
-OsC@meta.data[["WT_PC1"]] <- ""
-OsC@meta.data[OsC@meta.data$WT_IDH == "WT" & OsC@meta.data$PC_1 > 0, "WT_PC1"] <- "WT_PC1_pos"
-OsC@meta.data[OsC@meta.data$WT_IDH == "WT" & OsC@meta.data$PC_1 < 0, "WT_PC1"] <- "WT_PC1_neg"
-
-resList <- doDGEsc(
-    obj = OsC,
-    DGEselCol = "WT_PC1",
-    colName = colName,
-    contrastTag = "contrast_3_",
-    DGEsampleList =  list(
-    "WT_PC1_neg" = "WT_PC1_neg",
-    "WT_PC1_pos" = "WT_PC1_pos"
-    )
-)
-
-comp_1 <- resList$DGEtable
-OsC <- resList$OsC
-
-tag <- paste0("DGE_", colName)
-
-Obio@dataTableList[[tag]] <- data.frame(NULL)
-Obio@dataTableList[[tag]] <- comp_1
-
-DGEtagVec <- c(
-  DGEtagVec,
-  tag
-)
-## Done DGE                                                                  ##
-###############################################################################
 
 
 
@@ -371,24 +311,24 @@ Obio@dataTableList[["DGE_table"]] <- dfTemp
 
 
 ## Check ref genes ##
-refGenes <- c(
-  "Ebf1", 
-  "Lhx5", 
-  "Ros1", 
-  "Vgll2", 
-  "Calca", 
-  "Cadps2", 
-  "Vdr", 
-  "Sgcg", 
-  "Wnt5b", 
-  "Coch", 
-  "Lhx1", 
-  "Ebf3", 
-  "Cntn6", 
-  "Barhl2", 
-  "Olfr111", 
-  "Olfr115"
-)
+# refGenes <- c(
+#   "Ebf1", 
+#   "Lhx5", 
+#   "Ros1", 
+#   "Vgll2", 
+#   "Calca", 
+#   "Cadps2", 
+#   "Vdr", 
+#   "Sgcg", 
+#   "Wnt5b", 
+#   "Coch", 
+#   "Lhx1", 
+#   "Ebf3", 
+#   "Cntn6", 
+#   "Barhl2", 
+#   "Olfr111", 
+#   "Olfr115"
+# )
 
 ## Done 
 ##################
@@ -415,15 +355,15 @@ save(OsC,
 ## Create Excel output files                                                 ##
 
 ## Add ref-gene column ##
-dfTemp[["ref_gene"]] <- ""
-dfTemp[dfTemp$gene %in% refGenes, "ref_gene"] <- "+"
+#dfTemp[["ref_gene"]] <- ""
+#dfTemp[dfTemp$gene %in% refGenes, "ref_gene"] <- "+"
 
 library(openxlsx)
 
-baseFN <- "agl372A.DGE.table.xlsx"
+baseFN <- "agl315A.DGE.table.xlsx"
 outPutFN <- paste0(
   gsub("working/boeings/","", hpc.mount),
-  "www/boeings/bioLOGIC_external/data/agl372A/html/report_tables/agl372A.DGE.table.xlsx"
+  "www/boeings/bioLOGIC_external/data/agl315A/html/report_tables/agl315A.DGE.table.xlsx"
 )
 
 FNrel <- paste0("report_table/", baseFN)
@@ -458,8 +398,8 @@ saveWorkbook(
 ############
 ## Add to main dbTable
 database.table <- import.db.table.from.db(
-    dbtable= "agl372A_sc_rna_seq_table",   
-    dbname= "agl_data",   
+    dbtable= "agl315A_sc_rna_seq_table",   
+    dbname= "csl_data",   
     user= "boeingS",     
     password= db.pwd, 
     host= Obio@parameterList$host
@@ -487,7 +427,7 @@ Obio@databaseTable <- data.frame(NULL)
 Obio@databaseTable <- database.table
 
 Obio@databaseTable$Gene_description <- NULL
-Obio@parameterList$primDataDB <- "agl_data"
+Obio@parameterList$primDataDB <- "csl_data"
 
 cmd.vec <- upload.datatable.to.database(
     host = Obio@parameterList$host, 
