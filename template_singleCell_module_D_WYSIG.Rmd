@@ -92,7 +92,7 @@ db.pwd <- as.vector(dbTable[1,1])
 #     )
 # )
 
-# source("assets/scTools.r")
+source("assets/scTools.r")
 source("assets/SBwebtools.pckg.r")
 
 
