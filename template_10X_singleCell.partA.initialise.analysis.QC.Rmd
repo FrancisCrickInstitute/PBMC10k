@@ -1,10 +1,9 @@
 ---
-title: "QC for Project AGL327A"
+title: "QC for Project RLL358A"
 subtitle: "Drug-treatment assessment"
 author: 
   -Stefan Boeing^[The Francis Crick Institute, stefan.boeing@crick.ac.uk]
-lab: "Gould Lab"
-scientist: "Andrew Bailey"
+
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 
 
@@ -124,81 +123,42 @@ library(DT)
 # type must be in c("TenX", "matrixFiles", "loomFiles", "hdf5Files")
 
 sampleDetailList <- list(
-    "NormCon" = list(
+    "PD7_1" = list(
         "type" = "TenX",
-        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190906_K00102_0390_AHCL5KBBXY/count/SC18275/BAI253A5/outs/filtered_feature_bc_matrix",
+        "path" = "/camp/stp/babs/working/boeings/Projects/lovellbadger/emily.frost/358_RLL_EF_single_cell_p27kip1_in_ovarian_granulosa_cells_SC19235/FASTQ_files/FRO575A1/outs/filtered_feature_bc_matrix",
         "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = 20,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "BAI253A5",
+        "limsId"= "FRO575A1",
         "singleCellChemistry" = NULL,
 	    "singleCellCellrangerVersion" = NULL, 
         "machine" = NULL
     ),
-    "HypCon" = list(
+    "PD4_2" = list(
         "type" = "TenX",
-        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190906_K00102_0390_AHCL5KBBXY/count/SC18275/BAI253A6/outs/filtered_feature_bc_matrix",
+        "path" = "/camp/stp/babs/working/boeings/Projects/lovellbadger/emily.frost/358_RLL_EF_single_cell_p27kip1_in_ovarian_granulosa_cells_SC19235/FASTQ_files/FRO575A2/outs/filtered_feature_bc_matrix",
         "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = 20,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "BAI253A6",
+        "limsId"= "FRO575A2",
         "singleCellChemistry" = NULL,
 	    "singleCellCellrangerVersion" = NULL, 
         "machine" = NULL
     ),
     
-    "NormPrad" = list(
+    "E18_5_1" = list(
         "type" = "TenX",
-        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190906_K00102_0390_AHCL5KBBXY/count/SC18275/BAI253A7/outs/filtered_feature_bc_matrix",
+        "path" = "/camp/stp/babs/working/boeings/Projects/lovellbadger/emily.frost/358_RLL_EF_single_cell_p27kip1_in_ovarian_granulosa_cells_SC19235/FASTQ_files/FRO575A3/outs/filtered_feature_bc_matrix",
         "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = 20,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "BAI253A7",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),
-    "HypPrad" = list(
-        "type" = "TenX",
-        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190906_K00102_0390_AHCL5KBBXY/count/SC18275/BAI253A8/outs/filtered_feature_bc_matrix",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = 20,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "BAI253A8",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),
-    "NormAZ" = list(
-        "type" = "TenX",
-        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190906_K00102_0390_AHCL5KBBXY/count/SC18275/BAI253A9/outs/filtered_feature_bc_matrix",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = 10,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "BAI253A9",
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),
-    "HypAZ" = list(
-        "type" = "TenX",
-        "path" = "/camp/stp/babs/inputs/sequencing/fastq/190906_K00102_0390_AHCL5KBBXY/count/SC18275/BAI253A10/outs/filtered_feature_bc_matrix",
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = 10,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "BAI253A10",
+        "limsId"= "FRO575A3",
         "singleCellChemistry" = NULL,
 	    "singleCellCellrangerVersion" = NULL, 
         "machine" = NULL
@@ -211,7 +171,7 @@ sampleDetailList <- list(
 ###############################################################################
 ## dbDetailList                                                              ##
 dbDetailList <- list(
-    "primDataDB" = "agl_data",
+    "primDataDB" = "rll_data",
     "ref.cat.db" = "reference_categories_db_new",
      "db.user" = "boeingS",
      "host" = "10.27.241.82"
@@ -222,15 +182,15 @@ dbDetailList <- list(
 ###############################################################################
 ## Project detail list                                                       ##
 projectDetailList <- list(
-    "folder" = "goulda/andrew.bailey/327A_scRNASeq_Tumor_Disc_Development_cell_lines__part_B_SC18275/",
+    "folder" = "lovellbadger/emily.frost/358A_RLL_EF_single_cell_p27kip1_in_ovarian_granulosa_cells_SC19235/",
     "sra.id.vector" = "",
     "gse.id.vector" = "",
-    "asf.id" = "SC18275",
+    "asf.id" = "SC19135",
     "experiment.type" = "sc_rna_seq",   
-    "species" = "homo_sapiens", 
+    "species" = "mus_musculus", 
     "release" = "release-89", 
-    "project_id" = "agl327A",
-    "labname" = "Gould",
+    "project_id" = "rll358A",
+    "labname" = "LovellBadge",
     "timecourse.units" = "",
     "count.table.headline" = "lg10 Expr for all Samples",
     "count.table.sidelabel" = "lg10 Expr",
@@ -266,7 +226,7 @@ referenceTableList = list(
     "Immunologic Signatures" = "mysigdb_c7_immunologic_signatures",
     "LINCS Down" = "LINCS_L1000_Chem_Pert_down",
     "LINCS Up" = "LINCS_L1000_Chem_Pert_up",
-    "Allen Brain Atlas" = "Allen_Brain_Atlas",
+    #"Allen Brain Atlas" = "Allen_Brain_Atlas",
     "Cell Type Signatures" = "mysigdb_sc_sig",
     "Cell Type Signatures" = "cibersort_L22"
 )
@@ -376,7 +336,7 @@ Obio = new(
     sampleDetailList = sampleDetailList, 
     referenceTableList = referenceTableList,
     parameterList = list(
-        "lab.categories.table" = "ag_lab_categories", # default NULL
+        "lab.categories.table" = "rl_lab_categories", # default NULL
         "folder" = projectDetailList$folder,
         "sra.id.vector" = "",
         "gse.id.vector" = "",
@@ -409,7 +369,7 @@ Obio = new(
         "singleCellTranscriptome"="GRCh38",
 	    "singleCellChemistry" = NULL,
 	    "singleCellCellrangerVersion" = NULL, 
-        "singleCellSeuratMtCutoff" = c(20,20,20,20,10,10),
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
         "scIntegrationMethod" = "SCT", # "SCT" or "standard"
         "scNintegrationFeatures" = scDetailList$scNintegrationFeatures,
@@ -417,7 +377,7 @@ Obio = new(
         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
         "primReduction" = "umap",
         "qcReports" = list(),
-        "catRefFile" = "/camp/stp/babs/working/boeings/Projects/goulda/andrew.bailey/315A_scRNASeq_Tumor_Disc_Development_single_cell_SC18275/basedata/agl315.AUC.cat.reference.table.txt",
+        "catRefFile" = "/camp/stp/babs/working/boeings/Projects/lovellbadger/emily.frost/358A_RLL_EF_single_cell_p27kip1_in_ovarian_granulosa_cells_SC19235/basedata/ref.gene.categories.20200828.txt",
         referenceTableList = referenceTableList
     )
 )

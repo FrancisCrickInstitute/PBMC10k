@@ -1647,3 +1647,102 @@ setGeneric(
 
 ## End doDGEsc Function                                                      ##
 ###############################################################################
+
+###############################################################################
+## Get Marker Gene Table                                                     ##
+setGeneric(
+    name="addClusterMarkers2CatDisplay",
+    def=function(
+        obj,
+        addCorCatsToLabDb = TRUE
+    ) {
+        
+        
+        
+        
+        dfGeneralMarkers <- obj@dataTableList$dfGeneralMarkers
+        dfGeneralMarkers <- dfGeneralMarkers[dfGeneralMarkers$direction == "positive",]
+        
+        clusterVec <- sort(as.vector(unique(dfGeneralMarkers$cluster)))
+        gmt.list <- list()
+        max.length <- 0
+        
+        for (i in 1:length(clusterVec)){
+            dfTemp <- dfGeneralMarkers[dfGeneralMarkers$cluster == clusterVec[i], ]
+            geneVec <- sort(unique(dfTemp$gene))
+            
+            head <- paste0(obj@parameterList$project_id, "_Markers_Cluster_", clusterVec[i])
+            cat.id <- paste0("temp_",obj@parameterList$project_id, "_cluster_marker_", clusterVec[i])
+            head <- append(head, paste0("https:\\/\\/biologic.crick.ac.uk\\/", obj@parameterList$project_id, "\\/category-view/", cat.id))
+            
+            gmt.vec <- append(head, geneVec)
+            gmt.list[[cat.id]] <- gmt.vec
+            
+            if (max.length < length(gmt.vec)){
+                max.length <- length(gmt.vec)
+            }
+        }
+        
+        ## Add empty spaces to gmt.list to fill up to max.length
+        for (i in 1:length(gmt.list)){
+            n.add <- max.length - length(gmt.list[[i]])
+            gmt.list[[i]] <- append(
+                gmt.list[[i]], rep("", n.add)
+            )
+        }
+        
+        ## Transform list into gmt data frame ##
+        for (i in 1:length(gmt.list)){
+            if (i ==1){
+                df.gmt <- t(gmt.list[[i]])
+            } else {
+                df.gmt <- rbind(df.gmt, t(gmt.list[[i]]))
+            }
+        }
+        
+        ## Ensure df.gmt is a data frame
+        df.gmt <- data.frame(df.gmt)
+        
+        
+        ## Write to file #3
+        #setwd(obj@parameterList$localWorkDir)
+        FNc <- paste0(obj@parameterList$localWorkDir, obj@parameterList$projectID, ".cluster.marker.genes.gmt")
+        write.table(df.gmt, FNc, row.names = FALSE, col.names = FALSE, sep="\t")
+        
+        
+        ## Remove old entries for this project
+        
+        if (addCorCatsToLabDb){
+            library(RMySQL)
+            dbDB = RMySQL::dbConnect(
+                drv = RMySQL::MySQL(),
+                user = obj@parameterList$db.user,
+                password = db.pwd,
+                dbname = obj@dbDetailList$ref.cat.db,
+                host = obj@dbDetailList$host
+            )
+            
+            dbGetQuery(dbDB, paste0("DELETE FROM ", obj@parameterList$lab.categories.table, " WHERE cat_type='temp_cluster_marker_", obj@parameterList$project_id,"'"))
+            RMySQL::dbDisconnect(dbDB)
+            
+            ## Done removing older categories for this project
+            
+            msigdb.gmt2refDB(
+                df.gmt = df.gmt, #gmt.file = "cor.categories.gmt",
+                host = obj@dbDetailList$host,
+                db.user = obj@dbDetailList$db.user,
+                pwd = db.pwd,
+                ref.db = obj@dbDetailList$ref.cat.db,
+                ref.db.table = obj@parameterList$lab.categories.table,
+                cat_type = paste0("temp_cluster_marker_", obj@parameterList$project_id),
+                data_source = "DGE Cluster Marker Genes",
+                keep.gene.values = FALSE,
+                gene.id = obj@parameterList$geneIDcolumn,
+                create.new.table = FALSE,
+                mm.hs.conversion.file =  paste0(hpc.mount, "Projects/reference_data/20160303.homologene.data.txt")
+            )
+        }
+    })
+
+## Done                                                                      ##
+###############################################################################
