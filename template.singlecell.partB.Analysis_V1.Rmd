@@ -1328,6 +1328,7 @@ if (nrow(dfGeneralMarkers) > 0){
 
 #############################################################
 
+
 ```
 
 ```{r Plot_dim_red_by_cluster, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
@@ -2408,7 +2409,7 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
     
      plotList[[tag]] <- ggplot(data = dfAUC, aes(x=UMAP_1, y=UMAP_2, color = mAUC)
             )+ geom_point( shape=16, size = dotsize
-            ) + scale_color_gradient2(low="grey", high="darkblue"
+            ) + scale_color_gradient("AUC", low="grey", high="darkblue"
             ) + xlab(input$x_axis) + ylab(input$y_axis)  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
@@ -3430,8 +3431,26 @@ if (length(unique(OsC@meta.data$hmIdent)) > 25){
 ## Ensure that hmIdent exists ##
 
 ## Want to average by cluster and subset by sampleID ##
+###############################################################################
+## Calculataing average expression across all samples                        ##
+OsC@meta.data[["all"]] <- "all"
+Idents(OsC) <- "all"
+cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
+
+## Retrieved Scaled data ##
+dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
+#dfAvgExpr <- dfAvgExpr[,sort(names(dfAvgExpr))]
+dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
+
+dfAvgScaledData <- data.frame(cluster.averages[["RNA"]]@scale.data)
+#dfAvgScaledData <- dfAvgScaledData[,sort(names(dfAvgScaledData))]
+dfAvgScaledData[["gene"]] <- row.names(dfAvgScaledData)
 
 
+Obio@dataTableList[["dfAvglg10ExprAll"]] <- dfAvgExpr
+Obio@dataTableList[["dfAvglg10ExprAllScaled"]] <- dfAvgScaledData
+## Done                                                                      ##
+###############################################################################
 
 OsC@meta.data[["clustIdent"]] <- paste0(
     "C_", OsC@meta.data[,Obio@parameterList$singleCellClusterString]
