@@ -1,1 +1,1 @@
-rmarkdown::render("template_10X_singleCell.partA.initialise.analysis.QC.Rmd")
+rmarkdown::render("sc_PartA_QC.Rmd")
