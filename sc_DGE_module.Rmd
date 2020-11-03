@@ -250,7 +250,7 @@ DGEtagVec <- as.vector(NULL, mode = "character")
 
 DGEinputList <- list(
   "comp_1" = list(
-      "name"    = "Glia_vs_Neuron",
+      "name"    = "DGE_Glia_vs_Neuron",
       "DGEselCol" = "seurat_clusters",
       "DGEsampleList" = list(
         "Glia"   = c(2),
@@ -259,7 +259,7 @@ DGEinputList <- list(
     ),
   
   "comp_2" = list(
-      "name"    = "NitChol_vs_Serotonergic",
+      "name"    = "DGE_NitChol_vs_Serotonergic",
       "DGEselCol" = "seurat_clusters",
       "DGEsampleList" = list(
         "NitChol" = c(7,5,10,1,3,0,6),
@@ -268,7 +268,7 @@ DGEinputList <- list(
     ),
   
   "comp_3" = list(
-      "name"    = "Nitrergic_vs_Cholinergic",
+      "name"    = "DGE_Nitrergic_vs_Cholinergic",
       "DGEselCol" = "seurat_clusters",
       "DGEsampleList" = list(
         "Nitrergic" = c(7,5,10,1),
@@ -440,9 +440,9 @@ database.table <- import.db.table.from.db(
 database.table$row_names <- NULL
 dfTemp$ref_gene <- NULL
 
-names(dfTemp) <- gsub("logFC", "logFC_glmG", names(dfTemp))
-names(dfTemp) <- gsub("padj", "padj_glmG", names(dfTemp))
-names(dfTemp) <- gsub("lg10p", "lg10p_glmG", names(dfTemp))
+#names(dfTemp) <- gsub("logFC", "logFC_glmG", names(dfTemp))
+#names(dfTemp) <- gsub("padj", "padj_glmG", names(dfTemp))
+#names(dfTemp) <- gsub("lg10p", "lg10p_glmG", names(dfTemp))
 
 selVec <- !(names(database.table) %in% names(dfTemp))
 database.table <- database.table[!(names(database.table) %in% names(dfTemp))]
@@ -570,14 +570,122 @@ project.code <- gsub(substr(Obio@parameterList$project_id, 1, 3), "p", Obio@para
 
 
 ###############################################################################
-## Deploy next generation website                                            ##
-Obio@parameterList$primDataDB <- Obio@dbDetailList$primDataDB
+## Set default X colum                                                       ##
 
+pos <- grep(
+  "^add_counts_Avg_log10_Expr_all$", 
+  names(Obio@databaseTable)
+)
+
+if (length(pos) == 1){
+  defaultX <- "add_counts_Avg_log10_Expr_all"
+} else {
+  defaultX <- "contrast_X_logFC_Expressed_in_N_Percent_Cells"
+}
+
+pos <- grep(
+  "^add_counts_Avg_log10_Expr_C_0$",
+  names(Obio@databaseTable)
+)
+
+if (length(pos) == 1){
+  defaultY <- "add_counts_Avg_log10_Expr_C_0"
+} else {
+  defaultY <- sample.order[1]
+}
+## d
+
+###############################################################################
+## Create default plot selection                                             ##
+
+plotSelection <- c(
+    names(Obio@databaseTable)[grep("_logFC_",names(Obio@databaseTable))],
+    names(Obio@databaseTable)[grep("contrast_P_PCA_estimatePCA",names(Obio@databaseTable))],
+
+    names(Obio@databaseTable)[grep("_lg10p_",names(Obio@databaseTable))],
+
+    names(Obio@databaseTable)[grep("lg2BaseMean",names(Obio@databaseTable))],
+    names(Obio@databaseTable)[grep("corCoef",names(Obio@databaseTable))],
+    names(Obio@databaseTable)[grep("add_counts",names(Obio@databaseTable))]
+)
+
+chunk1 <- plotSelection[grep("_logFC_", plotSelection)]
+chunkh2 <- plotSelection[grep("_lg10p_", plotSelection)]
+chunk2a <-chunkh2[grep("_lg10p_PCA", chunkh2)]
+chunk2b <- chunkh2[!(chunkh2  %in% chunk2a)]
+
+chnk2c <- plotSelection[grep("_corCoef", plotSelection)]
+
+chunk3 <- plotSelection[grep("_PCA_est", plotSelection)]
+
+chunk4 <- plotSelection[grep("_lg2BaseMean_", plotSelection)]
+# rmVec <- grep("_LRT_", chunk4)
+# if (length(rmVec) > 0){
+#     chunk4 <- chunk4[-rmVec]
+# }
+
+plotSelectionNew <- c(
+    chunk1,
+    chunk2b,
+    chnk2c,
+    chunk3,
+    chunk2a,
+    chunk4
+)
+
+plotAdd <- plotSelection[!(plotSelection %in% plotSelectionNew)]
+
+plotSelection <- c(
+    defaultX,
+    defaultY,
+    plotSelectionNew,
+    plotAdd
+)
+
+
+## Done creating default plot selection                                      ##
+###############################################################################
+
+###############################################################################
+## Do default Venn selection                                                 ##
+defaultVennSel <- names(Obio@databaseTable)
+defaultVennSel <- c(
+    defaultVennSel[grep("contrast_", defaultVennSel)],
+    defaultVennSel[grep("add_venn_", defaultVennSel)],
+    defaultVennSel[grep("_TsCor_", defaultVennSel)]
+
+)
+
+rmVec <- c(
+    grep("contrast_P_", defaultVennSel),
+    grep("_lg2BaseMean_", defaultVennSel),
+    grep("_padj_LRT_", defaultVennSel),
+    grep("_lg10p_", defaultVennSel),
+    grep("_stat_", defaultVennSel),
+    grep("pValueCor_", defaultVennSel)
+)
+
+if (length(rmVec) > 0){
+    defaultVennSel <- defaultVennSel[-rmVec]
+}
+
+## Add lrt
+defaultVennSel <- c(
+    defaultVennSel,
+    names(Obio@databaseTable)[grep("contrast_L_lg10p", names(Obio@databaseTable))]
+)
+
+## Done with LRT selection                                                   ##
+###############################################################################
+
+
+###############################################################################
+## Deploy next generation website                                            ##
 createSettingsFile(
     obj = Obio,
     df.data = Obio@databaseTable,
-    defaultXcolName = "contrast_X_logFC_Expressed_in_N_Percent_Cells",
-    defaultYcolName = sample.order[1],
+    defaultXcolName = defaultX,
+    defaultYcolName = defaultY,
     primDataTable = Obio@parameterList$rnaseqdbTableName,
     pcaDbTable = Obio@parameterList$PCAdbTableName, 
     sample.order = sample.order, #set to "" to go with default sorting
@@ -587,15 +695,8 @@ createSettingsFile(
     ptm.colum = "",
     count.table.headline = Obio@parameterList$count.table.headline,
     count.table.sidelabel = Obio@parameterList$count.table.sidelabel,
-    venn.slider.selector.strings = c(
-       "contrast"
-    ),
-    plot.selection.strings = c(
-        "contrast",
-        "add_counts_",
-        "norm_count",
-        "add_counts_PCA_Dim"
-    ),
+    venn.slider.selector.strings = defaultVennSel,
+    plot.selection.strings = plotSelection,
     webSiteDir = paste0(hpc.mount, "Stefan/protocol_files/github/biologic/src/experiments/"),
     upper_heatmap_limit = 3, 
     lower_heatmap_limit = -3,
@@ -606,7 +707,6 @@ createSettingsFile(
 setwd(Obio@parameterList$localWorkDir)
 ## Done deploying next generation website                                    ##
 ###############################################################################
-
 save(Obio, 
      file = paste0(
          Obio@parameterList$localWorkDir,
