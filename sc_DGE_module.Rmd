@@ -1,0 +1,740 @@
+---
+
+author: "Stefan Boeing"
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+
+output: 
+    html_document:
+        code_folding: hide
+        df_print: tibble
+        toc: true
+        toc_depth: 3
+        toc_float: true
+    css:
+    
+always_allow_html: yes
+---
+    
+    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    tidy = TRUE,
+    tidy.opts = list(width.cutoff = 120),
+    message = FALSE,
+    warning = FALSE
+)
+```
+
+
+## Part B Database
+
+module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;R;
+
+```{r populate_meta_data_database, eval=TRUE, echo=F, results=F}
+#Create the environment and load a suitable version of R, e.g. so:
+
+myPaths <- .libPaths()
+myNewPaths <- c("/camp/stp/babs/working/boeings/Projects/pachnisv/song.chng/330_10xscRNAseq_DIV4_DIV11_DIV20_SC19069/basedata", myPaths)
+.libPaths(myNewPaths)
+library(glmGamPoi)
+.libPaths(myPaths)
+
+library(Seurat)
+
+VersionPdfExt <- paste0(".V", gsub("-", "", Sys.Date()), ".pdf")
+
+if (dir.exists("/Volumes/babs/working/boeings/")){
+    hpc.mount <- "/Volumes/babs/working/boeings/"
+} else if (dir.exists("Y:/working/boeings/")){
+    hpc.mount <- "Y:/working/boeings/"
+} else if (dir.exists("/camp/stp/babs/working/boeings/")){
+    hpc.mount <- "/camp/stp/babs/working/boeings/"
+} else {
+    hpc.mount <- ""
+}
+
+
+FN <- paste0(hpc.mount, "Projects/reference_data/documentation/BC.parameters.txt")
+dbTable <- read.delim(
+    FN, 
+    sep = "\t",
+    stringsAsFactors = F
+)
+
+db.pwd <- as.vector(dbTable[1,1])
+
+
+source(
+    paste0(
+        hpc.mount,
+        "Stefan/protocol_files/github/boeings/packages/packageSourceCode/SBwebtools.pckg.r"
+    )
+)
+
+
+if (length(.libPaths()) > 2){
+    .libPaths(.libPaths()[2:3])
+}
+## Create biologic Object for visualization ##
+
+ObioFN <- paste0("../", list.files("..")[grep(".bioLOGIC.Robj", list.files(".."))])
+
+load(ObioFN)
+
+checkFile = paste0(
+         Obio@parameterList$project_id,
+         ".bioLOGIC.Robj"
+)
+
+
+Obio <- setMountingPoint(Obio)
+Obio <- setAnalysisPaths(Obio)
+Obio <- setCrickGenomeAndGeneNameTable(Obio)
+Obio <- createAnalysisFolders(
+    Obio,
+    baseDir="/camp/stp/babs/working/boeings/Projects/",
+    localBaseDir = paste0(hpc.mount, "Projects/")
+)
+Obio <- setDataBaseParameters(Obio)
+
+## Upload metadata table > p315_PCA
+# Obio@parameterList$host <- "10.152.22.193"
+# Obio@parameterList$db.user <- "boeingS"
+# db.pwd <- "5+3f4nB04042018"
+
+
+load(paste0(
+    Obio@parameterList$localWorkDir,
+    Obio@parameterList$project_id,
+    ".Seurat.Robj"
+)
+)
+OsC@meta.data[["sampleID"]] <- ""
+OsC@meta.data[["sampleID"]] <- OsC@meta.data[["orig.ident"]] 
+
+dfTemp <- import.db.table.from.db(
+    dbtable=  Obio@parameterList$PCAdbTableName,   
+    dbname= Obio@dbDetailList$primDataDB,   
+    user= Obio@dbDetailList$db.user,     
+    password= db.pwd, 
+    host= Obio@parameterList$host
+)
+row.names(dfTemp) <- dfTemp$cellID
+
+
+
+
+
+###############################################################################
+## Do DGEsc                                                                  ##
+setGeneric(
+  name="doDGEsc",
+  def=function(
+    obj,
+    DGEselCol = "sub_clusters_ExNeurons",
+    colName = "DGE_name",
+    contrastTag = "contrast_1_",
+    DGEsampleList = list(
+      "M1" = c(5),
+      "M2" = c(1)
+    )
+    
+    ) {
+    
+    colName <- unlist(colName)
+    DGEselCol <- unlist(DGEselCol)
+
+    myPaths <- .libPaths()
+    myNewPaths <- c("/camp/stp/babs/working/boeings/Projects/pachnisv/song.chng/330_10xscRNAseq_DIV4_DIV11_DIV20_SC19069/basedata", myPaths)
+    .libPaths(myNewPaths)
+    library(glmGamPoi)
+    .libPaths(myPaths)
+
+    library(Seurat)
+    pos <- grep(colName, names(obj@meta.data))
+    if (length(pos) > 0){
+      obj@meta.data <- obj@meta.data[,-pos]
+    }
+
+
+    obj@meta.data[[colName]] <- "" 
+    ## Add DGEsamples to meta.data
+    for (i in 1:length(DGEsampleList)){
+        obj@meta.data[obj@meta.data[,DGEselCol] %in% DGEsampleList[[i]], colName] <- names(DGEsampleList)[i]
+    }
+    
+    dfMeta <- obj@meta.data
+    dfMeta <- dfMeta[dfMeta[,colName] != "",]
+    #dfMeta$cellID <- row.names(dfMeta)
+
+
+    cellVec <- dfMeta$cellID
+    group <-  as.vector(dfMeta[,colName])
+    
+    dfMatrix <- OsC[["RNA"]]@counts
+    dfMatrix <- data.matrix(dfMatrix[,cellVec])
+    dfMatrix <- dfMatrix[rowSums(dfMatrix) != 0, ]
+
+
+
+    ## LRT ##
+    # fit <- glm_gp(dfMatrix, design = group)
+    # res <- test_de(fit, reduced_design = ~ 1)
+    
+    ## Pseudobulk ##
+    #sample_labels <- rep(paste0("sample_", 1:6), length = ncol(pbmcs_subset))
+    #cell_type_labels <- sample(c("T-cells", "B-cells", "Macrophages"), ncol(pbmcs_subset), replace = TRUE)
+    
+    
+    #group <-  as.vector(dfMeta$Glia_vs_Neuro_all)
+    sample_labels <- group
+    sample_labels[sample_labels == names(DGEsampleList)[1]] <- paste0(sample_labels[sample_labels == names(DGEsampleList[1])], "_", 1:length(sample_labels[sample_labels == names(DGEsampleList)[1]]))
+    
+    sample_labels[sample_labels == names(DGEsampleList)[2]] <- paste0(sample_labels[sample_labels == names(DGEsampleList[2])], "_", 1:length(sample_labels[sample_labels == names(DGEsampleList)[2]]))
+    
+    cell_type_lables <- group
+    unique(group)
+    
+    fit <- glm_gp(dfMatrix, design = group)
+    comparison <- names(DGEsampleList)
+    
+    contrastString <- (paste0(comparison[1], " - ", comparison[2]))
+    
+    res <- test_de(fit, contrast = contrastString,
+            pseudobulk_by = sample_labels, 
+            #subset_to = cell_type_labels == "T-cells",
+            #n_max = 4, 
+            sort_by = pval, 
+            decreasing = FALSE
+    )
+    
+    dfRes <- res[order(res$lfc),]
+    dfRes <- dfRes[dfRes$lfc > -100 & dfRes$lfc < 100, ]
+    dfRes[["padj"]] <- dfRes$adj_pval
+    minP <- min(dfRes$padj[dfRes$padj != 0])
+    dfRes[dfRes$padj == 0, "padj"] <- minP
+    dfRes[["lg10p"]] <- -1 * log10(dfRes$padj)
+    
+    
+    comp_1 <- dfRes
+    comp_1[["gene"]] <- dfRes$name
+    names(comp_1) <- gsub("lfc", paste0(contrastTag, "logFC_" ,colName), names(comp_1))
+    
+    names(comp_1) <- gsub("padj", paste0(contrastTag, "padj_",colName), names(comp_1))
+    names(comp_1) <- gsub("lg10p", paste0(contrastTag, "lg10p_",colName), names(comp_1))
+    
+    selVec <- c(
+        "gene",
+        names(comp_1)[grep(contrastTag, names(comp_1))]
+    )
+    
+    comp_1 <- unique(comp_1[,selVec])
+    
+    pos <- grep(paste0("DGE_", DGEselCol), names(Obio@dataTableList))
+    
+    returnList <- list(
+      "OsC" = obj,
+      DGEtable = comp_1
+    )
+    
+    return(returnList)
+})
+
+
+## End doDGEsc Function                                                      ##
+###############################################################################
+
+
+DGEtagVec <- as.vector(NULL, mode = "character")
+
+
+DGEinputList <- list(
+  "comp_1" = list(
+      "name"    = "DGE_Glia_vs_Neuron",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+        "Glia"   = c(2),
+        "Neuron" = c(4,6,0,3,7,5,10,1)
+      )
+    ),
+  
+  "comp_2" = list(
+      "name"    = "DGE_NitChol_vs_Serotonergic",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+        "NitChol" = c(7,5,10,1,3,0,6),
+        "Serotonergic" = c(4)
+      )
+    ),
+  
+  "comp_3" = list(
+      "name"    = "DGE_Nitrergic_vs_Cholinergic",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+        "Nitrergic" = c(7,5,10,1),
+      "Cholinergic" = c(3,0,6)
+      )
+    )
+  
+)
+
+
+
+
+
+
+
+
+###############################################################################
+## DGE Analysis                                                              ##
+
+
+for (i in 1:length(DGEinputList)){
+    tag <- paste0("DGE_", unlist(DGEinputList[[i]]["name"]))
+    
+    resList <- doDGEsc(
+        obj = OsC,
+        DGEselCol = unlist(DGEinputList[[i]]["DGEselCol"]),
+        colName = unlist(DGEinputList[[i]]["name"]),
+        contrastTag = paste0("contrast_",i,"_"),
+        DGEsampleList = DGEinputList[[i]][["DGEsampleList"]]
+    )
+    
+    OsC <- resList$OsC
+    
+    Obio@dataTableList[[tag]] <- data.frame(NULL)
+    Obio@dataTableList[[tag]] <- resList$DGEtable
+    
+    DGEtagVec <- c(
+      DGEtagVec,
+      tag
+    )
+    
+    print(paste0("Done with ", tag))
+}
+
+## Done DGE                                                                  ##
+###############################################################################
+
+
+
+
+for (i in 1:length(DGEtagVec)){
+  if (i ==1){
+    dfTemp <- Obio@dataTableList[[DGEtagVec[i]]]
+  } else {
+    dfTemp <- merge(
+      dfTemp, 
+      Obio@dataTableList[[DGEtagVec[i]]],
+      by.x = "gene",
+      by.y = "gene",
+      all =TRUE
+    )
+    dfTemp[is.na(dfTemp)] <- 0
+  
+  }
+}
+
+
+
+Obio@dataTableList[["DGE_table"]] <- NULL
+Obio@dataTableList[["DGE_table"]] <- dfTemp
+
+
+## Check ref genes ##
+# refGenes <- c(
+#   "Ebf1", 
+#   "Lhx5", 
+#   "Ros1", 
+#   "Vgll2", 
+#   "Calca", 
+#   "Cadps2", 
+#   "Vdr", 
+#   "Sgcg", 
+#   "Wnt5b", 
+#   "Coch", 
+#   "Lhx1", 
+#   "Ebf3", 
+#   "Cntn6", 
+#   "Barhl2", 
+#   "Olfr111", 
+#   "Olfr115"
+# )
+
+## Done 
+##################
+
+save(Obio, 
+     file = paste0(
+         Obio@parameterList$localWorkDir,
+         Obio@parameterList$project_id,
+         ".bioLOGIC.Robj"
+     )
+)
+
+print("Obio Object saved.")
+
+save(OsC,
+    file = paste0(
+         Obio@parameterList$localWorkDir,
+         Obio@parameterList$project_id,
+        ".Seurat.Robj"
+     )
+)
+
+###############################################################################
+## Create Excel output files                                                 ##
+
+## Add ref-gene column ##
+#dfTemp[["ref_gene"]] <- ""
+#dfTemp[dfTemp$gene %in% refGenes, "ref_gene"] <- "+"
+
+library(openxlsx)
+
+baseFN <- paste0( Obio@parameterList$project_id, ".DGE.table.xlsx")
+
+outPutFN <- paste0(
+  gsub("working/boeings/","", hpc.mount),
+  "www/boeings/bioLOGIC_external/data/",Obio@parameterList$project_id,"/html/report_tables/",Obio@parameterList$project_id,".DGE.table.xlsx"
+)
+
+FNrel <- paste0("report_table/", baseFN)
+    
+wb <- createWorkbook()
+    addWorksheet(wb, paste0(Obio@parameterList$project_id, "_subcluster_DGE"))
+    freezePane(wb, paste0(Obio@parameterList$project_id, "_subcluster_DGE") ,  firstActiveRow = 2)
+    
+    ## Filter is inactivated, as it does not appear to be compatible with the current version of Excel
+    #addFilter(wb, 1, row = 1, cols = 1:ncol(dfOutput))
+    
+## Style headers ##
+hs1 <- createStyle(
+  fontColour = "#ffffff",
+  fgFill = "#000000", 
+  halign = "CENTER", 
+  textDecoration = "Bold"
+)
+    
+writeData(wb, 1,dfTemp, startRow = 1, startCol = 1, headerStyle = hs1)
+    
+saveWorkbook(
+  wb, 
+  gsub(".txt", ".xlsx", outPutFN) , 
+  overwrite = TRUE
+)
+
+## Done creating Excel output files                                          ##
+###############################################################################
+
+
+############
+## Add to main dbTable
+database.table <- import.db.table.from.db(
+    dbtable= Obio@parameterList$rnaseqdbTableName,   
+    dbname= Obio@dbDetailList$primDataDB,   
+    user= Obio@dbDetailList$db.user,     
+    password= db.pwd, 
+    host= Obio@parameterList$host
+)
+
+database.table$row_names <- NULL
+dfTemp$ref_gene <- NULL
+
+#names(dfTemp) <- gsub("logFC", "logFC_glmG", names(dfTemp))
+#names(dfTemp) <- gsub("padj", "padj_glmG", names(dfTemp))
+#names(dfTemp) <- gsub("lg10p", "lg10p_glmG", names(dfTemp))
+
+selVec <- !(names(database.table) %in% names(dfTemp))
+database.table <- database.table[!(names(database.table) %in% names(dfTemp))]
+
+
+database.table <- merge(
+    database.table, 
+    dfTemp,
+    by.x = Obio@parameterList$geneIDcolumn,
+    by.y = "gene",
+    all = TRUE
+)
+
+database.table[is.na(database.table)] <- 0
+
+Obio@databaseTable <- data.frame(NULL)
+Obio@databaseTable <- database.table
+
+Obio@databaseTable$Gene_description <- NULL
+
+
+cmd.vec <- upload.datatable.to.database(
+    host = Obio@parameterList$host, 
+    user = Obio@parameterList$db.user,
+    password = db.pwd,
+    prim.data.db = Obio@parameterList$primDataDB,
+    dbTableName = Obio@parameterList$rnaseqdbTableName,
+    df.data = Obio@databaseTable, #[Obio@databaseTable$count_cut_off > 1, ],
+    db.col.parameter.list = list(
+        "VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci" = c("Gene_name","gene_description"),
+        "VARCHAR(50) CHARACTER SET latin1 COLLATE latin1_swedish_ci" = c("ENSDARG", "dr_symbol","clone_based_gene_ID","Gene_description","Gene_type","ENSG", "ENSMUSG", "hgnc_symbol", "mgi_symbol", "uniprot", "entrezgene","display_ptm", "^sequence_window", "p_site_env","for_GSEA_gene_chip","associated_gene_name", "gene_type"),
+        "VARCHAR(1) CHARACTER SET latin1 COLLATE latin1_swedish_ci" = c("ppos", "amino_acid", "charge","known_site"),
+        "BIGINT(8) NULL DEFAULT NULL" = c("row_names"),
+        "INT(8) NULL DEFAULT NULL" = c("DEseq2Normalized","CoVarOrder","row_id", "cluster_order","cluster_id", "count_cut_off", "^position$", "raw_counts"),
+        "DECIMAL(6,3) NULL DEFAULT NULL" = c("Integrated_Samples_","_avg_diff_","Ind_var","add_counts_",  "lg2BaseMean","lg2baseMean","contrast_P_PCA_estimatePCA","^CoVar$","NES", "logFC", "lg2_avg","norm_counts", "intensity", "^int", "iBAQ","^localization_prob$", "stat", "lg10p","contrast_x_"),
+        "DECIMAL(6,5) NULL DEFAULT NULL" = c("r2_PCA","padj", "pvalue","^pep$", "p_value_PCA")
+    ),
+    new.table = TRUE,
+    cols2Index = c(Obio@parameterList$geneIDcolumn)
+)
+
+killDbConnections()
+
+###############################################################################
+# Create microwebsite                                                         #
+###############################################################################
+
+## Color samples by sample group ##
+# Get sample order from database.table
+## oder samples according to PC1
+# df.pca <- df.pca[order(df.pca$pca1, decreasing = FALSE),]
+# sample.order <- paste0("norm_counts_", df.pca$sample_id)
+
+
+sample.order <- (names(Obio@databaseTable)[grep("norm_counts_", names(Obio@databaseTable))])
+
+
+lg2Avg.order <- sort(names(Obio@databaseTable)[grep("lg2_avg", names(Obio@databaseTable))])
+
+# sample.order <- c(
+#     'norm_counts_Avg_log10_Expr_All_Ctrl','norm_counts_Avg_log10_Expr_All_Prad','norm_counts_Avg_log10_Expr_Cl_0_C','norm_counts_Avg_log10_Expr_Cl_0_P','norm_counts_Avg_log10_Expr_Cl_10_C','norm_counts_Avg_log10_Expr_Cl_10_P','norm_counts_Avg_log10_Expr_Cl_1_C','norm_counts_Avg_log10_Expr_Cl_1_P','norm_counts_Avg_log10_Expr_Cl_2_C','norm_counts_Avg_log10_Expr_Cl_2_P','norm_counts_Avg_log10_Expr_Cl_3_C','norm_counts_Avg_log10_Expr_Cl_3_P','norm_counts_Avg_log10_Expr_Cl_4_C','norm_counts_Avg_log10_Expr_Cl_4_P','norm_counts_Avg_log10_Expr_Cl_5_C','norm_counts_Avg_log10_Expr_Cl_5_P','norm_counts_Avg_log10_Expr_Cl_6_C','norm_counts_Avg_log10_Expr_Cl_6_P','norm_counts_Avg_log10_Expr_Cl_7_C','norm_counts_Avg_log10_Expr_Cl_7_P','norm_counts_Avg_log10_Expr_Cl_8_C','norm_counts_Avg_log10_Expr_Cl_8_P','norm_counts_Avg_log10_Expr_Cl_9_C','norm_counts_Avg_log10_Expr_Cl_9_P'
+# )
+
+## Sort database.table ##
+
+#lg2Order <- gsub("norm_counts_", "lg2_avg_", sample.order)
+
+orderVec <- names(Obio@databaseTable)
+orderVec <- orderVec[!(orderVec %in% sample.order)]
+orderVec <- orderVec[!(orderVec %in% lg2Avg.order)]
+
+orderVec <- c(
+    orderVec,
+    sample.order,
+    lg2Avg.order
+)
+
+Obio@databaseTable <- Obio@databaseTable[,orderVec]
+
+## Get relevant colors ##
+sampleIDs <- paste0("_", unique(OsC@meta.data$sampleID))
+
+sample.colors <- sample.order
+for (i in 1:length(sampleIDs)){
+    sample.colors <- gsub(as.vector(sampleIDs[i]), "", sample.colors)    
+}
+
+
+library(scales)
+color.groups <- unique(sample.colors)
+#color.groups <- hue_pal()(length(color.groups))
+
+#dfDesign[["sample_color"]] <- "orange"
+nSampleGroups <- length(unique(color.groups))
+
+# library(RColorBrewer)
+# selcol <- colorRampPalette(brewer.pal(12,"Set3"))
+
+color.sel = hue_pal()(length(color.groups))
+
+for (i in 1:length(color.groups)){
+    sample.colors[grep(color.groups[i], sample.colors)] <- color.sel[i]
+}
+
+
+
+if (!exists("gsea.cat.lines")){
+    gsea.cat.lines <- ""
+    downloadCatEnrichmentFNxlsx <- ""
+} else {
+    downloadCatEnrichmentFNxlsx <- paste0("outputs/", Obio@parameterList$project.code, ".enriched.categories.txt")
+}
+
+if (!exists("timecourse.cat.lines")){
+    timecourse.cat.lines <- NA
+}
+
+#library(SBwebtools)
+setwd(Obio@parameterList$localWorkDir)
+
+#library(SBwebtools)
+webSiteDir <- Obio@parameterList$localWorkDir
+
+project.code <- gsub(substr(Obio@parameterList$project_id, 1, 3), "p", Obio@parameterList$project_id)
+
+
+###############################################################################
+## Set default X colum                                                       ##
+
+pos <- grep(
+  "^add_counts_Avg_log10_Expr_all$", 
+  names(Obio@databaseTable)
+)
+
+if (length(pos) == 1){
+  defaultX <- "add_counts_Avg_log10_Expr_all"
+} else {
+  defaultX <- "contrast_X_logFC_Expressed_in_N_Percent_Cells"
+}
+
+pos <- grep(
+  "^add_counts_Avg_log10_Expr_C_0$",
+  names(Obio@databaseTable)
+)
+
+if (length(pos) == 1){
+  defaultY <- "add_counts_Avg_log10_Expr_C_0"
+} else {
+  defaultY <- sample.order[1]
+}
+## d
+
+###############################################################################
+## Create default plot selection                                             ##
+
+plotSelection <- c(
+    names(Obio@databaseTable)[grep("_logFC_",names(Obio@databaseTable))],
+    names(Obio@databaseTable)[grep("contrast_P_PCA_estimatePCA",names(Obio@databaseTable))],
+
+    names(Obio@databaseTable)[grep("_lg10p_",names(Obio@databaseTable))],
+
+    names(Obio@databaseTable)[grep("lg2BaseMean",names(Obio@databaseTable))],
+    names(Obio@databaseTable)[grep("corCoef",names(Obio@databaseTable))],
+    names(Obio@databaseTable)[grep("add_counts",names(Obio@databaseTable))]
+)
+
+chunk1 <- plotSelection[grep("_logFC_", plotSelection)]
+chunkh2 <- plotSelection[grep("_lg10p_", plotSelection)]
+chunk2a <-chunkh2[grep("_lg10p_PCA", chunkh2)]
+chunk2b <- chunkh2[!(chunkh2  %in% chunk2a)]
+
+chnk2c <- plotSelection[grep("_corCoef", plotSelection)]
+
+chunk3 <- plotSelection[grep("_PCA_est", plotSelection)]
+
+chunk4 <- plotSelection[grep("_lg2BaseMean_", plotSelection)]
+# rmVec <- grep("_LRT_", chunk4)
+# if (length(rmVec) > 0){
+#     chunk4 <- chunk4[-rmVec]
+# }
+
+plotSelectionNew <- c(
+    chunk1,
+    chunk2b,
+    chnk2c,
+    chunk3,
+    chunk2a,
+    chunk4
+)
+
+plotAdd <- plotSelection[!(plotSelection %in% plotSelectionNew)]
+
+plotSelection <- c(
+    defaultX,
+    defaultY,
+    plotSelectionNew,
+    plotAdd
+)
+
+
+## Done creating default plot selection                                      ##
+###############################################################################
+
+###############################################################################
+## Do default Venn selection                                                 ##
+defaultVennSel <- names(Obio@databaseTable)
+defaultVennSel <- c(
+    defaultVennSel[grep("contrast_", defaultVennSel)],
+    defaultVennSel[grep("add_venn_", defaultVennSel)],
+    defaultVennSel[grep("_TsCor_", defaultVennSel)]
+
+)
+
+rmVec <- c(
+    grep("contrast_P_", defaultVennSel),
+    grep("_lg2BaseMean_", defaultVennSel),
+    grep("_padj_LRT_", defaultVennSel),
+    grep("_lg10p_", defaultVennSel),
+    grep("_stat_", defaultVennSel),
+    grep("pValueCor_", defaultVennSel)
+)
+
+if (length(rmVec) > 0){
+    defaultVennSel <- defaultVennSel[-rmVec]
+}
+
+## Add lrt
+defaultVennSel <- c(
+    defaultVennSel,
+    names(Obio@databaseTable)[grep("contrast_L_lg10p", names(Obio@databaseTable))]
+)
+
+## Done with LRT selection                                                   ##
+###############################################################################
+
+
+###############################################################################
+## Deploy next generation website                                            ##
+createSettingsFile(
+    obj = Obio,
+    df.data = Obio@databaseTable,
+    defaultXcolName = defaultX,
+    defaultYcolName = defaultY,
+    primDataTable = Obio@parameterList$rnaseqdbTableName,
+    pcaDbTable = Obio@parameterList$PCAdbTableName, 
+    sample.order = sample.order, #set to "" to go with default sorting
+    heatmapSampleOrder = "",
+    sample.names = "", # default is sample.order
+    count.sample.colors = sample.colors,
+    ptm.colum = "",
+    count.table.headline = Obio@parameterList$count.table.headline,
+    count.table.sidelabel = Obio@parameterList$count.table.sidelabel,
+    venn.slider.selector.strings = defaultVennSel,
+    plot.selection.strings = plotSelection,
+    webSiteDir = paste0(hpc.mount, "Stefan/protocol_files/github/biologic/src/experiments/"),
+    upper_heatmap_limit = 3, 
+    lower_heatmap_limit = -3,
+    heamap.headline.text = Obio@parameterList$heamap.headline.text,
+    project_id = Obio@parameterList$project_id
+)
+
+setwd(Obio@parameterList$localWorkDir)
+## Done deploying next generation website                                    ##
+###############################################################################
+save(Obio, 
+     file = paste0(
+         Obio@parameterList$localWorkDir,
+         Obio@parameterList$project_id,
+         ".bioLOGIC.Robj"
+     )
+)
+
+print("Obio Object saved.")
+
+save(OsC,
+    file = paste0(
+         Obio@parameterList$localWorkDir,
+         Obio@parameterList$project_id,
+        ".Seurat.Robj"
+     )
+)
+
+```
+
+
+
+## Documentation
+```{r documentation, eval=TRUE, echo=T, results=T}
+sessionInfo()
+```
+
+
+---
+title: '`r paste0("DGE Module for project ",  Obio@parameterList$project_id)`'
+---

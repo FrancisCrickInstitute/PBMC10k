@@ -1,5 +1,4 @@
 ---
-title: "DGE Module ASL319"
 author: "Stefan Boeing"
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 
@@ -64,12 +63,8 @@ dbTable <- read.delim(
 db.pwd <- as.vector(dbTable[1,1])
 
 
-source(
-    paste0(
-        hpc.mount,
-        "Stefan/protocol_files/github/boeings/packages/packageSourceCode/SBwebtools.pckg.r"
-    )
-)
+source("assets/SBwebtools.pckg.r")
+
 
 
 if (length(.libPaths()) > 2){
@@ -168,7 +163,6 @@ create.gsea.rnk.files(
 # # #sed '$d' file # remove last line
 # #
 # ## Function to create gmt file ##
-Obio@parameterList$lab.categories.table <- "ag_lab_categories"
 tables <- c(
      "mysigdb_h_hallmarks" ,
      "mysigdb_c5_BP" ,
@@ -523,3 +517,7 @@ datatable(
 ```{r documentation, eval=TRUE, echo=T, results=T}
 sessionInfo()
 ```
+
+---
+title: '`r paste0("GSEA Analysis for Project ",  Obio@parameterList$project_id)`'
+---

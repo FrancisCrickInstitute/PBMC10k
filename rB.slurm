@@ -1,6 +1,6 @@
 
 
-processing file: template.singlecell.partB.Analysis_V1.Rmd
+processing file: sc_PartB_Analysis.Rmd
   |                                                                              |                                                                      |   0%  |                                                                              |.                                                                     |   1%
    inline R code fragments
 
@@ -19,7 +19,7 @@ List of 3
  $ echo  : symbol T
  $ engine: chr "bash"
 
-  |                                                                              |....                                                                  |   5%
+  |                                                                              |....                                                                  |   6%
   ordinary text without R code
 
   |                                                                              |.....                                                                 |   7%
@@ -169,7 +169,7 @@ List of 4
  $ results: logi FALSE
 
 Loading required package: DBI
-  |                                                                              |........                                                              |  12%
+  |                                                                              |.........                                                             |  12%
   ordinary text without R code
 
   |                                                                              |.........                                                             |  13%
@@ -180,30 +180,11 @@ List of 4
  $ warning: logi FALSE
  $ results: symbol F
 
-
-Attaching package: 'future'
-
-The following object is masked from 'package:SummarizedExperiment':
-
-    values
-
-The following object is masked from 'package:GenomicRanges':
-
-    values
-
-The following object is masked from 'package:IRanges':
-
-    values
-
-The following object is masked from 'package:S4Vectors':
-
-    values
-
-Warning: Adding a command log without an assay associated with it
+Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
   |                                                                              |..........                                                            |  14%
   ordinary text without R code
 
-  |                                                                              |...........                                                           |  15%
+  |                                                                              |...........                                                           |  16%
 label: create-individual-varFeatures (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -221,8 +202,12 @@ Calculating feature variances of standardized and clipped values
 **************************************************|
 Finished averaging RNA for cluster all
 Finished averaging SCT for cluster all
-Finished averaging integrated for cluster all
+Performing log-normalization
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
 Centering and scaling data matrix
+  |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |====                                                                  |   6%  |                                                                              |======                                                                |   9%  |                                                                              |========                                                              |  12%  |                                                                              |===========                                                           |  15%  |                                                                              |=============                                                         |  18%  |                                                                              |===============                                                       |  21%  |                                                                              |=================                                                     |  24%  |                                                                              |===================                                                   |  27%  |                                                                              |=====================                                                 |  30%  |                                                                              |=======================                                               |  33%  |                                                                              |=========================                                             |  36%  |                                                                              |============================                                          |  39%  |                                                                              |==============================                                        |  42%  |                                                                              |================================                                      |  45%  |                                                                              |==================================                                    |  48%  |                                                                              |====================================                                  |  52%  |                                                                              |======================================                                |  55%  |                                                                              |========================================                              |  58%  |                                                                              |==========================================                            |  61%  |                                                                              |=============================================                         |  64%  |                                                                              |===============================================                       |  67%  |                                                                              |=================================================                     |  70%  |                                                                              |===================================================                   |  73%  |                                                                              |=====================================================                 |  76%  |                                                                              |=======================================================               |  79%  |                                                                              |=========================================================             |  82%  |                                                                              |===========================================================           |  85%  |                                                                              |==============================================================        |  88%  |                                                                              |================================================================      |  91%  |                                                                              |==================================================================    |  94%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
 Calculating gene variances
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
@@ -239,51 +224,18 @@ Calculating feature variances of standardized and clipped values
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging RNA for cluster PD7_1
-Finished averaging SCT for cluster PD7_1
+Finished averaging RNA for cluster S
+Finished averaging SCT for cluster S
+Performing log-normalization
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
 Centering and scaling data matrix
-Calculating gene variances
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Calculating feature variances of standardized and clipped values
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Calculating gene variances
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Calculating feature variances of standardized and clipped values
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Finished averaging RNA for cluster PD4_2
-Finished averaging SCT for cluster PD4_2
-Centering and scaling data matrix
-Calculating gene variances
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Calculating feature variances of standardized and clipped values
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Calculating gene variances
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Calculating feature variances of standardized and clipped values
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Finished averaging RNA for cluster E18_5_1
-Finished averaging SCT for cluster E18_5_1
-Centering and scaling data matrix
-  |                                                                              |...........                                                           |  16%
+  |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |====                                                                  |   6%  |                                                                              |======                                                                |   9%  |                                                                              |========                                                              |  12%  |                                                                              |===========                                                           |  15%  |                                                                              |=============                                                         |  18%  |                                                                              |===============                                                       |  21%  |                                                                              |=================                                                     |  24%  |                                                                              |===================                                                   |  27%  |                                                                              |=====================                                                 |  30%  |                                                                              |=======================                                               |  33%  |                                                                              |=========================                                             |  36%  |                                                                              |============================                                          |  39%  |                                                                              |==============================                                        |  42%  |                                                                              |================================                                      |  45%  |                                                                              |==================================                                    |  48%  |                                                                              |====================================                                  |  52%  |                                                                              |======================================                                |  55%  |                                                                              |========================================                              |  58%  |                                                                              |==========================================                            |  61%  |                                                                              |=============================================                         |  64%  |                                                                              |===============================================                       |  67%  |                                                                              |=================================================                     |  70%  |                                                                              |===================================================                   |  73%  |                                                                              |=====================================================                 |  76%  |                                                                              |=======================================================               |  79%  |                                                                              |=========================================================             |  82%  |                                                                              |===========================================================           |  85%  |                                                                              |==============================================================        |  88%  |                                                                              |================================================================      |  91%  |                                                                              |==================================================================    |  94%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
+  |                                                                              |............                                                          |  17%
   ordinary text without R code
 
-  |                                                                              |............                                                          |  17%
+  |                                                                              |............                                                          |  18%
 label: create-var-feature-plot-II (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -291,7 +243,7 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |.............                                                         |  18%
+  |                                                                              |.............                                                         |  19%
   ordinary text without R code
 
   |                                                                              |..............                                                        |  20%
@@ -305,32 +257,32 @@ List of 4
 Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric
 To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'
 This message will be shown once per session
-13:27:40 UMAP embedding parameters a = 0.9922 b = 1.112
-13:27:40 Read 22804 rows and found 20 numeric columns
-13:27:40 Using Annoy for neighbor search, n_neighbors = 30
-13:27:40 Building Annoy index with metric = cosine, n_trees = 50
+23:24:37 UMAP embedding parameters a = 0.9922 b = 1.112
+23:24:37 Read 2694 rows and found 20 numeric columns
+23:24:37 Using Annoy for neighbor search, n_neighbors = 30
+23:24:37 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-13:27:48 Writing NN index file to temp file /tmp/slurm_18210347/Rtmp2Tx1XF/file14bf5472ca889
-13:27:48 Searching Annoy index using 30 threads, search_k = 3000
-13:27:50 Annoy recall = 100%
-13:27:52 Commencing smooth kNN distance calibration using 30 threads
-13:27:55 Initializing from normalized Laplacian + noise
-13:27:58 Commencing optimization for 200 epochs, with 977710 positive edges
+23:24:38 Writing NN index file to temp file /tmp/slurm_18711560/RtmpuhAzK9/file3fac206601fb
+23:24:38 Searching Annoy index using 1 thread, search_k = 3000
+23:24:39 Annoy recall = 100%
+23:24:40 Commencing smooth kNN distance calibration using 1 thread
+23:24:41 Initializing from normalized Laplacian + noise
+23:24:41 Commencing optimization for 500 epochs, with 111150 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-13:28:38 Optimization finished
+23:24:52 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-  |                                                                              |..............                                                        |  21%
+  |                                                                              |...............                                                       |  21%
   ordinary text without R code
 
-  |                                                                              |...............                                                       |  22%
+  |                                                                              |................                                                      |  22%
 label: Plot_tsne_data_rendering (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -349,10 +301,10 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |..................                                                    |  25%
+  |                                                                              |..................                                                    |  26%
   ordinary text without R code
 
-  |                                                                              |..................                                                    |  26%
+  |                                                                              |...................                                                   |  27%
 label: Plot_dimred_by_cluster_data_prep (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -412,31 +364,20 @@ Finished averaging RNA for cluster 11
 Finished averaging RNA for cluster 12
 Finished averaging RNA for cluster 13
 Finished averaging RNA for cluster 14
-Finished averaging RNA for cluster 15
-Finished averaging RNA for cluster 16
-Finished averaging RNA for cluster 17
-Calculating cluster 0
-Calculating cluster 1
-Calculating cluster 2
-Calculating cluster 3
-Calculating cluster 4
-Calculating cluster 5
-Calculating cluster 6
-Calculating cluster 7
-Calculating cluster 8
-Calculating cluster 9
-Calculating cluster 10
-Calculating cluster 11
-Calculating cluster 12
-Calculating cluster 13
-Calculating cluster 14
-Calculating cluster 15
-Calculating cluster 16
-Calculating cluster 17
-  |                                                                              |...................                                                   |  27%
+Calculating cluster RNA_rnn_res.0.7
+Warning: No DE genes identified
+Warning: The following tests were not performed: 
+Warning: When testing RNA_rnn_res.0.7 versus all:
+	Cell group 2 is empty - no cells with identity class 
+Calculating cluster RNA_rnn_res.0.7
+Warning: No DE genes identified
+Warning: The following tests were not performed: 
+Warning: When testing RNA_rnn_res.0.7 versus all:
+	Cell group 2 is empty - no cells with identity class 
+  |                                                                              |...................                                                   |  28%
   ordinary text without R code
 
-  |                                                                              |....................                                                  |  28%
+  |                                                                              |....................                                                  |  29%
 label: Plot_dim_red_by_cluster (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -444,10 +385,10 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |.....................                                                 |  29%
+  |                                                                              |.....................                                                 |  30%
   ordinary text without R code
 
-  |                                                                              |.....................                                                 |  30%
+  |                                                                              |......................                                                |  31%
 label: Plot_umap_sleepwalk (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -456,7 +397,7 @@ List of 4
  $ results: chr "asis"
 
 Estimating 'maxdist' for feature matrix 1
-  |                                                                              |......................                                                |  32%
+  |                                                                              |.......................                                               |  32%
   ordinary text without R code
 
   |                                                                              |.......................                                               |  33%
@@ -471,7 +412,7 @@ List of 5
   |                                                                              |........................                                              |  34%
   ordinary text without R code
 
-  |                                                                              |........................                                              |  35%
+  |                                                                              |.........................                                             |  36%
 label: doublet-plot (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -479,10 +420,10 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |.........................                                             |  36%
+  |                                                                              |..........................                                            |  37%
   ordinary text without R code
 
-  |                                                                              |..........................                                            |  37%
+  |                                                                              |..........................                                            |  38%
 label: Plot_dimred_by_cell_cycle_phase_data_prep (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -491,7 +432,7 @@ List of 4
  $ results: logi FALSE
 
 Warning: The following features are not present in the object: MCM5, PCNA, TYMS, FEN1, MCM2, MCM4, RRM1, UNG, GINS2, MCM6, CDCA7, DTL, PRIM1, UHRF1, MLF1IP, HELLS, RFC2, RPA2, NASP, RAD51AP1, GMNN, WDR76, SLBP, CCNE2, UBR7, POLD3, MSH2, ATAD2, RAD51, RRM2, CDC45, CDC6, EXO1, TIPIN, DSCC1, BLM, CASP8AP2, USP1, CLSPN, POLA1, CHAF1B, BRIP1, E2F8, not searching for symbol synonyms
-Warning: The following features are not present in the object: HMGB2, CDK1, NUSAP1, UBE2C, BIRC5, TPX2, TOP2A, NDC80, CKS2, NUF2, CKS1B, MKI67, TMPO, CENPF, TACC3, FAM64A, SMC4, CCNB2, CKAP2L, CKAP2, AURKB, BUB1, KIF11, ANP32E, TUBB4B, GTSE1, KIF20B, HJURP, CDCA3, HN1, CDC20, TTK, CDC25C, KIF2C, RANGAP1, NCAPD2, DLGAP5, CDCA2, CDCA8, ECT2, KIF23, HMMR, AURKA, PSRC1, ANLN, LBR, CKAP5, CENPE, CTCF, NEK2, G2E3, GAS2L3, CBX5, CENPA, not searching for symbol synonyms
+Warning: The following features are not present in the object: HMGB2, CDK1, NUSAP1, UBE2C, BIRC5, TPX2, TOP2A, NDC80, NUF2, CKS1B, MKI67, TMPO, CENPF, TACC3, FAM64A, SMC4, CCNB2, CKAP2L, CKAP2, AURKB, BUB1, KIF11, ANP32E, GTSE1, KIF20B, HJURP, CDCA3, HN1, CDC20, TTK, CDC25C, KIF2C, RANGAP1, NCAPD2, DLGAP5, CDCA2, CDCA8, ECT2, KIF23, HMMR, AURKA, PSRC1, ANLN, LBR, CKAP5, CENPE, CTCF, NEK2, G2E3, GAS2L3, CBX5, CENPA, not searching for symbol synonyms
 Finished averaging RNA for cluster 0
 Finished averaging RNA for cluster 1
 Finished averaging RNA for cluster 2
@@ -507,13 +448,10 @@ Finished averaging RNA for cluster 11
 Finished averaging RNA for cluster 12
 Finished averaging RNA for cluster 13
 Finished averaging RNA for cluster 14
-Finished averaging RNA for cluster 15
-Finished averaging RNA for cluster 16
-Finished averaging RNA for cluster 17
-  |                                                                              |...........................                                           |  38%
+  |                                                                              |...........................                                           |  39%
   ordinary text without R code
 
-  |                                                                              |...........................                                           |  39%
+  |                                                                              |............................                                          |  40%
 label: Plot_dim_red_by_cell_cycle_phase (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -521,10 +459,10 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |............................                                          |  40%
+  |                                                                              |.............................                                         |  41%
   ordinary text without R code
 
-  |                                                                              |.............................                                         |  41%
+  |                                                                              |..............................                                        |  42%
 label: make_percent_N_cells_barchart (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -532,559 +470,10 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |..............................                                        |  42%
-  ordinary text without R code
+Quitting from lines 1942-2146 (sc_PartB_Analysis.Rmd) 
+Error in `[.data.frame`(OsC@meta.data, , Obio@parameterList$singleCellClusterString) : 
+  undefined columns selected
+Calls: <Anonymous> ... withVisible -> eval -> eval -> unique -> [ -> [.data.frame
+In addition: There were 50 or more warnings (use warnings() to see the first 50)
 
-  |                                                                              |..............................                                        |  43%
-label: plot_barchart (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-  |                                                                              |...............................                                       |  45%
-  ordinary text without R code
-
-  |                                                                              |................................                                      |  46%
-label: Identify_cluster_marker (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ fig.cap: chr "**Figure 1:** tSNE"
-
-  |                                                                              |.................................                                     |  47%
-  ordinary text without R code
-
-  |                                                                              |.................................                                     |  48%
-label: AUC_prep_from_file (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: symbol F
-
-Quantiles for the number of genes detected by cell: 
-(Non-detected genes are shuffled at the end of the ranking. Keep it in mind when choosing the threshold for calculating the AUC).
-Coordinate system already present. Adding new coordinate system, which will replace the existing one.
-Coordinate system already present. Adding new coordinate system, which will replace the existing one.
-Coordinate system already present. Adding new coordinate system, which will replace the existing one.
-Coordinate system already present. Adding new coordinate system, which will replace the existing one.
-Coordinate system already present. Adding new coordinate system, which will replace the existing one.
-Coordinate system already present. Adding new coordinate system, which will replace the existing one.
-Coordinate system already present. Adding new coordinate system, which will replace the existing one.
-Coordinate system already present. Adding new coordinate system, which will replace the existing one.
-Coordinate system already present. Adding new coordinate system, which will replace the existing one.
-Coordinate system already present. Adding new coordinate system, which will replace the existing one.
-Coordinate system already present. Adding new coordinate system, which will replace the existing one.
-  |                                                                              |..................................                                    |  49%
-  ordinary text without R code
-
-  |                                                                              |...................................                                   |  50%
-label: enrichment_plots (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-  |                                                                              |....................................                                  |  51%
-  ordinary text without R code
-
-  |                                                                              |.....................................                                 |  52%
-label: Cluster_overview_data_prep (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: symbol F
-
-Scale for 'fill' is already present. Adding another scale for 'fill', which
-will replace the existing scale.
-Scale for 'fill' is already present. Adding another scale for 'fill', which
-will replace the existing scale.
-Coordinate system already present. Adding new coordinate system, which will replace the existing one.
-  |                                                                              |.....................................                                 |  53%
-  ordinary text without R code
-
-  |                                                                              |......................................                                |  54%
-label: Cluster_overview (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-  |                                                                              |.......................................                               |  55%
-  ordinary text without R code
-
-  |                                                                              |........................................                              |  57%
-label: ClusterTable_data_prep (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-
-Attaching package: 'DT'
-
-The following object is masked from 'package:Seurat':
-
-    JS
-
-  |                                                                              |........................................                              |  58%
-  ordinary text without R code
-
-  |                                                                              |.........................................                             |  59%
-label: render_ClusterTable (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-  |                                                                              |..........................................                            |  60%
-  ordinary text without R code
-
-  |                                                                              |...........................................                           |  61%
-label: create-markdown-enrichment-chunks-prepare-data (with options) 
-List of 4
- $ echo   : symbol T
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: symbol F
-
-  |                                                                              |...........................................                           |  62%
-  ordinary text without R code
-
-  |                                                                              |............................................                          |  63%
-label: create-markdown-enrichment-chunks-dynamically (with options) 
-List of 4
- $ echo   : symbol T
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-  |                                                                              |.............................................                         |  64%
-  ordinary text without R code
-
-  |                                                                              |..............................................                        |  65%
-label: MakeHM (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-  |                                                                              |..............................................                        |  66%
-  ordinary text without R code
-
-  |                                                                              |...............................................                       |  67%
-label: calculate-markdown-heatmap-chunks-dynamically (with options) 
-List of 4
- $ echo   : symbol F
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-  |                                                                              |................................................                      |  68%
-  ordinary text without R code
-
-  |                                                                              |.................................................                     |  70%
-label: Identify differential expressed genes across conditions (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-Finished averaging RNA for cluster C_0_PD7_1
-Finished averaging RNA for cluster C_4_PD7_1
-Finished averaging RNA for cluster C_5_PD7_1
-Finished averaging RNA for cluster C_1_PD7_1
-Finished averaging RNA for cluster C_12_PD7_1
-Finished averaging RNA for cluster C_10_PD7_1
-Finished averaging RNA for cluster C_14_PD7_1
-Finished averaging RNA for cluster C_8_PD7_1
-Finished averaging RNA for cluster C_2_PD7_1
-Finished averaging RNA for cluster C_9_PD7_1
-Finished averaging RNA for cluster C_7_PD7_1
-Finished averaging RNA for cluster C_3_PD7_1
-Finished averaging RNA for cluster C_11_PD7_1
-Finished averaging RNA for cluster C_6_PD7_1
-Finished averaging RNA for cluster C_13_PD7_1
-Finished averaging RNA for cluster C_16_PD7_1
-Finished averaging RNA for cluster C_15_PD7_1
-Finished averaging RNA for cluster C_17_PD7_1
-Finished averaging RNA for cluster C_1_PD4_2
-Finished averaging RNA for cluster C_4_PD4_2
-Finished averaging RNA for cluster C_3_PD4_2
-Finished averaging RNA for cluster C_8_PD4_2
-Finished averaging RNA for cluster C_2_PD4_2
-Finished averaging RNA for cluster C_11_PD4_2
-Finished averaging RNA for cluster C_9_PD4_2
-Finished averaging RNA for cluster C_0_PD4_2
-Finished averaging RNA for cluster C_10_PD4_2
-Finished averaging RNA for cluster C_12_PD4_2
-Finished averaging RNA for cluster C_5_PD4_2
-Finished averaging RNA for cluster C_13_PD4_2
-Finished averaging RNA for cluster C_7_PD4_2
-Finished averaging RNA for cluster C_6_PD4_2
-Finished averaging RNA for cluster C_14_PD4_2
-Finished averaging RNA for cluster C_16_PD4_2
-Finished averaging RNA for cluster C_15_PD4_2
-Finished averaging RNA for cluster C_17_PD4_2
-Finished averaging RNA for cluster C_0_E18_5_1
-Finished averaging RNA for cluster C_1_E18_5_1
-Finished averaging RNA for cluster C_2_E18_5_1
-Finished averaging RNA for cluster C_5_E18_5_1
-Finished averaging RNA for cluster C_13_E18_5_1
-Finished averaging RNA for cluster C_7_E18_5_1
-Finished averaging RNA for cluster C_6_E18_5_1
-Finished averaging RNA for cluster C_8_E18_5_1
-Finished averaging RNA for cluster C_12_E18_5_1
-Finished averaging RNA for cluster C_3_E18_5_1
-Finished averaging RNA for cluster C_16_E18_5_1
-Finished averaging RNA for cluster C_10_E18_5_1
-Finished averaging RNA for cluster C_4_E18_5_1
-Finished averaging RNA for cluster C_14_E18_5_1
-Finished averaging RNA for cluster C_11_E18_5_1
-Finished averaging RNA for cluster C_17_E18_5_1
-Finished averaging RNA for cluster C_15_E18_5_1
-Finished averaging RNA for cluster C_9_E18_5_1
-Finished averaging SCT for cluster C_0_PD7_1
-Finished averaging SCT for cluster C_4_PD7_1
-Finished averaging SCT for cluster C_5_PD7_1
-Finished averaging SCT for cluster C_1_PD7_1
-Finished averaging SCT for cluster C_12_PD7_1
-Finished averaging SCT for cluster C_10_PD7_1
-Finished averaging SCT for cluster C_14_PD7_1
-Finished averaging SCT for cluster C_8_PD7_1
-Finished averaging SCT for cluster C_2_PD7_1
-Finished averaging SCT for cluster C_9_PD7_1
-Finished averaging SCT for cluster C_7_PD7_1
-Finished averaging SCT for cluster C_3_PD7_1
-Finished averaging SCT for cluster C_11_PD7_1
-Finished averaging SCT for cluster C_6_PD7_1
-Finished averaging SCT for cluster C_13_PD7_1
-Finished averaging SCT for cluster C_16_PD7_1
-Finished averaging SCT for cluster C_15_PD7_1
-Finished averaging SCT for cluster C_17_PD7_1
-Finished averaging SCT for cluster C_1_PD4_2
-Finished averaging SCT for cluster C_4_PD4_2
-Finished averaging SCT for cluster C_3_PD4_2
-Finished averaging SCT for cluster C_8_PD4_2
-Finished averaging SCT for cluster C_2_PD4_2
-Finished averaging SCT for cluster C_11_PD4_2
-Finished averaging SCT for cluster C_9_PD4_2
-Finished averaging SCT for cluster C_0_PD4_2
-Finished averaging SCT for cluster C_10_PD4_2
-Finished averaging SCT for cluster C_12_PD4_2
-Finished averaging SCT for cluster C_5_PD4_2
-Finished averaging SCT for cluster C_13_PD4_2
-Finished averaging SCT for cluster C_7_PD4_2
-Finished averaging SCT for cluster C_6_PD4_2
-Finished averaging SCT for cluster C_14_PD4_2
-Finished averaging SCT for cluster C_16_PD4_2
-Finished averaging SCT for cluster C_15_PD4_2
-Finished averaging SCT for cluster C_17_PD4_2
-Finished averaging SCT for cluster C_0_E18_5_1
-Finished averaging SCT for cluster C_1_E18_5_1
-Finished averaging SCT for cluster C_2_E18_5_1
-Finished averaging SCT for cluster C_5_E18_5_1
-Finished averaging SCT for cluster C_13_E18_5_1
-Finished averaging SCT for cluster C_7_E18_5_1
-Finished averaging SCT for cluster C_6_E18_5_1
-Finished averaging SCT for cluster C_8_E18_5_1
-Finished averaging SCT for cluster C_12_E18_5_1
-Finished averaging SCT for cluster C_3_E18_5_1
-Finished averaging SCT for cluster C_16_E18_5_1
-Finished averaging SCT for cluster C_10_E18_5_1
-Finished averaging SCT for cluster C_4_E18_5_1
-Finished averaging SCT for cluster C_14_E18_5_1
-Finished averaging SCT for cluster C_11_E18_5_1
-Finished averaging SCT for cluster C_17_E18_5_1
-Finished averaging SCT for cluster C_15_E18_5_1
-Finished averaging SCT for cluster C_9_E18_5_1
-Finished averaging integrated for cluster C_0_PD7_1
-Finished averaging integrated for cluster C_4_PD7_1
-Finished averaging integrated for cluster C_5_PD7_1
-Finished averaging integrated for cluster C_1_PD7_1
-Finished averaging integrated for cluster C_12_PD7_1
-Finished averaging integrated for cluster C_10_PD7_1
-Finished averaging integrated for cluster C_14_PD7_1
-Finished averaging integrated for cluster C_8_PD7_1
-Finished averaging integrated for cluster C_2_PD7_1
-Finished averaging integrated for cluster C_9_PD7_1
-Finished averaging integrated for cluster C_7_PD7_1
-Finished averaging integrated for cluster C_3_PD7_1
-Finished averaging integrated for cluster C_11_PD7_1
-Finished averaging integrated for cluster C_6_PD7_1
-Finished averaging integrated for cluster C_13_PD7_1
-Finished averaging integrated for cluster C_16_PD7_1
-Finished averaging integrated for cluster C_15_PD7_1
-Finished averaging integrated for cluster C_17_PD7_1
-Finished averaging integrated for cluster C_1_PD4_2
-Finished averaging integrated for cluster C_4_PD4_2
-Finished averaging integrated for cluster C_3_PD4_2
-Finished averaging integrated for cluster C_8_PD4_2
-Finished averaging integrated for cluster C_2_PD4_2
-Finished averaging integrated for cluster C_11_PD4_2
-Finished averaging integrated for cluster C_9_PD4_2
-Finished averaging integrated for cluster C_0_PD4_2
-Finished averaging integrated for cluster C_10_PD4_2
-Finished averaging integrated for cluster C_12_PD4_2
-Finished averaging integrated for cluster C_5_PD4_2
-Finished averaging integrated for cluster C_13_PD4_2
-Finished averaging integrated for cluster C_7_PD4_2
-Finished averaging integrated for cluster C_6_PD4_2
-Finished averaging integrated for cluster C_14_PD4_2
-Finished averaging integrated for cluster C_16_PD4_2
-Finished averaging integrated for cluster C_15_PD4_2
-Finished averaging integrated for cluster C_17_PD4_2
-Finished averaging integrated for cluster C_0_E18_5_1
-Finished averaging integrated for cluster C_1_E18_5_1
-Finished averaging integrated for cluster C_2_E18_5_1
-Finished averaging integrated for cluster C_5_E18_5_1
-Finished averaging integrated for cluster C_13_E18_5_1
-Finished averaging integrated for cluster C_7_E18_5_1
-Finished averaging integrated for cluster C_6_E18_5_1
-Finished averaging integrated for cluster C_8_E18_5_1
-Finished averaging integrated for cluster C_12_E18_5_1
-Finished averaging integrated for cluster C_3_E18_5_1
-Finished averaging integrated for cluster C_16_E18_5_1
-Finished averaging integrated for cluster C_10_E18_5_1
-Finished averaging integrated for cluster C_4_E18_5_1
-Finished averaging integrated for cluster C_14_E18_5_1
-Finished averaging integrated for cluster C_11_E18_5_1
-Finished averaging integrated for cluster C_17_E18_5_1
-Finished averaging integrated for cluster C_15_E18_5_1
-Finished averaging integrated for cluster C_9_E18_5_1
-Centering and scaling data matrix
-Finished averaging RNA for cluster C_0
-Finished averaging RNA for cluster C_1
-Finished averaging RNA for cluster C_10
-Finished averaging RNA for cluster C_11
-Finished averaging RNA for cluster C_12
-Finished averaging RNA for cluster C_13
-Finished averaging RNA for cluster C_14
-Finished averaging RNA for cluster C_15
-Finished averaging RNA for cluster C_16
-Finished averaging RNA for cluster C_17
-Finished averaging RNA for cluster C_2
-Finished averaging RNA for cluster C_3
-Finished averaging RNA for cluster C_4
-Finished averaging RNA for cluster C_5
-Finished averaging RNA for cluster C_6
-Finished averaging RNA for cluster C_7
-Finished averaging RNA for cluster C_8
-Finished averaging RNA for cluster C_9
-Finished averaging SCT for cluster C_0
-Finished averaging SCT for cluster C_1
-Finished averaging SCT for cluster C_10
-Finished averaging SCT for cluster C_11
-Finished averaging SCT for cluster C_12
-Finished averaging SCT for cluster C_13
-Finished averaging SCT for cluster C_14
-Finished averaging SCT for cluster C_15
-Finished averaging SCT for cluster C_16
-Finished averaging SCT for cluster C_17
-Finished averaging SCT for cluster C_2
-Finished averaging SCT for cluster C_3
-Finished averaging SCT for cluster C_4
-Finished averaging SCT for cluster C_5
-Finished averaging SCT for cluster C_6
-Finished averaging SCT for cluster C_7
-Finished averaging SCT for cluster C_8
-Finished averaging SCT for cluster C_9
-Finished averaging integrated for cluster C_0
-Finished averaging integrated for cluster C_1
-Finished averaging integrated for cluster C_10
-Finished averaging integrated for cluster C_11
-Finished averaging integrated for cluster C_12
-Finished averaging integrated for cluster C_13
-Finished averaging integrated for cluster C_14
-Finished averaging integrated for cluster C_15
-Finished averaging integrated for cluster C_16
-Finished averaging integrated for cluster C_17
-Finished averaging integrated for cluster C_2
-Finished averaging integrated for cluster C_3
-Finished averaging integrated for cluster C_4
-Finished averaging integrated for cluster C_5
-Finished averaging integrated for cluster C_6
-Finished averaging integrated for cluster C_7
-Finished averaging integrated for cluster C_8
-Finished averaging integrated for cluster C_9
-Centering and scaling data matrix
-Finished averaging RNA for cluster PD7_1
-Finished averaging RNA for cluster PD4_2
-Finished averaging RNA for cluster E18_5_1
-Finished averaging SCT for cluster PD7_1
-Finished averaging SCT for cluster PD4_2
-Finished averaging SCT for cluster E18_5_1
-Finished averaging integrated for cluster PD7_1
-Finished averaging integrated for cluster PD4_2
-Finished averaging integrated for cluster E18_5_1
-Centering and scaling data matrix
-  |                                                                              |.................................................                     |  71%
-  ordinary text without R code
-
-  |                                                                              |..................................................                    |  72%
-label: ExampleFeaturePlot_dataprep (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-  |                                                                              |...................................................                   |  73%
-  ordinary text without R code
-
-  |                                                                              |....................................................                  |  74%
-label: ExampleFeaturePlot (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-  |                                                                              |....................................................                  |  75%
-  ordinary text without R code
-
-  |                                                                              |.....................................................                 |  76%
-label: elbow_plot (with options) 
-List of 3
- $ fig.height: num 6
- $ fig.width : num 10
- $ fig.cap   : language paste0("**Figure, ", figureCount, ": Elbowplot** Variance explained per PCA dimension")
-
-  |                                                                              |......................................................                |  77%
-  ordinary text without R code
-
-  |                                                                              |.......................................................               |  78%
-label: PCA_dataprep (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: symbol F
-
-  |                                                                              |........................................................              |  79%
-  ordinary text without R code
-
-  |                                                                              |........................................................              |  80%
-label: plot_PCADimPlots (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-  |                                                                              |.........................................................             |  82%
-  ordinary text without R code
-
-  |                                                                              |..........................................................            |  83%
-label: pca_boxplot_dataprep (with options) 
-List of 4
- $ echo   : symbol T
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: symbol F
-
-  |                                                                              |...........................................................           |  84%
-  ordinary text without R code
-
-  |                                                                              |...........................................................           |  85%
-label: pca_boxplot (with options) 
-List of 4
- $ echo   : logi TRUE
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-  |                                                                              |............................................................          |  86%
-  ordinary text without R code
-
-  |                                                                              |.............................................................         |  87%
-label: create-pca-enrichment-data (with options) 
-List of 4
- $ echo   : symbol T
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: symbol F
-
-Welcome to enrichR
-Checking connection ... Connection is Live!
-  |                                                                              |..............................................................        |  88%
-  ordinary text without R code
-
-  |                                                                              |..............................................................        |  89%
-label: create-pca-enrichment-plot (with options) 
-List of 4
- $ echo   : symbol T
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-  |                                                                              |...............................................................       |  90%
-  ordinary text without R code
-
-  |                                                                              |................................................................      |  91%
-label: pseudotime-enrichment-data (with options) 
-List of 4
- $ echo   : symbol T
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: symbol F
-
-  |                                                                              |.................................................................     |  92%
-  ordinary text without R code
-
-  |                                                                              |.................................................................     |  93%
-label: pseudotime-plot (with options) 
-List of 4
- $ echo   : symbol T
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: chr "asis"
-
-  |                                                                              |..................................................................    |  95%
-  ordinary text without R code
-
-  |                                                                              |...................................................................   |  96%
-label: Additional tables (with options) 
-List of 4
- $ echo   : symbol F
- $ eval   : logi TRUE
- $ warning: logi FALSE
- $ results: symbol F
-
-  |                                                                              |....................................................................  |  97%
-  ordinary text without R code
-
-  |                                                                              |....................................................................  |  98%
-label: saveobject (with options) 
-List of 3
- $ eval   : logi TRUE
- $ echo   : symbol T
- $ results: symbol F
-
-  |                                                                              |..................................................................... |  99%
-  ordinary text without R code
-
-  |                                                                              |......................................................................| 100%
-label: documentation (with options) 
-List of 3
- $ eval   : logi TRUE
- $ echo   : symbol T
- $ results: symbol T
-
-
-output file: template.singlecell.partB.Analysis_V1.knit.md
-
-/camp/apps/misc/stp/babs/conda/envs/R_deps/bin/pandoc +RTS -K512m -RTS template.singlecell.partB.Analysis_V1.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output template.singlecell.partB.Analysis_V1.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 5 --variable toc_float=1 --variable toc_selectors=h1,h2,h3,h4,h5 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --css /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css --variable 'theme:bootstrap' --include-in-header /tmp/slurm_18210347/Rtmp2Tx1XF/rmarkdown-str14bf5171e3d2.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
-
-Output created: template.singlecell.partB.Analysis_V1.html
-There were 50 or more warnings (use warnings() to see the first 50)
+Execution halted

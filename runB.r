@@ -1,1 +1,1 @@
-rmarkdown::render("template.singlecell.partB.Analysis_V1.Rmd")
+rmarkdown::render("sc_PartB_Analysis.Rmd")
