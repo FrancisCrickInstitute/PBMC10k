@@ -213,7 +213,7 @@ if (Obio@parameterList$scIntegrationMethod == "SCT"){
 
 
 dfdbTable <- OsC@meta.data
-dfdbTable[["cellID"]] <- row.names(dfdbTable)  
+# dfdbTable[["cellID"]] <- row.names(dfdbTable)  
 # if (is.null(dfdbTable)){
 #     dfdbTable <- OsC@meta.data
 # }
