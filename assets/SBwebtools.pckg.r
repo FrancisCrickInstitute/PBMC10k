@@ -6,6 +6,7 @@ library(DESeq2)
 setClass(
     "bioLOGIC", 
     representation(
+        documentationParams = "list",
         sampleDetailList = "list",
         dbDetailList = "list",
         projectDetailList = "list",
@@ -9723,6 +9724,8 @@ retrieve.gene.category.from.db <- function(
 ######################################################
 
 
+###############################################################################
+## Function update                                                           ##
 add.category.to.lab.reference.table.hs <- function(
     host = 'www.biologic-db.org',
     pwd = db.pwd,
@@ -9741,9 +9744,10 @@ add.category.to.lab.reference.table.hs <- function(
     cat.description.db  = "internal_categories",
     cat.description.db.table = "category_description",
     cat.description.text = "Subclonal late driver genes, as compiled by the Swanton lab",
-    lab.name = "Swanton"
+    lab.name = "Swanton",
+    replaceExistingCatName = TRUE
 ) {
-    ## Preparind gene.vector ## 
+    ## Preparind gene.vector ##
     gene.vector <- na.omit(gene.vector)
     gene.vector <- gene.vector[gene.vector != ""]
     gene.vector <- as.vector(unique(gene.vector))
@@ -9771,7 +9775,7 @@ add.category.to.lab.reference.table.hs <- function(
         return (df.conversion)
     }
     #end of function
-    df.conversion = make.mm.hs.conversion.table(mm.hs.conversion.file)  
+    df.conversion = make.mm.hs.conversion.table(mm.hs.conversion.file)
     names(df.conversion) = c("hgnc_symbol", "mgi_symbol")
     
     assign(gene.id, gene.vector)
@@ -9803,35 +9807,73 @@ add.category.to.lab.reference.table.hs <- function(
     #comments_2 = rep(comments_2, length(gene.vector))
     cat_item_size = length(gene.vector)
     
-    ## Get current reference category format from db ##
+    
+    ## Determine if cat exists ##
     library(RMySQL)
-    dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.ref.db ,host = host) 
+    dbDB <- dbConnect(
+        drv = RMySQL::MySQL(), 
+        user = user, 
+        password = db.pwd, 
+        host = host, 
+        dbname = cat.ref.db
+    )
     
-    ## Set default ##
-    next.id = 1
-    max.value = 0
+    query <- paste0(
+        "SELECT DISTINCT cat_id, cat_name FROM ",
+        cat.ref.db.table, 
+        " WHERE cat_name = '",cat_name,"'"
+    )
     
-    if (!new.lab.category.table){
-        max.value <- as.numeric(dbGetQuery(dbDB, paste("SELECT MAX(row_names) FROM ", cat.ref.db.table, sep="")))
-        if (!is.na(max.value)){
-            df.ref = dbGetQuery(dbDB, paste("SELECT DISTINCT cat_id FROM ", cat.ref.db.table, sep=""))
-            ids = unique(df.ref$cat_id)
-            ids = as.numeric(sapply(ids, function(x) unlist(strsplit(x, paste(cat.ref.db.table, "__", sep="")))[2]))
-            next.id = max(ids)+1
-        } else {
+    dfTest <- dbGetQuery(dbDB, query)
+    dbDisconnect(dbDB)
+    updateCat <- FALSE
+    if (nrow(dfTest) == 1){
+        cat_id <- dfTest[,"cat_id"]
+        updateCat <- TRUE
+        
+    } else {
+        if (!new.lab.category.table){
+            library(RMySQL)
+            dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.ref.db ,host = host)
+            
+            ## Set default ##
+            next.id = 1
             max.value = 0
+            
+            max.value <- as.numeric(
+                dbGetQuery(dbDB, 
+                           paste(
+                               "SELECT MAX(row_names) FROM ", 
+                               cat.ref.db.table, sep=""
+                           )
+                )
+            )
+            if (!is.na(max.value)){
+                df.ref = dbGetQuery(dbDB, paste("SELECT DISTINCT cat_id FROM ", cat.ref.db.table, sep=""))
+                ids = unique(df.ref$cat_id)
+                ids = as.numeric(sapply(ids, function(x) unlist(strsplit(x, paste(cat.ref.db.table, "__", sep="")))[2]))
+                next.id = max(ids)+1
+            } else {
+                max.value = 0
+            }
+            df.ref = dbGetQuery(dbDB, "SELECT DISTINCT * FROM js_lab_categories WHERE cat_id = 'not_existing'")
+            dbDisconnect(dbDB)
+            
+            
+            cat_id = paste(cat.ref.db.table, "__", next.id, sep="")
+            
         }
-    } 
+    }
+    
+    ## Get current reference category format from db ##
+    
+    
+    
     
     ## Get default cat column names ##
     ## Current df.ref column names and order:
-    #[1] "hgnc_symbol"   "mgi_symbol"    "cat_id"        "cat_name"      "cat_type"      "data_source"   "comments_1"   
-    #[8] "comments_2"    "cat_item_size" "row_names" 
-    df.ref = dbGetQuery(dbDB, "SELECT DISTINCT * FROM js_lab_categories WHERE cat_id = 'not_existing'")
-    dbDisconnect(dbDB)
-    
-    
-    cat_id = paste(cat.ref.db.table, "__", next.id, sep="")
+    #[1] "hgnc_symbol"   "mgi_symbol"    "cat_id"        "cat_name"      "cat_type"      "data_source"   "comments_1"
+    #[8] "comments_2"    "cat_item_size" "row_names"
     
     add.internal.cat.description <- FALSE
     if (comments_1[1] == ""){
@@ -9843,18 +9885,18 @@ add.category.to.lab.reference.table.hs <- function(
     df.cat.new = data.frame(
         hgnc_symbol,
         mgi_symbol,
-        cat_id, 
-        cat_name, 
-        cat_type, 
-        data_source, 
-        comments_1, 
-        comments_2, 
+        cat_id,
+        cat_name,
+        cat_type,
+        data_source,
+        comments_1,
+        comments_2,
         cat_item_size,
         stringsAsFactors = FALSE
     )
     
     
-    #Consider only genes that are pesent in df.data 
+    #Consider only genes that are pesent in df.data
     
     #Prepare data table
     #df.ref$row_names = NULL
@@ -9864,7 +9906,7 @@ add.category.to.lab.reference.table.hs <- function(
     
     #Upload to database
     library(RMySQL)
-    dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.ref.db, host = host) 
+    dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.ref.db, host = host)
     if (new.lab.category.table){
         dbGetQuery(dbDB, paste("DROP TABLE IF EXISTS ", cat.ref.db.table, sep=""))
     }
@@ -9873,11 +9915,38 @@ add.category.to.lab.reference.table.hs <- function(
     while (!uploaded){
         tryCatch({
             killDbConnections()
-            dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.ref.db,host = host) 
-            dbWriteTable(dbDB, cat.ref.db.table, df.cat.new, row.names= FALSE, overwrite=FALSE, append=TRUE)
+            dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.ref.db,host = host)
+            if (updateCat){
+                query <- paste0(
+                    "UPDATE ", cat.ref.db.table,
+                    " SET hgnc_symbol='",df.cat.new[,"hgnc_symbol"],
+                    "', mgi_symbol='",df.cat.new[,"mgi_symbol"],
+                    #"' cat_id='",df.cat.new[,"cat_id"],
+                    "', cat_name='",df.cat.new[,"cat_name"],
+                    "', cat_type='",df.cat.new[,"cat_type"],
+                    "', data_source='",df.cat.new[,"data_source"],
+                    "', comments_1='",df.cat.new[,"comments_1"],
+                    "', comments_2='",df.cat.new[,"comments_2"],
+                    "', cat_item_size='",df.cat.new[,"cat_item_size"],
+                    "' WHERE cat_id = '", df.cat.new[,"cat_id"], "'"
+                )
+                dbGetQuery(dbDB, query)
+                
+            } else {
+                dbWriteTable(
+                    dbDB, 
+                    cat.ref.db.table, 
+                    df.cat.new, 
+                    row.names= FALSE, 
+                    overwrite=FALSE, 
+                    append=TRUE
+                )
+            }
+            
+            
             uploaded = TRUE
             #dbDisconnect(dbDB)
-        }, error=function(e){cat("Upload errror :",conditionMessage(e), "\n")}) 
+        }, error=function(e){cat("Upload errror :",conditionMessage(e), "\n")})
     }
     
     #dbWriteTable(dbDB, dataTable, df.new, row.names= FALSE, overwrite=FALSE, append=TRUE)
@@ -9888,7 +9957,7 @@ add.category.to.lab.reference.table.hs <- function(
         
         
         
-        dbGetQuery(dbDB, paste("ALTER TABLE ",cat.ref.db.table," 
+        dbGetQuery(dbDB, paste("ALTER TABLE ",cat.ref.db.table,"
                                CHANGE `hgnc_symbol` `hgnc_symbol` LONGTEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci ,
                                CHANGE `mgi_symbol` `mgi_symbol` LONGTEXT CHARACTER SET latin1 COLLATE latin1_swedish_ci ,
                                CHANGE `cat_name` `cat_name` VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci ,
@@ -9898,17 +9967,17 @@ add.category.to.lab.reference.table.hs <- function(
                                CHANGE `comments_1` `comments_1` VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci ,
                                CHANGE `comments_2` `comments_2` VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci ,
                                CHANGE `cat_item_size` `cat_item_size` INT(5) NULL DEFAULT NULL,
-                               CHANGE `row_names` `row_names` BIGINT(8) NULL DEFAULT NULL", 
+                               CHANGE `row_names` `row_names` BIGINT(8) NULL DEFAULT NULL",
                                sep="")
         )
     }
     dbDisconnect(dbDB)
     
-    # Add description 
+    # Add description
     if (add.internal.cat.description){
         ## Escape ##
         #cat.description.text <- gsub("\\'", "\\'", cat.description.text)
-        dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.description.db,host = host) 
+        dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.description.db,host = host)
         insert.query <- paste0("INSERT INTO `",cat.description.db,"`.`",cat.description.db.table,"` (`cat_id`, `cat_name`, `cat_description`, `created_by`, `lab`, `creation_date`) VALUES ('",cat_id[1],"', '",cat_name[1],"', '",cat.description.text,"', '",data_source[1],"', '",lab.name,"', CURDATE())");
         dbGetQuery(dbDB, insert.query)
         dbDisconnect(dbDB)
@@ -9916,9 +9985,14 @@ add.category.to.lab.reference.table.hs <- function(
     string = paste0(cat_id, " with cat_name ",cat_name, " added.")
     print(string)
     return(cat_id)
-}  
+}
 
 ## End of function ##
+
+
+## Done function update                                                      ##
+###############################################################################
+
 
 
 ###############################################################################
@@ -10486,4 +10560,4 @@ excel <- function(df) {
 # Or pipe output with dplyr
 ## cars %>% excel()
 
-##                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          
+##
