@@ -1,5 +1,5 @@
 ---
-title: "Part D WYSIG External"
+title: "Part C - Formerly - Part D WYSIG External"
 author: "Stefan Boeing"
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 
@@ -77,21 +77,6 @@ db.pwd <- as.vector(dbTable[1,1])
 
 
 
-
-# source(
-#     paste0(
-#         hpc.mount,
-#         "Stefan/protocol_files/github/boeings/packages/packageSourceCode/SBwebtools.pckg.r"
-#     )
-# )
-
-# source(
-#     paste0(
-#         hpc.mount,
-#         "Stefan/protocol_files/github/boeings/packages/scTools/scTools.r"
-#     )
-# )
-
 source("assets/scTools.r")
 source("assets/SBwebtools.pckg.r")
 
@@ -141,23 +126,6 @@ if (Obio@parameterList$scIntegrationMethod == "SCT"){
     resultSlot = "RNA"
 }
 
-## External database credentials ##
-#Obio@dbDetailList$host <- "10.27.241.82"
-#Obio@dbDetailList$db.user <- "boeingS"
-
-## Internal database credentials ##
-#Obio@dbDetailList$host <- "10.27.241.234"
-#Obio@dbDetailList$db.user <- "boeingS"
-
-## External database credentials ##
-# Obio@dbDetailList$host <- "www.biologic-db.org"
-# Obio@dbDetailList$db.user <- "boeings"
-# db.pwd <- "5+3f4nB04042018"
-
-## Upload metadata table > p315_PCA
-# Obio@dbDetailList$host <- "10.152.22.193"
-# Obio@dbDetailList$db.user <- "boeingS"
-# db.pwd <- "5+3f4nB04042018"
 
 
 ###############################################################################
@@ -384,16 +352,6 @@ upload.datatable.to.database(
     cols2Index = c("gene")
 )
 
-
-## Add gene_ids to gene_expres_tb
-# dfExpr <- merge(
-#     Obio@dataTableList$dfExpr, 
-#     dfIDTable, 
-#     by.x = "gene",
-#     by.y = "gene"
-# )
-
-#dfExpr <- Obio@dataTableList$dfExpr
 
 dfExpr <- data.frame(OsC[["RNA"]]@data)
 dfExpr[["gene"]] <- row.names(dfExpr)
@@ -1082,45 +1040,30 @@ if (length(unique(OsC@meta.data$sampleID)) > 1){
 
 ###############################################################################
 ## Otional add extra data set                                                ##
-dfAddCounts <- import.db.table.from.db(
-    dbtable = "vpl367_rna_seq_table",
-    dbname = "vpl_data",
-    user = Obio@dbDetailList$db.user,
-    password = db.pwd,
-    host = Obio@dbDetailList$host
-)
-# # 
-selVec <- c(
-    "dr_symbol",
-    names(dfAddCounts)[grep("contrast_1_logFC", names(dfAddCounts))],
-    names(dfAddCounts)[grep("contrast_1_lg10p", names(dfAddCounts))],
-    names(dfAddCounts)[grep("contrast_1_padj", names(dfAddCounts))]
-)
-# # 
-dfAddCounts <- unique(dfAddCounts[,selVec])
-dfAddCounts <- dfAddCounts[dfAddCounts$dr_symbol != "",]
 
-#dfNormCounts <- spread(data = dfNormCounts, key=condition, value=measurement)
-#names(dfNormCounts) <- paste0("norm_counts_", names(dfNormCounts))
-#names(dfNormCounts) <- gsub("norm_counts_gene", "gene", names(dfNormCounts))
-
-names(dfAddCounts) <- gsub("contrast_1_logFC_", "contrast_A_logFC_bulkRNASeq_vpl367_", names(dfAddCounts) )
-names(dfAddCounts) <- gsub("contrast_1_padj_", "contrast_A_padj_bulkRNASeq_vpl367_", names(dfAddCounts) )
-names(dfAddCounts) <- gsub("contrast_1_lg10p_", "contrast_A_lg10p_bulkRNASeq_vpl367_", names(dfAddCounts) )
+pos <- grep("^dfRefDatasets$", names(Obio@dataTableList))
+  
+if (length(pos) == 1){
+  dfAddCounts <- Obio@dataTableList[["dfRefDatasets"]]
+  checkGene <- grep(Obio@parameterList$geneIDcolumn, names(dfAddCounts))
+  if (length(checkGene) == 1){
+      ## Optional if only genes present in the primary dataset are to be added
+##dfAddCounts <- dfAddCounts[dfAddCounts$dr_symbol %in% database.table$dr_symbol, ]   
+      database.table <- merge(
+         database.table,
+         dfAddCounts,
+         by.x = Obio@parameterList$geneIDcolumn,
+         by.y = "dr_symbol",
+         all = TRUE
+      )
+      database.table[is.na(database.table)] <- 0
+  }
+  
+} ## Done adding reference table 
 
 
 
-dfAddCounts <- dfAddCounts[dfAddCounts$dr_symbol %in% database.table$dr_symbol, ]
 
-database.table <- merge(
-   database.table,
-   dfAddCounts,
-   by.x = Obio@parameterList$geneIDcolumn,
-   by.y = "dr_symbol",
-   all = TRUE
-)
-
-#database.table[is.na(database.table)] <- 0
 ## Done adding extra dataset                                                 ##
 ###############################################################################
 
@@ -1434,7 +1377,7 @@ dim(df.db.table)
 ## Add full temp categories associated with this project                     ##
 ## Lab categories ##
 df.ref <- import.db.table.from.db(
-    dbname = Obio@parameterList$ref.cat.db,
+    dbname = Obio@dbDetailList$ref.cat.db,
     user = Obio@dbDetailList$db.user,
     dbtable = Obio@parameterList$lab.categories.table,
     password = db.pwd,
@@ -1633,7 +1576,7 @@ createSettingsFile(
        "contrast_A_padj"
     ),
     plot.selection.strings = c(
-        "contrast_X_logFC_Expressed_in_N_Percent_Cells",
+       "contrast_X_logFC_Expressed_in_N_Percent_Cells",
        "contrast_A_logFC",
        "contrast_A_lg10p",
         "add_counts_",

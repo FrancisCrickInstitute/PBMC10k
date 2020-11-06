@@ -1326,6 +1326,114 @@ if (nrow(dfGeneralMarkers) > 0){
 
 #############################################################
 
+###############################################################################
+## Upload general markers                                                    ##
+library(tidyverse)
+
+dfDat <- dfGeneralMarkers
+dfDat <- unique(dfGeneralMarkers[,c("gene", "cluster")])
+
+
+if (Obio@parameterList$geneIDcolumn != "hgnc_symbol" & Obio@parameterList$geneIDcolumn != "mgi_symbol"){
+    refGeneIDcolumn <- "hgnc_symbol"
+    dfAnno <- Obio@dfGeneAnnotation
+    dfAnno <- unique(dfAnno[,c("hgnc_symbol",Obio@parameterList$geneIDcolumn )])
+    dfAnno <- dfAnno[dfAnno[,Obio@parameterList$geneIDcolumn] %in% dfDat[,"gene"],]
+    
+    dfDat <- merge(
+        dfDat,
+        dfAnno,
+        by.x = "gene",
+        by.y = Obio@parameterList$geneIDcolumn
+    )
+    dfDat$gene <- NULL
+    names(dfDat) <- gsub("hgnc_symbol", "gene",names(dfDat))
+    
+} else {
+    refGeneIDcolumn <- Obio@parameterList$geneIDcolumn
+}
+
+
+
+dfDat <- dfDat %>%
+       group_by(cluster) %>% 
+       mutate(rn = row_number()) %>%
+       ungroup %>%
+       pivot_wider(names_from = cluster, values_from = gene, values_fill = "") %>% select(-rn)
+
+orderVec <- sort(names(dfDat))
+dfDat[,orderVec]
+
+names(dfDat) <- paste0(
+    Obio@parameterList$project_id, 
+    "_Marker_Genes_Cluster_",
+    names(dfDat)
+)
+
+dfDat <- data.frame(dfDat)
+
+dfCatRef <- names(dfCatRef)
+names(dfCatRef) <- names(dfDat)
+
+dfDat <- rbind(
+  dfCatRef, 
+  dfDat
+)
+
+#######################################################################
+## Upload/update category by category                                ##
+updatedCatIDs <- as.vector(NULL, mode = "character")
+        
+for (i in 1:ncol(dfDat)){
+    cat.name <- names(dfDat)[i]
+    cat_type <- paste0("temp_cluster_marker_", Obio@parameterList$project_id)
+            
+    cat.description.text <- as.vector(dfDat[1,i])
+            
+    gene.vec <- as.vector(
+        dfDat[,i]
+    )[2:nrow(dfDat)]
+            
+    gene.vec <- gene.vec[gene.vec != ""]
+    gene.vec <- sort(na.omit(gene.vec))
+            
+    ## Determine if cat exists ##
+            
+            
+    catID <- add.category.to.lab.reference.table.hs(
+        host = Obio@dbDetailList$host,
+        pwd = db.pwd,
+        user = Obio@dbDetailList$db.user,
+        cat.ref.db = Obio@dbDetailList$ref.cat.db,
+        cat.ref.db.table = Obio@parameterList$lab.categories.table,
+        gene.vector = gene.vec,
+        gene.id = refGeneIDcolumn, #options hgnc_symbol, mgi_symbol
+        mm.hs.conversion.file =  paste0(hpc.mount, "Projects/reference_data/20160303.homologene.data.txt"),
+        cat_name = cat.name,
+        cat_type = cat_type,
+        data_source = paste0(Obio@parameterList$labname, " Lab"),
+        comments_1 = "",
+        comments_2 = "",
+        new.lab.category.table = FALSE,
+        cat.description.db  = "internal_categories",
+        cat.description.db.table = "category_description",
+        cat.description.text = cat.description.text,
+        lab.name = Obio@parameterList$labname,
+        replaceExistingCatName = TRUE
+    ) 
+        
+            
+    updatedCatIDs <- c(
+        updatedCatIDs, 
+        catID
+    )    
+} ## End dfDat loop
+        
+        
+        
+## Done uploading general markers                                            ##
+###############################################################################
+
 
 ```
 
