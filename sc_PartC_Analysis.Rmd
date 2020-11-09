@@ -884,8 +884,8 @@ if (length(unique(OsC@meta.data$sampleID)) > 1){
 #names(dfNormCounts) <- paste0("norm_counts_", names(dfNormCounts))
 #names(dfNormCounts) <- gsub("norm_counts_gene", "gene", names(dfNormCounts))
 
-names(dfNormCounts) <- paste0("norm_counts_Avg_lg10_Expr_", names(dfNormCounts) )
-names(dfNormCounts) <- gsub( "norm_counts_Avg_lg10_Expr_gene", "gene", names(dfNormCounts))
+names(dfNormCounts) <- paste0("norm_counts_Avg_log10_Expr_", names(dfNormCounts) )
+names(dfNormCounts) <- gsub( "norm_counts_Avg_log10_Expr_gene", "gene", names(dfNormCounts))
 
 
 ## Assemble database table ##
@@ -1039,7 +1039,7 @@ if (length(unique(OsC@meta.data$sampleID)) > 1){
 ###############################################################################
 
 ###############################################################################
-## Otional add extra data set                                                ##
+## Optional add extra data set                                                ##
 
 pos <- grep("^dfRefDatasets$", names(Obio@dataTableList))
   
@@ -1555,6 +1555,97 @@ if (length(pos) == 1){
 ## d
 
 ###############################################################################
+## Create default plot selection                                             ##
+
+plotSelection <- c(
+    names(Obio@databaseTable)[grep("_logFC_",names(Obio@databaseTable))],
+    names(Obio@databaseTable)[grep("contrast_P_PCA_estimatePCA",names(Obio@databaseTable))],
+
+    names(Obio@databaseTable)[grep("_lg10p_",names(Obio@databaseTable))],
+
+    names(Obio@databaseTable)[grep("lg2BaseMean",names(Obio@databaseTable))],
+    names(Obio@databaseTable)[grep("corCoef",names(Obio@databaseTable))],
+    names(Obio@databaseTable)[grep("add_counts",names(Obio@databaseTable))],
+    names(Obio@databaseTable)[grep("norm_counts",names(Obio@databaseTable))]
+)
+
+chunk1 <- plotSelection[grep("_logFC_", plotSelection)]
+chunkh2 <- plotSelection[grep("_lg10p_", plotSelection)]
+chunk2a <-chunkh2[grep("_lg10p_PCA", chunkh2)]
+chunk2b <- chunkh2[!(chunkh2  %in% chunk2a)]
+
+chnk2c <- plotSelection[grep("_corCoef", plotSelection)]
+
+chunk3 <- plotSelection[grep("_PCA_est", plotSelection)]
+
+chunk4 <- plotSelection[grep("_lg2BaseMean_", plotSelection)]
+
+chunk5 <- sort(plotSelection[grep("Avg_log10_Expr", plotSelection)])
+chunk6 <- sort(plotSelection[grep("add_counts_PCA", plotSelection)])
+
+# rmVec <- grep("_LRT_", chunk4)
+# if (length(rmVec) > 0){
+#     chunk4 <- chunk4[-rmVec]
+# }
+
+plotSelectionNew <- c(
+    chunk1,
+    chunk2b,
+    chnk2c,
+    chunk3,
+    chunk2a,
+    chunk4,
+    chunk5,
+    chunk6
+)
+
+plotAdd <- plotSelection[!(plotSelection %in% plotSelectionNew)]
+
+plotSelection <- c(
+    defaultX,
+    defaultY,
+    plotSelectionNew,
+    plotAdd
+)
+
+
+## Done creating default plot selection                                      ##
+###############################################################################
+
+###############################################################################
+## Do default Venn selection                                                 ##
+defaultVennSel <- names(Obio@databaseTable)
+defaultVennSel <- c(
+    defaultVennSel[grep("contrast_", defaultVennSel)],
+    defaultVennSel[grep("add_venn_", defaultVennSel)],
+    defaultVennSel[grep("_TsCor_", defaultVennSel)]
+
+)
+
+rmVec <- c(
+    grep("contrast_P_", defaultVennSel),
+    grep("_lg2BaseMean_", defaultVennSel),
+    grep("_padj_LRT_", defaultVennSel),
+    grep("_lg10p_", defaultVennSel),
+    grep("_stat_", defaultVennSel),
+    grep("pValueCor_", defaultVennSel)
+)
+
+if (length(rmVec) > 0){
+    defaultVennSel <- defaultVennSel[-rmVec]
+}
+
+## Add lrt
+defaultVennSel <- c(
+    defaultVennSel,
+    names(Obio@databaseTable)[grep("contrast_L_lg10p", names(Obio@databaseTable))]
+)
+
+## Done with LRT selection                                                   ##
+###############################################################################
+
+
+###############################################################################
 ## Deploy next generation website                                            ##
 createSettingsFile(
     obj = Obio,
@@ -1570,25 +1661,19 @@ createSettingsFile(
     ptm.colum = "",
     count.table.headline = Obio@parameterList$count.table.headline,
     count.table.sidelabel = Obio@parameterList$count.table.sidelabel,
-    venn.slider.selector.strings = c(
-       "contrast_X_logFC_Expressed_in_N_Percent_Cells",
-       "contrast_A_logFC",
-       "contrast_A_padj"
-    ),
-    plot.selection.strings = c(
-       "contrast_X_logFC_Expressed_in_N_Percent_Cells",
-       "contrast_A_logFC",
-       "contrast_A_lg10p",
-        "add_counts_",
-        "norm_count",
-        "add_counts_PCA_Dim"
-    ),
+    venn.slider.selector.strings = defaultVennSel,
+    plot.selection.strings = plotSelection,
     webSiteDir = paste0(hpc.mount, "Stefan/protocol_files/github/biologic/src/experiments/"),
     upper_heatmap_limit = 3, 
     lower_heatmap_limit = -3,
     heamap.headline.text = Obio@parameterList$heamap.headline.text,
     project_id = Obio@parameterList$project_id
 )
+
+setwd(Obio@parameterList$localWorkDir)
+## Done deploying next generation website                                    ##
+###############################################################################
+
 
 setwd(Obio@parameterList$localWorkDir)
 ## Done deploying next generation website                                    ##

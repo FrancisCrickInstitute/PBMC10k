@@ -1,0 +1,866 @@
+---
+title: "Pseudotime Heatmaps"
+author: "Stefan Boeing"
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+
+output: 
+    html_document:
+        code_folding: hide
+        df_print: tibble
+        toc: true
+        toc_depth: 3
+        toc_float: true
+        css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
+    
+always_allow_html: yes
+---
+    
+    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    tidy = F,
+    tidy.opts = list(width.cutoff = 120),
+    message = FALSE,
+    warning = FALSE
+)
+
+```
+
+
+## Set the stage
+
+```{r stage_setting, eval=T, echo=F, results=F}
+if (dir.exists("/Volumes/babs/working/boeings/")){
+    hpc.mount <- "/Volumes/babs/working/boeings/"
+} else if (dir.exists("Y:/working/boeings/")){
+    hpc.mount <- "Y:/working/boeings/"
+} else if (dir.exists("/camp/stp/babs/working/boeings/")){
+    hpc.mount <- "/camp/stp/babs/working/boeings/"
+} else {
+    hpc.mount <- ""
+}
+
+# sFN <- paste0(hpc.mount, "Projects/guillemotf/lachlan.harris/371_singleCellRNAseq_hippocampus_SC19305/workdir/", "fgl371.Seurat.Robj")
+```
+
+```{r setting_the_stage_2, eval=F, echo=F, results=F}
+#Create the environment and load a suitable version of R, e.g. so:
+# module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;R; 
+
+VersionPdfExt <- paste0(".V", gsub("-", "", Sys.Date()), ".pdf")
+
+
+
+
+FN <- paste0(hpc.mount, "Projects/reference_data/documentation/BC.parameters.txt")
+dbTable <- read.delim(
+    FN, 
+    sep = "\t",
+    stringsAsFactors = F
+)
+
+db.pwd <- as.vector(dbTable[1,1])
+
+
+source(
+    paste0(
+        hpc.mount,
+        "Stefan/protocol_files/github/boeings/packages/packageSourceCode/SBwebtools.pckg.r"
+    )
+)
+
+
+if (length(.libPaths()) > 2){
+    .libPaths(.libPaths()[2:3])
+}
+
+ObioFN <- paste0("../", list.files("..")[grep(".bioLOGIC.Robj", list.files(".."))])
+
+load(ObioFN)
+
+## Reset paths to local environment
+Obio <- setMountingPoint(Obio)
+Obio <- setAnalysisPaths(Obio)
+Obio <- setCrickGenomeAndGeneNameTable(Obio)
+Obio <- createAnalysisFolders(
+    Obio,
+    baseDir="/camp/stp/babs/working/boeings/Projects/",
+    localBaseDir = paste0(hpc.mount, "Projects/")
+)
+Obio <- setDataBaseParameters(Obio)
+
+
+
+
+## Load Seurat object
+SeuratFN <- paste0("../", list.files("..")[grep(".Seurat.Robj", list.files(".."))])
+
+load(SeuratFN)
+
+
+```
+
+### Calculate Pseudotime and add to Meta data
+
+```{r do pseudotime, eval=TRUE, echo=T, results=F}
+## Find Variable Features ##
+library(Seurat)
+library(destiny)
+
+dfPCA <- OsC@meta.data
+row.names(dfPCA) <- dfPCA$cellID
+dfPCA <- dfPCA[,grep("PC_", names(dfPCA))]
+
+dmPCA <- DiffusionMap(dfPCA)
+
+dpt <- DPT(dmPCA)
+
+# Plot DC1 vs DC2 and color the cells by their inferred diffusion pseudotime.
+# We can accesss diffusion pseudotime via dpt$dpt.
+df <- data.frame(
+  DC1 = eigenvectors(dmPCA)[, 1], 
+  DC2 = eigenvectors(dmPCA)[, 2], 
+  DC3 = eigenvectors(dmPCA)[, 3], 
+  "DM_Pseudotime" = dpt$dpt
+)
+
+row.names(df) <- row.names(dfPCA)
+df[["cellID"]] <- row.names(df)
+
+## For this project reverse pseudotime ##
+#PTmax <- max(df$DM_Pseudotime)
+#df$DM_Pseudotime <- -1* (df$DM_Pseudotime - PTmax)
+## Invert DC1, 2, 3
+#df$DC1 <- -1* df$DC1
+#df$DC1 <- -1* df$DC2
+#df$DC1 <- -1* df$DC3
+
+
+
+## Add PT bins column to Seurat meta data
+row.names(df) <- df$cellID
+addVec <- as.vector(df[,"DM_Pseudotime"])
+names(addVec) <- row.names(df)
+colName <- "DM_Pseudotime"
+
+## Add Pseudotime to metadata ##
+## Here already present ##
+# OsC <- AddMetaData(
+#     object = OsC, 
+#     metadata = addVec, 
+#     colName
+# )
+
+OsC@meta.data[["DM_Pseudotime"]] <- OsC@meta.data$PC_1
+
+```
+
+### Calculate GAM p-values for the whole dataset in order to identify genes that do change over time
+OsC refers to a Seurat object, where a DM_Pseudotime column has been. In the example below the cells are binned into 100 bins of pseudotime. 
+
+```{r calculate_gam_p, eval=TRUE, echo=T, results=F}
+###############################################################################
+## Start here                                                                ##
+library(gam)
+library(Seurat)
+
+## Load Seurat object OsC with a DM_Pseudotime meta data column ##
+# load(sFN)
+
+dfMeta <- OsC@meta.data
+
+
+newdata <- data.frame(
+    Pseudotime = seq(
+        min(OsC@meta.data$DM_Pseudotime), 
+        max(OsC@meta.data$DM_Pseudotime),
+        length.out = 100)
+)
+
+dfMeta[["PT_bins"]] <- 1
+
+for (i in 2:nrow(newdata)){
+    a = i - 1
+    dfMeta[dfMeta$DM_Pseudotime > newdata[a,1], "PT_bins"] <- i
+}
+
+dfMeta <- dfMeta[order(dfMeta$PT_bins, decreasing = F),]
+dfMeta[["PT_bins"]] <- paste0("B", dfMeta$PT_bins)
+dfMeta$PT_bins <- factor(x = dfMeta$PT_bins, levels = unique(dfMeta$PT_bins))
+row.names(dfMeta) <- dfMeta$cellID
+dfAdd <- data.frame(dfMeta[,"PT_bins"])
+names(dfAdd) <- "PT_bins"
+
+## Add PT bins column to Seurat meta data
+addVec <- as.vector(dfAdd[,"PT_bins"])
+names(addVec) <- row.names(dfAdd)
+colName <- "PT_bins"
+
+OsC <- AddMetaData(
+    object = OsC, 
+    metadata = addVec, 
+    colName
+)
+
+## Set factor levels ##
+levels <- paste0("B", 1:100)
+OsC@meta.data$PT_bins <- factor(OsC@meta.data$PT_bins , levels = levels)
+
+DefaultAssay(OsC) <- "RNA"
+allGenes <- rownames(x = OsC@assays$RNA)
+OsC <- ScaleData(OsC, verbose = FALSE, features=allGenes, assay = "RNA")
+
+
+###############################################################################
+## Average by pseudotime                                                     ##
+DefaultAssay(OsC) <- "RNA"
+Idents(OsC) <- "PT_bins"
+
+## Get average expression for each pseudotime bin ##
+cluster.averages <- AverageExpression(
+    OsC, 
+    assays = "RNA",
+    return.seurat = TRUE,
+    slot = "data"
+)
+
+## Retrieved Scaled data ##
+dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
+dfAvgExpr <- dfAvgExpr[,sort(names(dfAvgExpr))]
+dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
+
+dfAvgScaledData <- data.frame(cluster.averages[["RNA"]]@scale.data)
+dfAvgScaledData <- dfAvgScaledData[,sort(names(dfAvgScaledData))]
+dfAvgScaledData[["gene"]] <- row.names(dfAvgScaledData)
+
+
+
+###############################################################################
+## Create smoothed GAM lines                                                 ##
+
+dfGAM <- dfAvgExpr
+selVec <- c(levels(OsC@meta.data$PT_bins), "gene")
+selVec <- selVec[selVec %in% names(dfGAM)]
+dfGAM <- dfGAM[,selVec]
+dfGAM$gene <- NULL
+
+dfPT <- data.frame(cellID = names(dfGAM), DM_Pseudotime = names(dfGAM))
+
+dfPT$DM_Pseudotime <- as.numeric(gsub("B", "",dfPT$DM_Pseudotime))
+row.names(dfPT) <- dfPT$cellID
+
+Y <- dfGAM
+t <- 1:ncol(dfGAM)
+
+gam.pval <- apply(Y, 1, function(z){
+    d <- data.frame(z=z, t=t)
+    tmp <- gam(z ~ lo(t), data=d)
+    p <- summary(tmp)[4][[1]][1,5]
+    p
+})
+
+dfGamSel <- data.frame(
+    gene = names(gam.pval), 
+    gam.pval
+)
+
+dfGamSel <- na.omit(dfGamSel)
+
+dfGamSel[["lg10p_GAM"]] <- -1*log10(dfGamSel$gam.pval)
+
+dfGamSel <- dfGamSel[order(dfGamSel$lg10p_GAM, decreasing = T), ]
+
+gamSelGenes <- as.vector(unique(dfGamSel[1:Obio@parameterList$NtopGenes, "gene"]))
+
+###############################################################################
+## Annotate transcription factors                                            ##
+# refVec <- retrieve.gene.category.from.db(
+#         cat_id = "ag_lab_categories__10",
+#         password = db.pwd,
+#         gene.symbol = Obio@parameterList$geneIDcolumn,
+#         user = Obio@parameterList$db.user,
+#         host = Obio@parameterList$host
+# )
+# 
+# dfGamSel[["TF"]] <- ""
+# dfGamSel[dfGamSel$gene %in% refVec, "TF"] <- "TF"
+
+## Done annotating transcription factors                                     ##
+###############################################################################
+
+###############################################################################
+## Add percentage of expressed genes                                         ##
+
+## Calculate percentages of expressed genes                                  ##
+DefaultAssay(OsC) <- "RNA"
+my_genes <- rownames(x = OsC@assays$RNA)
+
+exp <- FetchData(OsC, my_genes)
+
+ExprMatrix <- round(as.matrix(colMeans(exp  > 0)) *100,1)
+colnames(ExprMatrix)[1] <- "PercCellsExpr"
+dfExprMatrix <- data.frame(ExprMatrix)
+dfExprMatrix[["gene"]] <- row.names(dfExprMatrix)
+
+dfGamSel <- merge(
+  dfGamSel, 
+  dfExprMatrix, 
+  by.x = "gene",
+  by.y = "gene",
+  all = TRUE
+)
+
+dfGamSel[is.na(dfGamSel)] <- 0
+dfGamSel <- dfGamSel[dfGamSel$lg10p_GAM > 0, ]
+dfGamSel <- dfGamSel[order(dfGamSel$lg10p_GAM, decreasing = T), ]
+
+##                                                                           ##
+###############################################################################
+
+###############################################################################
+## Cor Genes                                                                 ##
+corGenes <- c("her4.2", "ret", "sox10")
+
+corGenes <- corGenes[corGenes %in% row.names(dfGAM)]
+
+
+
+for (k in 1:length(corGenes)){
+  ###############################################################################
+  ## do correlation analysis                                                   ##
+        dfTPM <- dfGAM
+        pValueCor = rep(1, nrow(dfTPM))
+        corCoef = rep(0, nrow(dfTPM))
+        cor.method = "pearson"
+        
+        pattern <- as.numeric(dfTPM[corGenes[k], ])
+        
+        
+        for (i in 1:nrow(dfTPM)){
+            samplePattern <- as.numeric(t(dfTPM[i,]))
+            
+            if (sum(samplePattern) != 0){
+                cor.test.result = cor.test(samplePattern, pattern, method=cor.method)
+                pValueCor[i] = cor.test.result$p.value
+                corCoef[i] = cor.test.result$estimate
+            }
+            if (i%%1000 == 0){
+                print(i)
+            }
+        }
+        print("...done.")
+        
+        dfTPM[["pValueCor"]] <- pValueCor
+        dfTPM[["corCoef"]] <- corCoef
+        
+        dfTPM <- dfTPM[order(dfTPM$corCoef, decreasing = TRUE),]
+        dfTempRes <- dfTPM
+        dfTempRes[["gene"]] <- row.names(dfTempRes)
+        dfTempRes <- dfTempRes[,c("corCoef", "gene")]
+        names(dfTempRes) <- gsub("corCoef", paste0("Cor_", as.vector(corGenes[k])), names(dfTempRes))
+        
+        if (k==1){
+            dfTRes <- dfTempRes
+        } else {
+            dfTRes <- merge(
+                dfTRes, 
+                dfTempRes,
+                by.x = "gene",
+                by.y = "gene",
+                all =TRUE
+            )
+            dfTRes[is.na(dfTRes)] <- 0
+        }
+        
+        
+}
+
+dfTRes <- dfTRes[dfTRes$gene %in% dfGamSel$gene, ]
+    
+## Add correlation analysis to table    
+dfGamSel <- merge(
+  dfGamSel, 
+  dfTRes,
+  by.x = "gene",
+  by.y = "gene",
+  all = TRUE
+)   
+
+dfGamSel[is.na(dfGamSel)] <- 0
+
+## Done GAM                                                                  ##
+###############################################################################
+```
+
+### GAM Result Table
+```{r populate_meta_data_database, eval=TRUE, echo=F, results=F}
+
+library(DT)
+library(knitr)
+
+chnkVec <- as.vector(NULL, mode="character")
+    
+if (Obio@parameterList$host == "10.27.241.234"){
+      urlString <- "biologic.thecrick.org"
+} else {
+      urlString <- "biologic.crick.ac.uk"
+}
+    
+
+linkGeneView <- paste0("https://",urlString,"/",Obio@parameterList$project_id,"/gene-view")
+linkFeatureView <- paste0("https://",urlString,"/mdata/",Obio@parameterList$project_id,"/html/FeatureView.html")
+
+
+###############################################################################
+## Create Excel output files                                                 ##
+
+library(openxlsx)
+
+baseFN <- "gam.result.table.xlsx"
+outPutFN <- paste0(
+  Obio@parameterList$outputDir,
+  "gam.result.table.xlsx"
+)
+
+FNrel <- paste0("outputs/", baseFN)
+    
+wb <- createWorkbook()
+    addWorksheet(wb, paste0(Obio@parameterList$project_id, "_gam_res_list"))
+    freezePane(wb, paste0(Obio@parameterList$project_id, "_gam_res_list") ,  firstActiveRow = 2)
+    
+    ## Filter is inactivated, as it does not appear to be compatible with the current version of Excel
+    #addFilter(wb, 1, row = 1, cols = 1:ncol(dfOutput))
+    
+## Style headers ##
+hs1 <- createStyle(
+  fontColour = "#ffffff",
+  fgFill = "#000000", 
+  halign = "CENTER", 
+  textDecoration = "Bold"
+)
+    
+writeData(wb, 1,dfGamSel, startRow = 1, startCol = 1, headerStyle = hs1)
+    
+saveWorkbook(
+  wb, 
+  gsub(".txt", ".xlsx", outPutFN) , 
+  overwrite = TRUE
+)
+
+## Done creating Excel output files                                          ##
+###############################################################################
+
+tabDownload <- paste0("https://",urlString,"/mdata/",Obio@parameterList$project_id,"/outputs/gam.table.csv")
+
+#for (i in 1:length(tabClusters)){
+    #tabLegend = paste0("**Table: ** Positive and negative marker genes for ", tabClusters[i])
+    tabLegend = paste0("**Table: ** Table depicting the GAM p-value for genes in this experiment. A + sign in the TF column indicates a transcription factor. The PercCellsExpr column indicates the percentage of cells in the experiment that express a given gene.",
+    "Use the [GeneView](",linkGeneView,") or [FeatureView](",linkFeatureView,") functionalities to examine individual genes in more detail. Downlaod the table [here](",FNrel,")"                   
+    )
+    #dfTempDat <- dfDat[dfDat$cluster == tabClusters[i],]
+
+dfTable <- dfGamSel   
+
+changeCols <- names(dfTable)[grep("^Cor", names(dfTable))]
+
+for (i in 1:length(changeCols)){
+    dfTable[,changeCols[i]] <- round(dfTable[,changeCols[i]], 3)
+}
+
+dfTable$lg10p_GAM <- round(dfTable$lg10p_GAM,3)    
+
+
+dfTable["gene"] <- paste0("<a href='https://",urlString,"/",Obio@parameterList$project_id,"/gene-view?query=",dfTable$gene,"&exact=TRUE' target='_blank'>", dfTable$gene, "</a>")
+    
+NewChnk <- paste0(
+  #"### ", 
+  "\n```{r datatable_GAM , results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+  tabLegend,
+  "'}\n",
+  "\n",
+  "\n datatable(dfTable,rownames = FALSE,  escape = FALSE, options = list(
+    initComplete = JS(
+        \"function(settings, json) {\",
+        \"$(this.api().table().header()).css({\'background-color\': \'#000\', \'color\': \'#fff\'});\",
+        \"}\")))",
+  "\n cat(  '\n')",
+  "\n\n\n```\n"   
+)
+    
+chnkVec <- c(
+  chnkVec,
+  NewChnk
+)
+
+## Done creating one table per cluster                                      ##
+##############################################################################
+```
+
+
+```{r render_GAMTable, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+```
+
+### Make GAM Heatmap manually {.tabset .tabset-fade .tabset-pills}
+For this procedure the Seurat object OsC needs to have a column "Pseudotime" in the Metadata table.
+
+
+```{r plotting_functions , eval=TRUE, echo=T, results=F}
+
+###############################################################################
+## Add gene to plotting frame                                                ##
+
+createPlotDf <- function(
+    dfMeta = "OsC@meata.data",
+    dfExpr = dfExpr,
+    geneNameVec = "geneNameVec"
+){
+    dfTemp1 <- dfMeta
+    row.names(dfTemp1) <- dfTemp1$cellID
+   
+    
+    ## Make sure all genes are present ##
+    availableGenes <- unique(dfExpr$gene)
+    geneNameVec <- geneNameVec[geneNameVec %in% availableGenes]
+    
+    for (i in 1:length(geneNameVec)){
+    	dfTemp2 <- dfExpr[dfExpr$gene == geneNameVec[i], ]
+    	dfTemp1[is.na(dfTemp1)] <- 0
+    	dfTemp2[is.na(dfTemp2)] <- 0
+    	dfTemp <- merge(
+    	       dfTemp1, 
+    	       dfTemp2, 
+    	       by.x = "cellID",
+    	       by.y = "cellID",
+    	       all =TRUE
+    	)
+    	dfTemp[is.na(dfTemp)] <- 0
+    	
+    	if (i ==1){
+        		dfGRes <- dfTemp
+    	} else {
+        		dfGRes <- rbind(dfGRes, dfTemp)
+    	}    
+    }
+	return(dfGRes)
+}
+
+## Add gene to plotting frame                                                ##
+###############################################################################
+
+###############################################################################
+## Function make HM plot                                                     ##
+
+makePT_hmPlot <- function(
+  mode = "relative",  # Must be relative or absolute
+  dfTempA = "dfTempA",
+  setMax = 2,
+  setMin = -2,
+  geneVec = "geneVec",
+  xAxis = "DM_Pseudotime",
+  yAxis = "lg10Expr"	 
+){
+
+for (i in 1:length(geneVec)){
+    dfTemp <- dfTempA[dfTempA$gene == geneVec[i],]
+    dfTemp <- dfTemp[order(dfTemp[,xAxis], decreasing = F),]
+    #plot(dfTemp$DM_Pseudotime, dfTemp$lg10Expr, type = "l")
+    dfTemp[["x_axis"]] <- dfTemp[,xAxis]
+    dfTemp[["y_axis"]] <- dfTemp[,yAxis]
+    fmla <- as.formula(paste0("y_axis ~ x_axis"))
+    smoothing <- 0.1
+    
+    loessMod <- loess(fmla, data=dfTemp, span=smoothing)
+    xl <- seq(min(dfTemp$x_axis),max(dfTemp$x_axis), (max(dfTemp$x_axis) - min(dfTemp$x_axis))/99)
+    yl <- predict(loessMod,xl)
+    
+    ## Deal with below zero values ##
+    lowpoint <- min(yl)
+    if (lowpoint < 0){
+      yl <- yl + (-1* lowpoint) 
+    }
+    
+    yl[is.na(yl)] <- 0
+    
+    row_mean <- mean(yl)
+    row_hm <- log2(yl/row_mean)
+    row_hm[row_hm > setMax] = setMax
+    row_hm[row_hm < setMin] = setMin
+    
+    rowNumber <- i
+    x <- rep(rowNumber - 1, 100)
+    xE <- rep(rowNumber, 100)
+    y <- 0:99
+    yE <- 0:99
+    
+    dfAdd <- data.frame(x, xE, y, yE, row_hm, yl)
+    dfAdd[["gene"]] <- geneVec[i]
+    
+    yMax <- grep(max(dfAdd$row_hm, na.rm=T), dfAdd$row_hm)
+    
+    dfAdd[["yMax"]] <- dfAdd[yMax, "y"]
+    
+    if (i ==1){
+        dfRes <- dfAdd
+    } else {
+        dfRes <- rbind(
+            dfRes, 
+            dfAdd
+        )
+    }
+    
+    
+}
+
+## Before plotting, pre-order according to max value from low x to high x ##
+
+###############################################################################
+## Order by highpoint                                                        ##
+dfTemp <- unique(dfRes[, c("gene", "yMax")])
+dfTemp <- dfTemp[order(dfTemp$yMax, decreasing = F),]
+levels <- unique(dfTemp$gene) 
+dfRes$gene <- factor(dfRes$gene, levels = levels)
+dfRes <- dfRes[order(dfRes$gene),]
+
+for (i in 1:length(levels)){
+  dfRes[dfRes$gene == levels[i], "x"] <- i-1
+  dfRes[dfRes$gene == levels[i], "xE"] <- i
+}
+
+## Done                                                                      ##
+###############################################################################
+
+
+###############################################################################
+## Plotting                                                                  ##
+p1 <- ggplot(data = dfRes, aes(x = x, xend = xE, y = y, yend = yE)) 
+
+lowCol <- "blue"
+midCol <- "yellow"
+upCol <- "red"
+
+if (mode == "absolute"){
+    setMin <- 0
+    setMax <- 1.1*max(dfRes$yl)
+    p1 <- p1 + geom_segment(aes(color = yl), size = 2) + scale_color_gradient2(
+        low = midCol,
+        high = upCol,
+        limits =c(setMin,setMax)
+    )   
+} else {
+ p1 <- p1 + geom_segment(aes(color = row_hm), size = 2) + scale_color_gradient2(
+        low = lowCol,
+        mid = midCol,
+        high = upCol,
+        midpoint = 0,
+        limits =c(setMin,setMax)
+    )
+} 
+
+size = 10
+if (length( geneNameVec) >= 20){
+  size <- 8
+}
+
+if (length( geneNameVec) >= 30){
+  size <- 6
+}
+
+if (length( geneNameVec) >= 40){
+  size <- 4
+}
+
+p1 <- p1 + coord_flip(
+    ) + geom_label(data=dfRes, aes(x=x+0.5, y=110,  label = gene), nudge_y = 10
+    ) +ylim(0,130
+    ) + theme(
+        plot.title = element_text(
+            hjust = 0.5, 
+            size = size
+        ),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(), axis.title.x=element_blank(),
+        #axis.text.x=element_blank(),
+        #axis.ticks.x=element_blank(), 
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank()) + ggtitle(paste0("x-Axis: ",xAxis, " in 100 bins (Mode: ", mode, ")")
+) 
+
+return(p1)
+
+}
+
+## End plotting function                                                     ##
+###############################################################################
+```
+
+
+```{r make_gam_plots, eval=TRUE, echo=T, results=F}
+###############################################################################
+## Prepare data                                                              ##
+library(ggplot2)
+library(RMySQL)
+library(gridExtra)
+library(tidyr)
+
+
+## Select the genes to appear in the pseudotime plot
+#geneNameVec <- c("Ret", "S100b", "Gapdh", "Klf4")
+
+## In this case - select the top 10 GAM transcription factors with at least 5% expression level across the experiment for the plot ##
+
+## Make gene selection for plotting ##
+## 10 Ret correlated
+## 10 Ascl1 correlated
+## 10 Sox100 correlated
+
+dfSel <- dfGamSel #[dfGamSel$TF == "TF",]
+dfSel <- dfSel[dfSel$PercCellsExpr >= 5, ]
+
+dfSel[["selection"]] <- ""
+
+for (i in 1:length(changeCols)){
+  dfSel <- dfSel[order(dfSel[,changeCols[i]], decreasing = T),]
+  dfSel[1:10, "selection"] <- "+"
+}
+
+dfSel <- dfSel[dfSel$selection == "+",]
+
+geneNameVec <- as.vector(unique(dfSel$gene))
+
+## Load Seurat object OsC - this has to have a meta data column called DM_Pseudotime ##
+# load(sFN)
+
+
+## Get expression data for the above genes ##
+dfExpr <- data.frame(OsC[["RNA"]]@data)
+dfExpr[["gene"]] <- row.names(dfExpr)
+dfExpr <- dfExpr[dfExpr$gene %in% geneNameVec, ]
+dfExpr <- gather(
+    dfExpr,
+    condition,
+    expr, 1:(ncol(dfExpr)-1),
+    factor_key=TRUE
+)
+dfExpr <- dfExpr[dfExpr$expr != 0,]
+
+names(dfExpr) <- gsub("condition", "cellID", names(dfExpr))
+names(dfExpr) <- gsub("expr", "lg10Expr", names(dfExpr))
+#dfExpr$lg10Expr <- round(dfExpr$lg10Expr, 3)
+
+
+
+
+dfGRes <- createPlotDf(
+    dfMeta = OsC@meta.data,
+    dfExpr = dfExpr,
+    geneNameVec = geneNameVec
+)
+    
+
+dfTempA <- dfGRes[dfGRes$gene != 0,]
+
+## Done                                                                      ##
+###############################################################################
+
+###############################################################################
+## Make relative plot                                                        ##
+
+tag <- "relative"
+plotList <- list()
+chnkVec <- as.vector(NULL, mode="character")
+
+plotList[[tag]] <- makePT_hmPlot(
+  mode = "relative",  # Must be relative or absolute
+  dfTempA = dfTempA,
+  setMax = 2,
+  setMin = -2,
+  geneVec = geneNameVec,
+  xAxis = "DM_Pseudotime",
+  yAxis = "lg10Expr"	 
+)
+
+ ## Create R markdown chunk ##
+figureCount = 1
+figLegend <- paste0(
+  "**Figure ",
+  figureCount,
+  ":** Dotplot showing showing selected marker genes. "
+)
+
+figureCount <- figureCount + 1
+
+NewChnk <- paste0(
+  "#### Relative Expression",
+  "\n```{r Relative_", tag,
+  ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+  figLegend,"'}\n",
+  "\n",
+  "\n print(plotList[['",tag,"']])",
+  "\n cat(  '\n')",
+  "\n\n\n```\n"
+)
+
+chnkVec <- c(
+        chnkVec,
+        NewChnk
+)  
+
+## Done                                                                      ##
+###############################################################################
+
+###############################################################################
+## Make absolute plot                                                        ##
+
+tag <- "absolute"
+
+plotList[[tag]] <- makePT_hmPlot(
+  mode = "absolute",  # Must be relative or absolute
+  dfTempA = dfTempA,
+  setMax = 2,
+  setMin = -2,
+  geneVec = geneNameVec,
+  xAxis = "DM_Pseudotime",
+  yAxis = "lg10Expr"	 
+)
+
+ ## Create R markdown chunk ##
+figureCount = 1
+figLegend <- paste0(
+  "**Figure ",
+  figureCount,
+  ":** Dotplot showing showing selected marker genes. "
+)
+
+figureCount <- figureCount + 1
+
+NewChnk <- paste0(
+  "#### Relative Expression",
+  "\n```{r Relative_", tag,
+  ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+  figLegend,"'}\n",
+  "\n",
+  "\n print(plotList[['",tag,"']])",
+  "\n cat(  '\n')",
+  "\n\n\n```\n"
+)
+
+chnkVec <- c(
+        chnkVec,
+        NewChnk
+)  
+
+## Done                                                                      ##
+###############################################################################
+
+```
+
+```{r plot_list, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+```
