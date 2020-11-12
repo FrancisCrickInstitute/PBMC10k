@@ -9827,13 +9827,15 @@ add.category.to.lab.reference.table.hs <- function(
     dfTest <- dbGetQuery(dbDB, query)
     dbDisconnect(dbDB)
     updateCat <- FALSE
+    library(RMySQL)
+    
     if (nrow(dfTest) == 1){
         cat_id <- dfTest[,"cat_id"]
         updateCat <- TRUE
         
+        
     } else {
         if (!new.lab.category.table){
-            library(RMySQL)
             dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.ref.db ,host = host)
             
             ## Set default ##
@@ -9856,7 +9858,7 @@ add.category.to.lab.reference.table.hs <- function(
             } else {
                 max.value = 0
             }
-            df.ref = dbGetQuery(dbDB, "SELECT DISTINCT * FROM js_lab_categories WHERE cat_id = 'not_existing'")
+            #df.ref = dbGetQuery(dbDB, "SELECT DISTINCT * FROM js_lab_categories WHERE cat_id = 'not_existing'")
             dbDisconnect(dbDB)
             
             
@@ -9864,6 +9866,9 @@ add.category.to.lab.reference.table.hs <- function(
             
         }
     }
+    dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.ref.db ,host = host)
+    df.ref = dbGetQuery(dbDB, "SELECT DISTINCT * FROM js_lab_categories WHERE cat_id = 'not_existing'")
+    dbDisconnect(dbDB)
     
     ## Get current reference category format from db ##
     
@@ -9900,7 +9905,12 @@ add.category.to.lab.reference.table.hs <- function(
     
     #Prepare data table
     #df.ref$row_names = NULL
-    df.cat.new[["row_names"]] = max.value+1
+    df.cat.new[["row_names"]] <- 0
+    
+    if (!updateCat){
+        df.cat.new[["row_names"]] = max.value+1
+    }
+    
     df.cat.new = df.cat.new[, names(df.ref)]
     
     

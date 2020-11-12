@@ -172,6 +172,18 @@ projectDetailList <- list(
 ## End project detail list                                                   ##
 ###############################################################################
 
+###############################################################################
+## Project Parameters                                                        ##
+documentationParams <- list(
+    "title" = "Mechanisms of stress induced brain sparing in mammals",
+    "subtitle" = "Pachnis Lab - Tiffany Heanue and Tiffany Heanue and Elina Fourli",
+    "abstract" = "TBA"
+)
+
+
+## Done Project Params                                                       ##
+###############################################################################
+
 
 ###############################################################################
 ## Project detail list                                                       ##
@@ -304,6 +316,7 @@ referenceTableList = list(
 
 Obio = new(
     "bioLOGIC",
+    documentationParams = documentationParams,
     dbDetailList = dbDetailList,        
     projectDetailList = projectDetailList,
     sampleDetailList = sampleDetailList, 
@@ -314,7 +327,7 @@ Obio = new(
         "sra.id.vector" = "",
         "gse.id.vector" = "",
         "addDmaps" = TRUE,
-       "lims.id"= "",
+       "lims.id"= "SC18139",
         "asf.id" = "",
         "machine" = NULL,
         "experiment.type" = "sc_rna_seq",   
@@ -766,3 +779,83 @@ print("R bioLOGIC single cell object initialized.")
 ```{r documentation, eval=TRUE, echo=T, results=T}
 sessionInfo()
 ```
+
+```{r create_report_params, eval=T, results="asis"}
+
+## Try to retrieve project data from db ##
+library(RMySQL)
+db.pwd2 <- "_asf_"
+db.user2 <- "asf"
+host2 <- "ms1.thecrick.org"
+projectParams <- Obio@documentationParams
+
+tryCatch({
+    dbDB = dbConnect(drv = RMySQL::MySQL(), user = db.user2, password = db.pwd2, host = host2, dbname = "asf");
+dfProposal =  dbGetQuery(dbDB, paste0("SELECT * FROM asf_proposals WHERE project_name ='",Obio@parameterList$lims.id,"'"));
+dbDisconnect(dbDB)
+  }, error = function(x) {
+    message("Project Database could not be reached or has no entry in Obio@parameterList$lims.id for this analysis.")
+   
+})
+
+if (nrow(dfProposal) == 1){
+    if (!is.na(dfProposal[1,"ProjectAlias"]) & dfProposal[1,"ProjectAlias"] != ""){
+        projectParams[["title"]] = paste0(dfProposal[1,"ProjectAlias"], " - ", dfProposal[1,"project_name"])
+    }
+    
+    if (!is.na(dfProposal[1,"project_user"]) & dfProposal[1,"project_user"] != ""){
+        projectParams[["subtitle"]] = paste0(dfProposal[1,"user_lab"], " Lab - ", dfProposal[1,"project_user"])
+        projectParams[["subtitle"]] <- gsub("^ Lab - ", "", projectParams[["subtitle"]])
+        
+    }
+    
+    if (!is.na(dfProposal[1,"proposal_text"]) & dfProposal[1,"proposal_text"] != ""){
+        projectParams[["abstract"]] = dfProposal[1,"proposal_text"]
+       
+        
+    }
+}
+   
+## Escape all special characters
+projectParams <- lapply(
+  projectParams, function(x) 
+  #gsub("([.|()\\^{}+$*?]|\\[|\\])", "\\\\\1", x)
+  gsub("([.|()/\\^{}+$*?]|\\[|\\])", " ", x)
+) 
+
+projectParams <- lapply(
+  projectParams, function(x) 
+  #gsub("([.|()\\^{}+$*?]|\\[|\\])", "\\\\\1", x)
+  gsub("\\\n", " ", x)
+) 
+
+
+#projectParams$title <- "Title"
+projectParams$abstract <- "This is the QC section."
+#projectParams$subtitle <- "Abstract"
+
+```
+
+---
+title: "`r projectParams$title`"
+subtitle:  "`r projectParams$subtitle`"
+author:
+    - Stefan Boeing^[The Francis Crick Institute, stefan.boeing@crick.ac.uk]
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+
+abstract: |
+    "`r projectParams$abstract`"
+
+output: 
+    html_document:
+        code_folding: hide
+        df_print: tibble
+        toc: true
+        toc_depth: 5
+        toc_float: true
+        css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
+
+always_allow_html: yes
+
+
+---

@@ -1139,6 +1139,31 @@ database.table[is.na(database.table)] <- 0
 ## Done
 ###########################
 
+###############################################################################
+## Add cluster residuals                                                     ##
+
+pos <- grep("dfClusterResiduals", names(Obio@dataTableList))
+
+if (length(pos) == 1){
+
+dfAdd <- Obio@dataTableList$dfClusterResiduals
+
+
+names(dfAdd)[grep("Residuals", names(dfAdd))] <- paste0("add_counts_", names(dfAdd)[grep("Residuals", names(dfAdd))])
+
+database.table <- merge(
+    database.table, 
+    dfAdd,
+    by.x = Obio@parameterList$geneIDcolumn,
+    by.y = "gene",
+    all = TRUE
+)
+
+database.table[is.na(database.table)] <- 0
+
+## Done adding cluster residuals                                             ##
+###############################################################################
+
 ###########################
 ## Add differential gene expression
 pos <- grep("DGE_table", names(Obio@dataTableList))
