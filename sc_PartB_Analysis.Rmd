@@ -1,15 +1,4 @@
 ---
-title: "Zebrafish Neuron to Glia Transdifferentiation In Vivo"
-subtitle: "Tiffany Heanue"
-author: 
-  -Stefan Boeing^[The Francis Crick Institute, stefan.boeing@crick.ac.uk]
-
-date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
-
-abstract: |
-  Abstract to be added.
-  More details
-
 output: 
     html_document:
         code_folding: hide
@@ -20,7 +9,6 @@ output:
         css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
 
 always_allow_html: yes
-
 ---
 
 
@@ -820,6 +808,123 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 ```
 
 
+### Calculate Average Expression Per Cluster
+```{r Identify differential expressed genes across conditions, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
+## Ensure that hmIdent exists ##
+
+## Want to average by cluster and subset by sampleID ##
+###############################################################################
+## Calculataing average expression across all samples                        ##
+OsC@meta.data[["all"]] <- "all"
+Idents(OsC) <- "all"
+cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
+
+## Retrieved Scaled data ##
+dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
+#dfAvgExpr <- dfAvgExpr[,sort(names(dfAvgExpr))]
+dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
+
+dfAvgScaledData <- data.frame(cluster.averages[["RNA"]]@scale.data)
+#dfAvgScaledData <- dfAvgScaledData[,sort(names(dfAvgScaledData))]
+dfAvgScaledData[["gene"]] <- row.names(dfAvgScaledData)
+
+
+Obio@dataTableList[["dfAvglg10ExprAll"]] <- dfAvgExpr
+Obio@dataTableList[["dfAvglg10ExprAllScaled"]] <- dfAvgScaledData
+## Done                                                                      ##
+###############################################################################
+
+OsC@meta.data[["clustIdent"]] <- paste0(
+    "C_", OsC@meta.data[,Obio@parameterList$singleCellClusterString]
+)
+
+
+Idents(OsC) <- "clustIdent"
+if (length(grep("sampleID", names(OsC@meta.data))) > 0){
+    cluster.averages <- AverageExpression(OsC, return.seurat = TRUE, add.ident = "sampleID")
+    
+    
+} else {
+    cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
+}
+
+Idents(OsC) <- "sampleID"
+
+
+## Retrieved Scaled data ##
+dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
+dfAvgExpr <- dfAvgExpr[,sort(names(dfAvgExpr))]
+dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
+
+dfAvgScaledData <- data.frame(cluster.averages[["RNA"]]@scale.data)
+dfAvgScaledData <- dfAvgScaledData[,sort(names(dfAvgScaledData))]
+dfAvgScaledData[["gene"]] <- row.names(dfAvgScaledData)
+
+
+Obio@dataTableList[["dfAvglg10ExprByClusterBySample"]] <- dfAvgExpr
+Obio@dataTableList[["dfAvglg10ExprByClusterBySampleScaled"]] <- dfAvgScaledData
+###############################################################################
+
+###############################################################################
+## Average by Cluster                                                        ##
+Idents(OsC) <- "clustIdent"
+
+Idents(OsC) <- factor(Idents(OsC), levels = sort(levels(OsC)))
+
+cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
+
+dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
+dfAvgExpr <- dfAvgExpr[,sort(names(dfAvgExpr))]
+dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
+
+dfAvgScaledData <- data.frame(cluster.averages[["RNA"]]@scale.data)
+dfAvgScaledData <- dfAvgScaledData[,sort(names(dfAvgScaledData))]
+dfAvgScaledData[["gene"]] <- row.names(dfAvgScaledData)
+
+
+Obio@dataTableList[["dfAvglg10ExprPerCluster"]] <- dfAvgExpr
+Obio@dataTableList[["dfAvglg10ExprPerClusterScaled"]] <- dfAvgScaledData
+
+## Done Average by Cluster                                                   ##
+###############################################################################
+
+###############################################################################
+## Average gene expression by sample                                         ##
+
+
+Idents(OsC) <- "sampleID"
+cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
+
+## Retrieved Scaled data ##
+dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
+selVec <- names(dfAvgExpr)
+
+dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
+selVec <- c("gene", selVec)
+
+dfAvgExpr <- dfAvgExpr[,selVec]
+
+
+dfAvgScaledData <- data.frame(cluster.averages[["RNA"]]@scale.data)
+selVec <- names(dfAvgScaledData)
+
+dfAvgScaledData[["gene"]] <- row.names(dfAvgScaledData)
+selVec <- c("gene", selVec)
+
+dfAvgScaledData <- dfAvgScaledData[,selVec]
+
+
+Obio@dataTableList[["dfAvglg10ExprBySample"]] <- dfAvgExpr
+Obio@dataTableList[["dfAvglg10ExprBySampleScaled"]] <- dfAvgScaledData
+
+
+## Done average gene expression by sample                                    ##
+###############################################################################
+
+
+```
+
+
 ### Dimensionality Reduction Plots by Cluster {.tabset .tabset-fade .tabset-pills}
 ```{r Plot_dimred_by_cluster_data_prep, echo=TRUE, eval=TRUE, warning=FALSE, results=FALSE} 
 
@@ -1362,7 +1467,7 @@ dfDat <- dfDat %>%
        pivot_wider(names_from = cluster, values_from = gene, values_fill = "") %>% select(-rn)
 
 orderVec <- sort(names(dfDat))
-dfDat[,orderVec]
+dfDat <- dfDat[,orderVec]
 
 names(dfDat) <- paste0(
     Obio@parameterList$project_id, 
@@ -1372,13 +1477,13 @@ names(dfDat) <- paste0(
 
 dfDat <- data.frame(dfDat)
 
-dfCatRef <- names(dfCatRef)
-names(dfCatRef) <- names(dfDat)
-
-dfDat <- rbind(
-  dfCatRef, 
-  dfDat
-)
+# dfCatRef <- names(dfCatRef)
+# names(dfCatRef) <- names(dfDat)
+# 
+# dfDat <- rbind(
+#   dfCatRef, 
+#   dfDat
+# )
 
 #######################################################################
 ## Upload/update category by category                                ##
@@ -2615,9 +2720,304 @@ Obio@dataTableList[["dfResAUC"]] <- dfResAUC
 cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 ```
 
+### Linear Regression {.tabset .tabset-fade .tabset-pills}
+```{r data_pre_linear_regression, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
+
+## Get average Expression for all cells
+dfAvgExprAllCells <- Obio@dataTableList$dfAvglg10ExprAll
+
+## Get average expression per cluster
+dfAvgExprByCluster <- Obio@dataTableList$dfAvglg10ExprPerCluster
+
+## Merge
+dfDataTable <- merge(
+  dfAvgExprAllCells, 
+  dfAvgExprByCluster,
+  by.x = "gene",
+  by.y = "gene",
+  all =T
+)
+
+dfDataTable[is.na(dfDataTable)] <- 0
+
+clusterVec <- names(dfDataTable)
+clusterVec <- clusterVec[!(clusterVec %in% c("gene", "all"))]
+
+slopeVec <- as.vector(NULL, mode = "numeric")
+intersectVec <- as.vector(NULL, mode = "numeric")
+
+for (i in 1:length(clusterVec)){
+  LMformula <- as.formula(paste0(clusterVec[i]," ~ all"))
+  clusterFit <- lm(data=dfDataTable, formula = LMformula)
+  slopeVec <- c(
+    slopeVec, 
+     coef(clusterFit)[[2]]
+    
+  )
+  
+  intersectVec <- c(
+    intersectVec,
+    coef(clusterFit)[[1]]
+  )
+  
+  
+  residuals <- round(clusterFit$residuals, 3)
+  dfTempResiduals <- data.frame(dfDataTable$gene, residuals)
+  names(dfTempResiduals) <- c("gene", paste0(clusterVec[i], "_Residuals"))
+  
+  if (i ==1){
+    dfClusterResiduals <- dfTempResiduals
+  } else {
+    dfClusterResiduals <- merge(
+      dfClusterResiduals, 
+      dfTempResiduals, 
+      by.x = "gene",
+      by.y = "gene",
+      all =T
+    )
+  }
+  
+  dfClusterResiduals[is.na(dfClusterResiduals)] <- 0
+  
+}
+
+Obio@dataTableList[["dfClusterResiduals"]] <- dfClusterResiduals
+
+## Make gene set with Residual marker genes ##
+if (Obio@parameterList$geneIDcolumn != "hgnc_symbol" & Obio@parameterList$geneIDcolumn != "mgi_symbol"){
+    refGeneIDcolumn <- "hgnc_symbol"
+    dfAnno <- Obio@dfGeneAnnotation
+    dfAnno <- unique(dfAnno[,c("hgnc_symbol",Obio@parameterList$geneIDcolumn )])
+    dfAnno <- dfAnno[dfAnno[,Obio@parameterList$geneIDcolumn] %in% dfClusterResiduals[,"gene"],]
+    
+    dfClusterResiduals <- merge(
+        dfClusterResiduals,
+        dfAnno,
+        by.x = "gene",
+        by.y = Obio@parameterList$geneIDcolumn
+    )
+    dfClusterResiduals$gene <- NULL
+    names(dfClusterResiduals) <- gsub("hgnc_symbol", "gene",names(dfClusterResiduals))
+    
+} else {
+    refGeneIDcolumn <- Obio@parameterList$geneIDcolumn
+}
+
+residualClusterMarkers <- list()
+DefaultcutOff <- 1
+
+clusterVec <- names(dfClusterResiduals)
+clusterVec <- clusterVec[clusterVec != "gene"]
+
+for (i in 1:length(clusterVec)){
+    clusterGenes <- as.vector(sort(unique(dfClusterResiduals[dfClusterResiduals[, clusterVec[i]] > DefaultcutOff,"gene"])))
+    
+    if (length(clusterGenes) > 1){
+        residualClusterMarkers[[paste0(clusterVec[[i]], "_Linear_Regression_Markers_", DefaultcutOff)]] <- c(
+            paste0(clusterVec[[i]], "_Linear_Regression_Markers_", DefaultcutOff, " Experiment ", Obio@parameterList$project_id),
+            clusterGenes
+        )
+    }
+}
+
+## Upload Marker Genes for this Project ##
+#######################################################################
+## Upload/update category by category                                ##
+updatedCatIDs <- as.vector(NULL, mode = "character")
+        
+for (i in 1:length(residualClusterMarkers)){
+    cat.name <- names(residualClusterMarkers)[i]
+    cat_type <- paste0("temp_cluster_marker_", Obio@parameterList$project_id)
+            
+    cat.description.text <- as.vector(residualClusterMarkers[[i]][1]) 
+            
+    gene.vec <- as.vector(
+       residualClusterMarkers[[i]]
+    )[2:length(residualClusterMarkers[[i]])]
+            
+    gene.vec <- gene.vec[gene.vec != ""]
+    gene.vec <- sort(na.omit(gene.vec))
+            
+    ## Determine if cat exists ##
+            
+            
+    catID <- add.category.to.lab.reference.table.hs(
+        host = Obio@dbDetailList$host,
+        pwd = db.pwd,
+        user = Obio@dbDetailList$db.user,
+        cat.ref.db = Obio@dbDetailList$ref.cat.db,
+        cat.ref.db.table = Obio@parameterList$lab.categories.table,
+        gene.vector = gene.vec,
+        gene.id = refGeneIDcolumn, #options hgnc_symbol, mgi_symbol
+        mm.hs.conversion.file =  paste0(hpc.mount, "Projects/reference_data/20160303.homologene.data.txt"),
+        cat_name = cat.name,
+        cat_type = cat_type,
+        data_source = paste0(Obio@parameterList$labname, " Lab"),
+        comments_1 = "",
+        comments_2 = "",
+        new.lab.category.table = FALSE,
+        cat.description.db  = "internal_categories",
+        cat.description.db.table = "category_description",
+        cat.description.text = cat.description.text,
+        lab.name = Obio@parameterList$labname,
+        replaceExistingCatName = TRUE
+    ) 
+        
+            
+    updatedCatIDs <- c(
+        updatedCatIDs, 
+        catID
+    )    
+} ## End dfDat loop
+
+dfCatNameID <- data.frame(catID = updatedCatIDs, cat_name= names(residualClusterMarkers))
+
+###############################################################################
+## Creaate Plot array                                                        ##
+
+plotList <- list()
+chnkVec <- as.vector(NULL, mode = "character")
+
+# x-axis: all
+# y-axis: intensity cluster X
+# highlight: Marker genes
+dfClusterResiduals <- Obio@dataTableList$dfClusterResiduals
+clusterVec <- names(dfDataTable)
+clusterVec <- clusterVec[!(clusterVec %in% c("gene", "all"))]
+
+## Determine cluster colors ##
+dfClustCol <- data.frame(cluster=clusterVec, clusterCol=clusterVec)
+dfClustCol$clusterCol <- as.numeric(gsub("C_", "", dfClustCol$clusterCol))
+dfClustCol <- dfClustCol[order(dfClustCol$clusterCol, decreasing = F),]
+
+library(scales)
+clusterCols = hue_pal()(nrow(dfClustCol))
+dfClustCol[["clusterCol"]] <- clusterCols
+
+clusterVec <- as.vector(dfClustCol$cluster)
+clusterCol <- as.vector(dfClustCol$clusterCol)
+
+for (i in 1:length(clusterVec)){
+    ## Determine top10 markers ##
+    clustCol <- names(dfClusterResiduals)[grep(paste0(clusterVec[i],"_"), names(dfClusterResiduals))]
+    dfClusterResiduals <- dfClusterResiduals[order(dfClusterResiduals[,clustCol], decreasing = T), ]
+    
+    markerVec <- as.vector(dfClusterResiduals[1:10,"gene"])
+  
+    dfTempResiduals <- dfClusterResiduals[dfClusterResiduals[,clustCol] > DefaultcutOff, ]
+    highlightGenes <- as.vector(dfTempResiduals[,"gene"])
+    
+    dfPlot <- dfDataTable[,c("gene", "all", clusterVec[i])]
+    dfPlot[["label"]] <- ""
+    dfPlot[dfPlot$gene %in% markerVec, "label"] <- dfPlot[dfPlot$gene %in% markerVec, "gene"] 
+    
+    ## Add highlight ##
+    dfPlot[["ClusterMarker"]] <- ""
+    dfPlot[dfPlot$gene %in% highlightGenes, "ClusterMarker"] <- "+"
+    dfPlot[["x"]] <- dfPlot$all
+    dfPlot[["y"]] <- dfPlot[, clusterVec[i]]
+    
+    tag <- paste0("LinearRegressionMarkers_Cluster", clusterVec[i])
+    
+    ## Create fitted line ##
+    lineFit <- lm(data=dfPlot, formula = y ~ x)
+    
+    library(ggrepel)
+
+    plotList[[tag]] <- ggplot(
+        data = dfPlot, 
+        aes(
+            x=x, 
+            y=y, label = label, color = ClusterMarker)
+    #) + geom_abline(intercept = intersectVec[i], slope = slopeVec[i], linetype="dashed", color = "grey"
+    ) + geom_smooth(method='lm', formula= y ~ x, linetype="dashed", se = T, colour = "grey"
+    ) + geom_point( shape=16, size = dotsize
+            )  + xlab("Average Expression All Cells") + ylab(paste0("Average Expression ", clusterVec[[i]]))  +  theme(
+                axis.text.y   = element_text(size=8),
+                axis.text.x   = element_text(size=8),
+                axis.title.y  = element_text(size=8),
+                axis.title.x  = element_text(size=8),
+                axis.line = element_line(colour = "black"),
+                panel.border = element_rect(colour = "black", fill=NA, size=1),
+                plot.title = element_text(hjust = 0.5, size = 12)
+            ) + ggtitle(paste0("Cluster Markers  ", clusterVec[[i]])
+            ) + scale_color_manual(values=c("#000000", clusterCol[i])
+            ) + geom_text_repel(
+            ) + theme_bw()
+    
+    
+            # +  xlim(0, xmax) + ylim(0, ymax)
+
+
+    
+    ###########################################################################
+    ## Save plot to file                                                     ##
+    FNbase <- paste0("Linear.regression.cluster.markers.",clusterVec[i], VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+        print(plotList[[tag]])
+    dev.off()
+    ##                                                                       ##
+    ###########################################################################
+    
+    pos <- grep(paste0(clusterVec[i],"_"), dfCatNameID$cat_name)
+    
+    catID <- ""
+    if (length(pos) == 1){
+      catID <- as.vector(dfCatNameID[pos, "catID"])
+    }
+    
+    link <- paste0("https://",urlString,"/",Obio@parameterList$project_id,"/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=norm_counts_Avg_log10_Expr_",clusterVec[i], "&cat_id=", catID)
+    
+    heatmaplink <- paste0('In order to identify cluster specific marker genes a <a href="https://biologic.crick.ac.uk/vpl362A/category-view/', catID,'" target="_blank">cluster-maker gene heatmap for this gene set</a> might be interesting.')
+
+
+    figCap <- paste0(
+        "**Figure ",
+        figureCount,
+        ":** Average gene expression intensity of all cells together versus averaged expression intensities for cluster ",clusterVec[i],". ",
+        "Download a pdf of this figure [here](", FNrel, "). ",
+        "An interactive version of this figure can be found [here](", link, "). ",
+        heatmaplink
+    )
+    
+    NewChnk <- paste0(
+        "#### ",tag,
+        "\n```{r LR_marker_",tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",figCap,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+     
+    ## Histogram Part C done                                                 ##
+    ###########################################################################
+    
+       
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+}
+
+## Done creating plot array                                                  ##
+###############################################################################
+
+```
+
+Cluster Markers By Linear Regression {.tabset .tabset-fade .tabset-pills}
+```{r plot_linear_regression, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
+## plot list will be integrated in full figure ##
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+```
 
 
 ### Heatmap and Dotplot for the top5 cluster defining genes
+
+In this section we will try to determine what are good markers for the clusters in this experiment. 
+
 ```{r Cluster_overview_data_prep, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
 
 plotList <- list()
@@ -2898,9 +3298,56 @@ Obio@dataTableList[["dfPercCellsExpr"]] <- dfExprMatrix
 dfPercCellsExpr <- Obio@dataTableList$dfPercCellsExpr
 
 dfDat <- Obio@dataTableList$dfGeneralMarkersFilt
-dfDat <- dfDat[,c("cluster", "gene", "avg_diff", "pct.1", "pct.2","myAUC", "power")]
 dfDat$avg_diff <- round(dfDat$avg_diff,2)
-dfDat$cluster <- paste0("Cluster_",dfDat$cluster, "_C")
+dfDat <- dfDat[,c("cluster", "gene", "avg_diff", "power")]
+names(dfDat) <- gsub("avg_diff", "DGE_avg_diff", names(dfDat))
+names(dfDat) <- gsub("power", "DGE_power", names(dfDat))
+dfDat[["join_col"]] <- paste0(dfDat$gene, "_C_", dfDat$cluster)
+dfDat$cluster <- NULL
+dfDat$gene <- NULL
+
+## Add residual results ##
+dfClusterResiduals <- Obio@dataTableList$dfClusterResiduals
+
+
+library(tidyverse)
+dfLongResiduals <- data.frame(
+    dfClusterResiduals %>% pivot_longer(!gene, names_to = "cluster", values_to = "residuals")
+)
+dfLongResiduals <- dfLongResiduals[abs(dfLongResiduals$residuals) > 1, ]
+dfLongResiduals$cluster <- gsub("_Residuals", "", dfLongResiduals$cluster)
+
+dfLongResiduals[["join_col"]] <- paste0(
+  dfLongResiduals$gene, 
+  "_", 
+  dfLongResiduals$cluster
+)
+
+dfLongResiduals$gene <- NULL
+dfLongResiduals$cluster <- NULL
+
+dfDat <- merge(
+  dfDat, 
+  dfLongResiduals, 
+  by.x = "join_col",
+  by.y = "join_col",
+  all =TRUE
+)
+
+dfDat[is.na(dfDat)] <- 0
+names(dfDat) <- gsub("residuals", "LinearReg_Residuals", names(dfDat))
+dfDat <- dfDat[order(dfDat$LinearReg_Residuals, decreasing = T),]
+dfDat[["gene"]] <- sapply(
+  dfDat$join_col, function(x) unlist(strsplit(x, "_"))[1]
+)
+
+dfDat[["Cluster"]] <- sapply(
+  dfDat$join_col, function(x) unlist(strsplit(x, "_C_"))[2]
+)
+
+dfDat$join_col <- NULL
+
+dfDat$Cluster <- paste0("Cluster_",dfDat$Cluster, "_C")
 dfDat$gene <- substr(dfDat$gene,1,50)
 
 dfDat[["uniqueMarker"]] <- as.character(!duplicated(dfDat$gene))
@@ -3491,184 +3938,7 @@ if (length(unique(OsC@meta.data$hmIdent)) > 25){
 
 
 
-### Calculate Average expression
-```{r Identify differential expressed genes across conditions, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
-## Ensure that hmIdent exists ##
 
-## Want to average by cluster and subset by sampleID ##
-###############################################################################
-## Calculataing average expression across all samples                        ##
-OsC@meta.data[["all"]] <- "all"
-Idents(OsC) <- "all"
-cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
-
-## Retrieved Scaled data ##
-dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
-#dfAvgExpr <- dfAvgExpr[,sort(names(dfAvgExpr))]
-dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
-
-dfAvgScaledData <- data.frame(cluster.averages[["RNA"]]@scale.data)
-#dfAvgScaledData <- dfAvgScaledData[,sort(names(dfAvgScaledData))]
-dfAvgScaledData[["gene"]] <- row.names(dfAvgScaledData)
-
-
-Obio@dataTableList[["dfAvglg10ExprAll"]] <- dfAvgExpr
-Obio@dataTableList[["dfAvglg10ExprAllScaled"]] <- dfAvgScaledData
-## Done                                                                      ##
-###############################################################################
-
-OsC@meta.data[["clustIdent"]] <- paste0(
-    "C_", OsC@meta.data[,Obio@parameterList$singleCellClusterString]
-)
-
-
-Idents(OsC) <- "clustIdent"
-if (length(grep("sampleID", names(OsC@meta.data))) > 0){
-    cluster.averages <- AverageExpression(OsC, return.seurat = TRUE, add.ident = "sampleID")
-    
-    
-} else {
-    cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
-}
-
-Idents(OsC) <- "sampleID"
-
-
-## Retrieved Scaled data ##
-dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
-dfAvgExpr <- dfAvgExpr[,sort(names(dfAvgExpr))]
-dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
-
-dfAvgScaledData <- data.frame(cluster.averages[["RNA"]]@scale.data)
-dfAvgScaledData <- dfAvgScaledData[,sort(names(dfAvgScaledData))]
-dfAvgScaledData[["gene"]] <- row.names(dfAvgScaledData)
-
-
-Obio@dataTableList[["dfAvglg10ExprByClusterBySample"]] <- dfAvgExpr
-Obio@dataTableList[["dfAvglg10ExprByClusterBySampleScaled"]] <- dfAvgScaledData
-###############################################################################
-
-###############################################################################
-## Average by Cluster                                                        ##
-Idents(OsC) <- "clustIdent"
-
-Idents(OsC) <- factor(Idents(OsC), levels = sort(levels(OsC)))
-
-cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
-
-dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
-dfAvgExpr <- dfAvgExpr[,sort(names(dfAvgExpr))]
-dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
-
-dfAvgScaledData <- data.frame(cluster.averages[["RNA"]]@scale.data)
-dfAvgScaledData <- dfAvgScaledData[,sort(names(dfAvgScaledData))]
-dfAvgScaledData[["gene"]] <- row.names(dfAvgScaledData)
-
-
-Obio@dataTableList[["dfAvglg10ExprPerCluster"]] <- dfAvgExpr
-Obio@dataTableList[["dfAvglg10ExprPerClusterScaled"]] <- dfAvgScaledData
-
-## Done Average by Cluster                                                   ##
-###############################################################################
-
-###############################################################################
-## Average gene expression by sample                                         ##
-
-
-Idents(OsC) <- "sampleID"
-cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
-
-## Retrieved Scaled data ##
-dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
-selVec <- names(dfAvgExpr)
-
-dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
-selVec <- c("gene", selVec)
-
-dfAvgExpr <- dfAvgExpr[,selVec]
-
-
-dfAvgScaledData <- data.frame(cluster.averages[["RNA"]]@scale.data)
-selVec <- names(dfAvgScaledData)
-
-dfAvgScaledData[["gene"]] <- row.names(dfAvgScaledData)
-selVec <- c("gene", selVec)
-
-dfAvgScaledData <- dfAvgScaledData[,selVec]
-
-
-Obio@dataTableList[["dfAvglg10ExprBySample"]] <- dfAvgExpr
-Obio@dataTableList[["dfAvglg10ExprBySampleScaled"]] <- dfAvgScaledData
-
-
-## Done average gene expression by sample                                    ##
-###############################################################################
-
-## Diagnostic plot ##
-#DoHeatmap(cluster.averages, features = c("LY75", "PSMB11", "CCL25", "CD274"), size = 3, draw.lines = FALSE, slot = "scale.data")
-
-
-
-## Create Plots ##
-# Create temp files for plotting #
-
-
-# for (i in 1:length(clusterIDs)){
-#     
-#     
-#     ## Select Marker genes ##
-#     dfTemp <- Obio@dataTableList$dfGeneralMarkersFilt
-#     dfTemp <- dfTemp[dfTemp$cluster == clusterIDs[i], ]
-#     posGenes <- as.vector(unique(dfTemp[dfTemp$direction == "positive", "gene"]))
-#     negGenes <- as.vector(unique(dfTemp[dfTemp$direction == "negative", "gene"]))
-#     
-#     avgTemp <- dfRes[,c("gene", names(dfRes)[grep(paste0("Cl_", clusterIDs[i]), names(dfRes))])]
-#     avgTemp$Selection <- ""
-#     avgTemp[avgTemp$gene %in% posGenes, "Selection"] <- "+"
-#     avgTemp[avgTemp$gene %in% negGenes, "Selection"] <- "-"
-#     names(avgTemp) <- c("gene", "Ctrl", "Prad", "Selection")
-#     
-#     df_layer_1 <- avgTemp[avgTemp$Selection =="",]
-#     df_layer_2 <- avgTemp[avgTemp$Selection =="+",]
-#     df_layer_3 <- avgTemp[avgTemp$Selection =="-",]
-#     
-#     
-#     p1 <- ggplot(
-#     ) + geom_point(data = df_layer_1, aes(Ctrl, Prad), fill = "black", shape = 21
-#     ) + geom_point(data = df_layer_2, aes(Ctrl, Prad), fill = "red", shape = 21
-#     ) + geom_point(data = df_layer_3, aes(Ctrl, Prad), fill = "blue", shape = 21
-#     ) + ggtitle(paste0("Cluster ", clusterIDs[i])
-#     ) +  theme(
-#             axis.text.y   = element_text(size=8),
-#             axis.text.x   = element_text(size=8),
-#             axis.title.y  = element_text(size=8),
-#             axis.title.x  = element_text(size=8),
-#             axis.line = element_line(colour = "black"),
-#             panel.border = element_rect(colour = "black", fill=NA, size=1),
-#             plot.title = element_text(hjust = 0.5, size = 12)
-#         )
-#     
-# 
-#     #p1 <- LabelPoints(plot = p1, points = genes.to.label, repel = TRUE)
-#     cat("\n");cat(paste0("#### Scatterplot Cluster ", clusterIDs[i]));cat("\n")
-#     print(p1)
-#     
-#     ## Save to file ##
-#     FNbase <- paste0("scatterplot.",clusterIDs[i],".highlighted.pdf")
-#     FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-#     FNrel <- paste0("report_figures/", FNbase)
-#     
-#     pdf(FN)
-#         print(p1)
-#     dev.off()
-#     
-#     
-#     cat("Download a pdf of this figure [here](",FNrel,"). ")
-#     
-# }
-
-
-```
 
 ### Example Feature Plots {.tabset .tabset-fade .tabset-pills}
 ```{r ExampleFeaturePlot_dataprep, echo=TRUE, eval=TRUE, warning=FALSE,  results="asis"}
@@ -4506,10 +4776,6 @@ save(OsC,
 
 ```
 
-## Documentation
-```{r documentation, eval=TRUE, echo=T, results=T}
-sessionInfo()
-```
 
 
 ```{r create_report_params, eval=T, results="asis"}
@@ -4519,11 +4785,7 @@ library(RMySQL)
 db.pwd2 <- "_asf_"
 db.user2 <- "asf"
 host2 <- "ms1.thecrick.org"
-projectParams <- list(
-    "title" = "Bulk RNA-Seq Report",
-    "subtitle" = "Lab & Scientists - TBD",
-    "abstract" = "TBA"
-)
+projectParams <- Obio@documentationParams
 
 tryCatch({
     dbDB = dbConnect(drv = RMySQL::MySQL(), user = db.user2, password = db.pwd2, host = host2, dbname = "asf");
@@ -4552,19 +4814,38 @@ if (nrow(dfProposal) == 1){
     }
 }
    
-   #cat(paste0("Project Type: " , dfProposal[1,"ProjectType"],"\n","\n"))
-   #cat(paste0("Project Initiated: " , dfProposal[1,"opendate"],"\n","\n"))
-   #cat(paste0("Project LIMSID: " , dfProposal[1,"project_limsid"], " and ",dfProposal[1,"project_name"],"\n","\n"))
-   #cat(paste0("Scientist and Lab in Chararge: " , dfProposal[1,"project_user"], ", email: ",dfProposal[1,"user_email"], " from the ", dfProposal[1,"project_lab"], "laboratory.","\n","\n"))
+## Escape all special characters
+projectParams <- lapply(
+  projectParams, function(x) 
+  #gsub("([.|()\\^{}+$*?]|\\[|\\])", "\\\\\1", x)
+  gsub("([.|()/\\^{}+$*?]|\\[|\\])", " ", x)
+) 
+
+projectParams <- lapply(
+  projectParams, function(x) 
+  #gsub("([.|()\\^{}+$*?]|\\[|\\])", "\\\\\1", x)
+  gsub("\\\n", " ", x)
+) 
 
 
+#projectParams$title <- "Title"
+# projectParams$abstract <- "This is the QC section."
+#projectParams$subtitle <- "Abstract"
+
+```
+
+
+
+## Documentation
+```{r documentation, eval=TRUE, echo=T, results=T}
+sessionInfo()
 ```
 
 ---
 title: "`r projectParams$title`"
 subtitle:  "`r projectParams$subtitle`"
 author:
-    - Stefan Boeing^[The Francis Crick Institute, stefan.boeing@crick.ac.uk]
+    - Bioinformatics: Stefan Boeing^[The Francis Crick Institute, stefan.boeing@crick.ac.uk]
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 
 abstract: |
