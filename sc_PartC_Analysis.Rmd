@@ -1643,7 +1643,8 @@ defaultVennSel <- names(Obio@databaseTable)
 defaultVennSel <- c(
     defaultVennSel[grep("contrast_", defaultVennSel)],
     defaultVennSel[grep("add_venn_", defaultVennSel)],
-    defaultVennSel[grep("_TsCor_", defaultVennSel)]
+    defaultVennSel[grep("_TsCor_", defaultVennSel)],
+    defaultVennSel[grep("_Residuals", defaultVennSel)]
 
 )
 
