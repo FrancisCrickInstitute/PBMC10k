@@ -469,7 +469,7 @@ plotList[[tag]] <- ggplot(
     ##                                                                       ##
     ###########################################################################
     
-    link <- paste0("https://",urlString,"/",Obio@parameterList$project_id,"/scatterplot?x_axis=",paste0(tag, "_AvgExpr"),"&y_axis=",paste0(tag, "_var_std"))
+    link <- paste0('< a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=',paste0(tag, '_AvgExpr'),'&y_axis=',paste0(tag, '_var_std" target = "_blank">here</a>'))
     
 
     figCap <- paste0(
@@ -479,7 +479,7 @@ plotList[[tag]] <- ggplot(
         names(SampleList)[i],
         ". ",
         "Download a pdf of this figure [here](", FNrel, "). ",
-        "An interactive version of this figure can be found [here](", link, "). "
+        "An interactive version of this figure can be found ", link, ". "
     )
     
     
@@ -618,7 +618,7 @@ for (i in 1:length(SampleList)){
     ###########################################################################
     
     
-    link <- paste0("https://",urlString,"/",Obio@parameterList$project_id,"/scatterplot?x_axis=",paste0(tag, "_AvgExpr"),"&y_axis=",paste0(tag, "_var_std"))
+    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=',paste0(tag, '_AvgExpr'),'&y_axis=',paste0(tag, '_var_std" target="_blank">here</a>'))
     
 
     figCap <- paste0(
@@ -628,7 +628,7 @@ for (i in 1:length(SampleList)){
         names(SampleList)[i],
         ". ",
         "Download a pdf of this figure [here](", FNrel, "). ",
-        "An interactive version of this figure can be found [here](", link, "). "
+        "An interactive version of this figure can be found ", link, ". "
     )
     
     NewChnk <- paste0(
@@ -737,10 +737,11 @@ OsC <- ScaleData(OsC, verbose = FALSE, features=allGenes)
 
 ### Dimensionality Reduction Plots by Sample {.tabset .tabset-fade .tabset-pills}
 If you wish to get a bit of background on tSNE dimensionality reduction, take a look at 
-[this youtube video](https://www.youtube.com/watch?v=NEaUSP4YerM) by Josh Starmer from the University of North Carolina.
+<a href="https://www.youtube.com/watch?v=NEaUSP4YerM" target="_blank"> this youtube video</a> by Josh Starmer from the University of North Carolina.
 
 If you wish to get a bit of background on UMAP (and other) dimensionality reduction algorithms, take a look at 
-[this youtube video](https://www.youtube.com/watch?v=9iol3Lk6kyU) recaping a lecture at the PyData 2018 conference.   
+<a href="https://www.youtube.com/watch?v=9iol3Lk6kyU" target="_blank"> this youtube video</a> by
+recaping a lecture at the PyData 2018 conference.   
 ```{r Plot_tsne_data_rendering, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 
 reductionVec <- c("umap", "tsne")
@@ -766,9 +767,9 @@ for (i in 1:length(reductionVec)){
     dev.off()
     
     if (reductionVec[i] == "tsne"){
-    link <- paste0("https://",urlString,"/",Obio@parameterList$project_id,"/pca?x_axis=tSNE_1&y_axis=tSNE_2")
+    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=tSNE_1&y_axis=tSNE_2" target="_blank">here</a>')
     } else {
-    link <- paste0("https://",urlString,"/",Obio@parameterList$project_id,"/pca?x_axis=UMAP_1&y_axis=UMAP_2")  
+    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=UMAP_1&y_axis=UMAP_2" target="_blank">here</a>')  
     }
     
     figLegend <- paste0(
@@ -777,7 +778,7 @@ for (i in 1:length(reductionVec)){
         ":** ",
         reductionVec[i],
         " plot depicting all samples. Download a pdf of this figure [here](", FNrel,").",
-        "An interactive version of this figure can be found [here](", link, "). "
+        "An interactive version of this figure can be found ", link, ". "
     )
     
     NewChnk <- paste0(
@@ -1005,14 +1006,14 @@ if (length(unique(dfPlot$Cluster)) > 15){
                 print(plotList[[tag]])
             dev.off()
             
-            link <- paste0("https://",urlString,"/",Obio@parameterList$project_id,"/pca?x_axis=UMAP_1&y_axis=UMAP_2")  
+            link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=UMAP_1&y_axis=UMAP_2" target="_blank">here</a>')  
             
             figLegend <- paste0(
                 "**Figure ", 
                 figureCount, 
                 ":** ",
                 " UMAP showing all cells from all samples together. Download a pdf of this figure [here](", FNrel,").",
-                "An interactive version of this figure can be found [here](", link, "). "
+                "An interactive version of this figure can be found ", link, ". "
             )
             
             figureCount <- figureCount + 1
@@ -1108,14 +1109,14 @@ if (length(unique(dfPlot$Cluster)) > 15){
                 print(plotList[[tag]])
             dev.off()
             
-            link <- paste0("https://",urlString,"/",Obio@parameterList$project_id,"/pca?x_axis=tSNE_1&y_axis=tSNE_2")  
+            link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=tSNE_1&y_axis=tSNE_2" target="_blank">here</a>')  
             
             figLegend <- paste0(
                 "**Figure ", 
                 figureCount, 
                 ":** ",
                 " tSNE showing all cells from all samples together. Download a pdf of this figure [here](", FNrel,").",
-                "An interactive version of this figure can be found [here](", link, "). "
+                "An interactive version of this figure can be found ", link, ". "
             )
             
             figureCount <- figureCount + 1
@@ -1550,7 +1551,7 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 
 ### Check Accuracy UMAP Distances
-The sleepwalk tool will provide the euclidean distances between individual cells. This will help you to determine clustering accuracy. Find more information [here]("https://anders-biostat.github.io/sleepwalk/"). 
+The sleepwalk tool will provide the euclidean distances between individual cells. This will help you to determine clustering accuracy. Find more information <a href="https://anders-biostat.github.io/sleepwalk/" target = "_blank">here</a>. 
 <div align="center">
 ```{r Plot_umap_sleepwalk, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 library(sleepwalk)
@@ -1567,7 +1568,7 @@ htmltools::includeHTML(paste(Obio@parameterList$outputDir,"sleepwalk.UMAP.html",
 
 
 ### Highlight Potential Doublets {.tabset .tabset-fade .tabset-pills}
-This analyis gives an indication of which cells MIGHT be doublets. Chris McGinnis [DoubletFinder package]("https://github.com/chris-mcginnis-ucsf/DoubletFinder") is used to identify potential doublets. 
+This analyis gives an indication of which cells MIGHT be doublets. Chris McGinnis <a href="https://github.com/chris-mcginnis-ucsf/DoubletFinder" target="_blank">DoubletFinder</a> package is used to identify potential doublets. 
 
 ```{r doublet-data, echo=TRUE, eval=TRUE, warning=FALSE, results=FALSE, message = FALSE}
 
@@ -2969,7 +2970,7 @@ for (i in 1:length(clusterVec)){
       catID <- as.vector(dfCatNameID[pos, "catID"])
     }
     
-    link <- paste0("https://",urlString,"/",Obio@parameterList$project_id,"/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=norm_counts_Avg_log10_Expr_",clusterVec[i], "&cat_id=", catID)
+    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=norm_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', catID,'" target="_blank">here</a>')
     
     heatmaplink <- paste0('In order to identify cluster specific marker genes a <a href="https://biologic.crick.ac.uk/vpl362A/category-view/', catID,'" target="_blank">cluster-maker gene heatmap for this gene set</a> might be interesting.')
 
@@ -2979,7 +2980,7 @@ for (i in 1:length(clusterVec)){
         figureCount,
         ":** Average gene expression intensity of all cells together versus averaged expression intensities for cluster ",clusterVec[i],". ",
         "Download a pdf of this figure [here](", FNrel, "). ",
-        "An interactive version of this figure can be found [here](", link, "). ",
+        "An interactive version of this figure can be found ", link, ". ",
         heatmaplink
     )
     
@@ -3358,13 +3359,13 @@ dtList <- list()
 tabClusters <- sort(unique(dfDat$cluster))
 chnkVec <- as.vector(NULL, mode="character")
     
-linkGeneView <- paste0("https://",urlString,"/",Obio@parameterList$project_id,"/gene-view")
-linkFeatureView <- paste0("https://",urlString,"/mdata/",Obio@parameterList$project_id,"/html/FeatureView.html")
+linkGeneView <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/gene-view" target = "_blank">GeneView</a>')
+linkFeatureView <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameterList$project_id,'/html/FeatureView.html" target="_blank">FeatureView</a>')
 
 #for (i in 1:length(tabClusters)){
     #tabLegend = paste0("**Table: ** Positive and negative marker genes for ", tabClusters[i])
     tabLegend = paste0("**Table: ** Positive and negative cluster-defining marker genes. Perc_Cells_Expr: Percentage of total cells expressing gene X. Enr in Cluster: Enrichment of gene X in cluster Y. To collapse the table to one particular cluster, type the name of the cluster in the search box.",
-    "Use the [GeneView](",linkGeneView,") or [FeatureView](",linkFeatureView,") functionalities to examine individual genes in more detail. "                   
+    "Use the ",linkGeneView," or ",linkFeatureView," functionalities to examine individual genes in more detail. "                   
     )
     #dfTempDat <- dfDat[dfDat$cluster == tabClusters[i],]
     dfTempDat <- dfDat
@@ -3981,7 +3982,9 @@ for (i in 1:plotParts){
         print(plotListF[[tag1]])
     dev.off()
     
-    linkFeatureView <- paste0("https://",urlString,"/mdata/",Obio@parameterList$project_id,"/html/FeatureView.html")
+    linkFeatureView <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameterList$project_id,'/html/FeatureView.html" target="_blank">FeatureView</a>')
+    
+    
 
     figLegend <-  paste0(
         "**Figure ", 
@@ -3990,7 +3993,7 @@ for (i in 1:plotParts){
         plotGenes[((2*i)-1)], 
         " and ", 
         plotGenes[((2*i))],".",
-        " Results for any other gene may be plotted in [FeatureView](",linkFeatureView,")."
+        " Results for any other gene may be plotted in ",linkFeatureView,"."
     )
       
     NewChnk <- paste0(
@@ -4117,12 +4120,12 @@ for (i in 1:length(xVec)){
         print(plotListCell[[tag]])
     dev.off()
     
-    link <- paste0("https://",urlString,"/",Obio@parameterList$project_id,"/pca?x_axis=",gsub("_", "", xVec[i]),"&y_axis=",gsub("_", "", yVec[i]))
+    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=',gsub('_', '', xVec[i]),'&y_axis=',gsub('_', '', yVec[i]),'" target = "_blank">here</a>')
     
     figCap <- paste0(
         "**Figure, " ,figureCount,"A:** Cell-level PCA plot for dimensions ", xVec[i], " and ", yVec[i],". ", 
         "Download a pdf of this figure [here](", FNrel,"). ",
-        "An interactive version of this figure can be found [here](", link, "). "
+        "An interactive version of this figure can be found ", link, ". "
     )
     
     
@@ -4221,17 +4224,18 @@ for (i in 1:length(xVec)){
     dim1 <- gsub("PC_", "", xVec[i])
     dim2 <- gsub("PC_", "", yVec[i])
     link <- paste0(
-        " https://",urlString,"/",
+        '<a href="https://',urlString,'/',
         Obio@parameterList$project_id, 
-        "/scatterplot?x_axis=add_counts_PCA_Dim_",
+        '/scatterplot?x_axis=add_counts_PCA_Dim_',
         dim1, 
-        "_Loadings&y_axis=add_counts_PCA_Dim_",
+        '_Loadings&y_axis=add_counts_PCA_Dim_',
         dim2,
-        "_Loadings&highlight_gene=&cat_id=ag_lab_categories__10"
+        '_Loadings&highlight_gene=&cat_id=ag_lab_categories__10',
+        '" target="_blank">here</a>'
     )
     
     figCap <- paste0(
-        "**Figure, " ,figureCount,"B:**Gene-level PCA plot for dimensions ", xVec[i], " and ", yVec[i], ". An interactive version of this figure can be found [here](", link, "). "
+        "**Figure, " ,figureCount,"B:**Gene-level PCA plot for dimensions ", xVec[i], " and ", yVec[i], ". An interactive version of this figure can be found ", link, ". "
     )
    
     
@@ -4519,9 +4523,9 @@ for (j in 1:length(PCAdimensions)){
             dev.off()
             
             link <- paste0(
-                "https://", urlString, "/",
+                '<a href="https://', urlString, '/',
                 Obio@parameterList$project_id,
-                "/category-view?category_type=GO-BP"
+                '/category-view?category_type=GO-BP" target="_blank">CategoryView > GO-BP</a>'
             )
             
             ## Create R markdown chunk ##
@@ -4530,7 +4534,7 @@ for (j in 1:length(PCAdimensions)){
                 figureCount, 
                 "**: GO-BP category enrichment analysis for the 15 genes that have  <font color = \\'yellow\\'> the most positive </font> and <font color = \\'blue\\'>the most negative</font> PCA loading values in dimension ", 
                PCAdimensions[j],
-                " associated with them. Download a pdf of this figure [here](", FNrel, "). To view these gene sets in the context of your data, go to [CategoryView > GO-BP](",link,") and find these categories using the search box."
+                " associated with them. Download a pdf of this figure [here](", FNrel, "). To view these gene sets in the context of your data, go to ",link," and find these categories using the search box."
             )
             figureCount <- figureCount + 1 
             
