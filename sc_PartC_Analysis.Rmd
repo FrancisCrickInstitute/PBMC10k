@@ -139,7 +139,7 @@ if (Obio@parameterList$scIntegrationMethod == "SCT"){
 
 # ###############################################################################
 # ## Load extra annotation data                                                ##
-# FN <- "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/MetaData.txt"
+# FN <- "/camp/stp/babs/working/boeings/Projects/leys/joan.manils/383_SLL_JM_singleCellRNASeq_PatSkinDisease_EGAS00001002927/basedata/publication_celldata_extraCol_selection.txt"
 # 
 # dfExtra <- read.delim(
 #     FN,
@@ -147,6 +147,24 @@ if (Obio@parameterList$scIntegrationMethod == "SCT"){
 #     sep = "\t",
 #     stringsAsFactors = F
 # )
+# 
+# dfExtra[["newSampleID"]] <- dfExtra$sampleID
+# dfExtra$newSampleID <- gsub("fore8", "Foreskin5", dfExtra$newSampleID)
+# dfExtra$newSampleID <- gsub("fore9", "Foreskin6", dfExtra$newSampleID)
+# dfExtra$newSampleID <- gsub("fore12", "Foreskin4", dfExtra$newSampleID)
+# dfExtra$newSampleID <- gsub("abd4", "Trunk1", dfExtra$newSampleID)
+# dfExtra$newSampleID <- gsub("br41epi", "Trunk2", dfExtra$newSampleID)
+# dfExtra$newSampleID <- gsub("br53epi", "Trunk3", dfExtra$newSampleID)
+# dfExtra$newSampleID <- gsub("s11", "Scalp10", dfExtra$newSampleID)
+# dfExtra$newSampleID <- gsub("scalp26", "Scalp11", dfExtra$newSampleID)
+# dfExtra$newSampleID <- gsub("scalp32", "Scalp12", dfExtra$newSampleID)
+# dfExtra$newSampleID <- gsub("pso14", "_", dfExtra$newSampleID)
+# 
+# 
+# dfExtra$cellID <- gsub("-", "_", dfExtra$cellID)
+# 
+#              
+#  [8]   
 # 
 # dfExtra <- dfExtra[dfExtra$cell %in% row.names(OsC@meta.data),]
 # 
@@ -181,13 +199,13 @@ if (Obio@parameterList$scIntegrationMethod == "SCT"){
 
 
 dfdbTable <- OsC@meta.data
-# dfdbTable[["cellID"]] <- row.names(dfdbTable)  
+#dfdbTable[["cellID"]] <- row.names(dfdbTable)  
 # if (is.null(dfdbTable)){
 #     dfdbTable <- OsC@meta.data
 # }
 
 
-clusterIDs <- as.vector(sort(unique(dfdbTable[, Obio@parameterList$singleCellClusterString])))
+clusterIDs <- as.vector(sort(unique(dfdbTable[, "seurat_clusters"])))
 
 
 
@@ -205,11 +223,11 @@ for (i in 1:length(clusterIDs)){
 #dfdbTable[["cellID"]] <- paste0(dfdbTable$sampleID, "_Cluster", dfdbTable[, Obio@parameterList$singleCellClusterString]) #row.names(dfdbTable)
 dfdbTable[["sample_id"]] <- gsub("_","", dfdbTable$cellID)
 
-dfdbTable[["sample_id"]] <- paste0(dfdbTable$sample_id, "_C", dfdbTable[,Obio@parameterList$singleCellClusterString], "_1")
+dfdbTable[["sample_id"]] <- paste0(dfdbTable$sample_id, "_C", dfdbTable[,"seurat_clusters"], "_1")
 
 dfdbTable[["sample_id"]] <- dfdbTable$uniquecellID
 
-dfdbTable[["sample_group"]] <- paste0("Cluster_", dfdbTable[,Obio@parameterList$singleCellClusterString])
+dfdbTable[["sample_group"]] <- paste0("Cluster_", dfdbTable[,"seurat_clusters"])
 ## Assign colors ##
 library(scales)
 identities <- levels(OsC@meta.data[,Obio@parameterList$singleCellClusterString])
@@ -264,7 +282,16 @@ if (length(grep("DF_Classification", names(dfdbTable)) > 0)){
     ########################
 }
 
+###############################################################################
+## Add additonal classifications                                             ##
 
+# dfdbTable[["Sample_Group"]] <- ""
+# groupLength <- nchar(dfdbTable$Sample_Group)
+# groupLength <- groupLength -1
+# dfdbTable[["Sample_Group"]] <- substr(dfdbTable$sampleID, 1, groupLength)
+
+##
+###############################################################################
 
 
 
@@ -277,8 +304,8 @@ upload.datatable.to.database(
     dbTableName = Obio@parameterList$PCAdbTableName,
     df.data = dfdbTable,
     db.col.parameter.list = list(
-        "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("cellType","cellIdent","sample_","cellID","orig_ident","old_ident","clustIdent", "hmIdent","sampleID", "CellFromTumor", "Patient", "Region",  "Article_Cell_Type", "Gender","Glia_vs_Neuron", "NitChol_vs_Serotonergic", "Nitrergic_vs_Cholinergic"),
-       "VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("all","included","Phase", gsub("[.]", "_", Obio@parameterList$singleCellClusterString), "seurat_clusters"),
+        "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("cellType","cellIdent","sample_","cellID","orig_ident","old_ident","clustIdent", "hmIdent","sampleID", "CellFromTumor", "Patient", "Region",  "Article_Cell_Type", "Gender","Glia_vs_Neuron", "NitChol_vs_Serotonergic", "Nitrergic_vs_Cholinergic", "Sample_Group"),
+       "VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("all","included","Phase", gsub("[.]", "_", Obio@parameterList$singleCellClusterString), "seurat_clusters", "RNA_snn_res"),
         "BIGINT(8) NULL DEFAULT NULL" = c("row_names"),
         "INT(8) NULL DEFAULT NULL" = c("nCount_", "nFeature_","DF_Classification"),
         "DECIMAL(6,3) NULL DEFAULT NULL" = c("percent_mt","PC", "tSNE", "UMAP","^DC","DM_Pseudotime"),
@@ -525,7 +552,7 @@ if (file.exists(aFN)){
     sPwd <- as.vector(df$id2)
     sUser <- as.vector(df$id)
 } else {
-    sUser <- paste0(Obio@parameterList$project_id, "_scData")
+    sUser <- substr(paste0(Obio@parameterList$project_id, "_scData"), 1, 15)
     sPwd <-c(2:9,letters,LETTERS)
     sPwd <- paste(sample(sPwd,8),collapse="")
     query6 <- paste0(
@@ -626,7 +653,7 @@ if (is.na(default)){
   if (Obio@parameterList$geneIDcolumn == "mgi_symbol"){
     default = GAPDH  
   } else {
-    default = Gapdh
+    default = "Gapdh"
   }
   
 }
@@ -757,6 +784,7 @@ names(XYlist) <- XYnameVec
 allColorOptionsVec <- c(
     "lg10Expr",
     names(dfdbTable)[grep("DM_Pseudotime", names(dfdbTable))],
+    names(dfdbTable)[grep("Sample_Group", names(dfdbTable))],
     names(dfdbTable)[grep("sampleID", names(dfdbTable))],
     names(dfdbTable)[grep("Gender", names(dfdbTable))],
     names(dfdbTable)[grep("CellFromTumor", names(dfdbTable))],
@@ -793,6 +821,7 @@ names(allColorOptionsList) <- allColorOptionsNames
 ## Do split options                                                          ##
 
 splitOptionsVec <- c(
+    names(dfdbTable)[grep("Sample_Group", names(dfdbTable))],
     names(dfdbTable)[grep("sampleID", names(dfdbTable))],
     names(dfdbTable)[grep("all", names(dfdbTable))],
     names(dfdbTable)[grep("DM_Pseudotime", names(dfdbTable))],
@@ -1160,6 +1189,7 @@ database.table <- merge(
 )
 
 database.table[is.na(database.table)] <- 0
+}
 
 ## Done adding cluster residuals                                             ##
 ###############################################################################
@@ -1701,9 +1731,6 @@ setwd(Obio@parameterList$localWorkDir)
 ###############################################################################
 
 
-setwd(Obio@parameterList$localWorkDir)
-## Done deploying next generation website                                    ##
-###############################################################################
 ```
 
 

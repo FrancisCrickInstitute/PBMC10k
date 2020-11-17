@@ -2,25 +2,25 @@
 
 processing file: sc_PartA_QC.Rmd
   |                                                                              |                                                                      |   0%  |                                                                              |.                                                                     |   2%
-   inline R code fragments
+  ordinary text without R code
 
   |                                                                              |...                                                                   |   4%
 label: setup (with options) 
 List of 1
  $ include: logi FALSE
 
-  |                                                                              |....                                                                  |   6%
+  |                                                                              |....                                                                  |   5%
   ordinary text without R code
 
-  |                                                                              |.....                                                                 |   8%
+  |                                                                              |.....                                                                 |   7%
 label: hpc_notes (with options) 
 List of 1
  $ include: logi FALSE
 
-  |                                                                              |.......                                                               |  10%
+  |                                                                              |......                                                                |   9%
   ordinary text without R code
 
-  |                                                                              |........                                                              |  12%
+  |                                                                              |........                                                              |  11%
 label: init (with options) 
 List of 2
  $ eval: symbol T
@@ -29,16 +29,16 @@ List of 2
   |                                                                              |.........                                                             |  13%
   ordinary text without R code
 
-  |                                                                              |...........                                                           |  15%
+  |                                                                              |..........                                                            |  15%
 label: dbpwd (with options) 
 List of 2
  $ eval: symbol T
  $ echo: symbol F
 
-  |                                                                              |............                                                          |  17%
+  |                                                                              |...........                                                           |  16%
   ordinary text without R code
 
-  |                                                                              |.............                                                         |  19%
+  |                                                                              |.............                                                         |  18%
 label: set_directories (with options) 
 List of 1
  $ eval: symbol T
@@ -179,20 +179,20 @@ The following object is masked from 'package:Seurat':
 
     JS
 
-  |                                                                              |...............                                                       |  21%
+  |                                                                              |..............                                                        |  20%
   ordinary text without R code
 
-  |                                                                              |................                                                      |  23%
+  |                                                                              |...............                                                       |  22%
 label: saveobject (with options) 
 List of 3
  $ eval   : logi TRUE
  $ echo   : symbol T
  $ results: symbol F
 
-  |                                                                              |..................                                                    |  25%
+  |                                                                              |.................                                                     |  24%
   ordinary text without R code
 
-  |                                                                              |...................                                                   |  27%
+  |                                                                              |..................                                                    |  25%
 label: create_QC_Table (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -200,10 +200,10 @@ List of 4
  $ warning: logi FALSE
  $ results: symbol F
 
-  |                                                                              |....................                                                  |  29%
+  |                                                                              |...................                                                   |  27%
   ordinary text without R code
 
-  |                                                                              |......................                                                |  31%
+  |                                                                              |....................                                                  |  29%
 label: render_QCTable (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -211,10 +211,10 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |.......................                                               |  33%
+  |                                                                              |......................                                                |  31%
   ordinary text without R code
 
-  |                                                                              |........................                                              |  35%
+  |                                                                              |.......................                                               |  33%
 label: QC_raw_data (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -222,10 +222,10 @@ List of 4
  $ warning: logi FALSE
  $ results: symbol F
 
-  |                                                                              |..........................                                            |  37%
+  |                                                                              |........................                                              |  35%
   ordinary text without R code
 
-  |                                                                              |...........................                                           |  38%
+  |                                                                              |.........................                                             |  36%
 label: Plot_tsne_data_plotting (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -233,10 +233,10 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |............................                                          |  40%
+  |                                                                              |...........................                                           |  38%
   ordinary text without R code
 
-  |                                                                              |..............................                                        |  42%
+  |                                                                              |............................                                          |  40%
 label: start_seurat (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -255,7 +255,7 @@ Found 1 outliers - those will be ignored in fitting/regularization step
 Second step: Get residuals using fitted parameters for 20571 genes
 Computing corrected count matrix for 20571 genes
 Calculating gene attributes
-Wall clock passed: Time difference of 2.10628 mins
+Wall clock passed: Time difference of 1.798649 mins
 Determine variable features
 Set 3000 variable features
 Place corrected count matrix in counts slot
@@ -273,32 +273,32 @@ Calculating feature variances of standardized and clipped values
 Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric
 To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'
 This message will be shown once per session
-21:55:19 UMAP embedding parameters a = 0.9922 b = 1.112
-21:55:19 Read 2705 rows and found 20 numeric columns
-21:55:19 Using Annoy for neighbor search, n_neighbors = 30
-21:55:19 Building Annoy index with metric = cosine, n_trees = 50
+10:11:55 UMAP embedding parameters a = 0.9922 b = 1.112
+10:11:55 Read 2705 rows and found 20 numeric columns
+10:11:55 Using Annoy for neighbor search, n_neighbors = 30
+10:11:55 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-21:55:19 Writing NN index file to temp file /tmp/slurm_18711132/RtmpwF5vkr/file405773af3b39
-21:55:19 Searching Annoy index using 1 thread, search_k = 3000
-21:55:20 Annoy recall = 100%
-21:55:22 Commencing smooth kNN distance calibration using 1 thread
-21:55:25 Initializing from normalized Laplacian + noise
-21:55:26 Commencing optimization for 500 epochs, with 110476 positive edges
+10:11:56 Writing NN index file to temp file /tmp/slurm_19073176/Rtmp8NVoLY/file66e1988b0ff
+10:11:56 Searching Annoy index using 1 thread, search_k = 3000
+10:11:56 Annoy recall = 100%
+10:11:58 Commencing smooth kNN distance calibration using 1 thread
+10:12:02 Initializing from normalized Laplacian + noise
+10:12:02 Commencing optimization for 500 epochs, with 110476 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-21:55:37 Optimization finished
+10:12:12 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-  |                                                                              |...............................                                       |  44%
+  |                                                                              |.............................                                         |  42%
   ordinary text without R code
 
-  |                                                                              |................................                                      |  46%
+  |                                                                              |...............................                                       |  44%
 label: percent_mt (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -309,10 +309,10 @@ List of 4
 mixtools package, version 1.2.0, Released 2020-02-05
 This package is based upon work supported by the National Science Foundation under Grant No. SES-0518772.
 
-  |                                                                              |..................................                                    |  48%
+  |                                                                              |................................                                      |  45%
   ordinary text without R code
 
-  |                                                                              |...................................                                   |  50%
+  |                                                                              |.................................                                     |  47%
 label: Plot_percentMT_hist (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -320,10 +320,10 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |....................................                                  |  52%
+  |                                                                              |..................................                                    |  49%
   ordinary text without R code
 
-  |                                                                              |......................................                                |  54%
+  |                                                                              |....................................                                  |  51%
 label: nFeature_data (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -331,10 +331,10 @@ List of 4
  $ warning: logi FALSE
  $ results: symbol F
 
-  |                                                                              |.......................................                               |  56%
+  |                                                                              |.....................................                                 |  53%
   ordinary text without R code
 
-  |                                                                              |........................................                              |  58%
+  |                                                                              |......................................                                |  55%
 label: Plot_nFeatureRNA_hist (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -342,10 +342,10 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |..........................................                            |  60%
+  |                                                                              |.......................................                               |  56%
   ordinary text without R code
 
-  |                                                                              |...........................................                           |  62%
+  |                                                                              |.........................................                             |  58%
 label: UMAP_data (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -364,10 +364,10 @@ The following object is masked from 'package:readr':
 
     col_factor
 
-  |                                                                              |............................................                          |  63%
+  |                                                                              |..........................................                            |  60%
   ordinary text without R code
 
-  |                                                                              |..............................................                        |  65%
+  |                                                                              |...........................................                           |  62%
 label: Plot_UMAP (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -375,10 +375,10 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |...............................................                       |  67%
+  |                                                                              |.............................................                         |  64%
   ordinary text without R code
 
-  |                                                                              |................................................                      |  69%
+  |                                                                              |..............................................                        |  65%
 label: DF_data (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -444,7 +444,7 @@ Found 9 outliers - those will be ignored in fitting/regularization step
 Second step: Get residuals using fitted parameters for 21749 genes
 Computing corrected count matrix for 21749 genes
 Calculating gene attributes
-Wall clock passed: Time difference of 3.155246 mins
+Wall clock passed: Time difference of 2.735258 mins
 Determine variable features
 Set 3000 variable features
 Place corrected count matrix in counts slot
@@ -486,10 +486,10 @@ Positive:  cftr, pbx3b, f3b, arhgap42b, clcn1b, zgc:193726, fosb, BX855618.1, sh
 Negative:  prss1, cela1.6, ctrb1, ctrl, ela3l, cpb1, prss59.2, cpa5, prss59.1, cel.1 
 	   cel.2, zgc:112160, ela2l, si:ch211-240l19.8, si:ch211-240l19.6, zgc:136461, ela2, cela1.5.1, c6ast3, sycn.1 
 	   sycn.2, zgc:92590, bhmt, cpa1, si:ch211-240l19.5, pla2g1b, c6ast4, amy2a, CT027638.1, cpa2 
-  |                                                                              |..................................................                    |  71%
+  |                                                                              |...............................................                       |  67%
   ordinary text without R code
 
-  |                                                                              |...................................................                   |  73%
+  |                                                                              |................................................                      |  69%
 label: Plot_DF (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -497,10 +497,10 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |....................................................                  |  75%
+  |                                                                              |..................................................                    |  71%
   ordinary text without R code
 
-  |                                                                              |......................................................                |  77%
+  |                                                                              |...................................................                   |  73%
 label: UMAP_percentage (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -508,10 +508,10 @@ List of 4
  $ warning: logi FALSE
  $ results: symbol F
 
-  |                                                                              |.......................................................               |  79%
+  |                                                                              |....................................................                  |  75%
   ordinary text without R code
 
-  |                                                                              |.........................................................             |  81%
+  |                                                                              |.....................................................                 |  76%
 label: Plot_percent_MT (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -519,10 +519,10 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |..........................................................            |  83%
+  |                                                                              |.......................................................               |  78%
   ordinary text without R code
 
-  |                                                                              |...........................................................           |  85%
+  |                                                                              |........................................................              |  80%
 label: UMAP_nFeatures (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -530,10 +530,10 @@ List of 4
  $ warning: logi FALSE
  $ results: symbol F
 
-  |                                                                              |.............................................................         |  87%
+  |                                                                              |.........................................................             |  82%
   ordinary text without R code
 
-  |                                                                              |..............................................................        |  88%
+  |                                                                              |...........................................................           |  84%
 label: Plot_nFeatureRNA (with options) 
 List of 4
  $ echo   : logi TRUE
@@ -541,40 +541,53 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-  |                                                                              |...............................................................       |  90%
+  |                                                                              |............................................................          |  85%
   ordinary text without R code
 
-  |                                                                              |.................................................................     |  92%
+  |                                                                              |.............................................................         |  87%
 label: saveobject_end (with options) 
 List of 3
  $ eval   : logi TRUE
  $ echo   : symbol T
  $ results: symbol F
 
-  |                                                                              |..................................................................    |  94%
+  |                                                                              |..............................................................        |  89%
   ordinary text without R code
 
-  |                                                                              |...................................................................   |  96%
+  |                                                                              |................................................................      |  91%
 label: saveSampleList (with options) 
 List of 3
  $ eval   : logi TRUE
  $ echo   : symbol T
  $ results: symbol F
 
-  |                                                                              |..................................................................... |  98%
+  |                                                                              |.................................................................     |  93%
   ordinary text without R code
 
-  |                                                                              |......................................................................| 100%
+  |                                                                              |..................................................................    |  95%
 label: documentation (with options) 
 List of 3
  $ eval   : logi TRUE
  $ echo   : symbol T
  $ results: symbol T
 
+  |                                                                              |...................................................................   |  96%
+  ordinary text without R code
+
+  |                                                                              |..................................................................... |  98%
+label: create_report_params (with options) 
+List of 2
+ $ eval   : symbol T
+ $ results: chr "asis"
+
+Loading required package: DBI
+  |                                                                              |......................................................................| 100%
+   inline R code fragments
+
 
 output file: sc_PartA_QC.knit.md
 
-/camp/apps/misc/stp/babs/conda/envs/R_deps/bin/pandoc +RTS -K512m -RTS sc_PartA_QC.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output sc_PartA_QC.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 5 --variable toc_float=1 --variable toc_selectors=h1,h2,h3,h4,h5 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --css /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css --variable 'theme:bootstrap' --include-in-header /tmp/slurm_18711132/RtmpwF5vkr/rmarkdown-str405759e4a6f2.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
+/camp/apps/misc/stp/babs/conda/envs/R_deps/bin/pandoc +RTS -K512m -RTS sc_PartA_QC.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output sc_PartA_QC.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 5 --variable toc_float=1 --variable toc_selectors=h1,h2,h3,h4,h5 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --css /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css --variable 'theme:bootstrap' --include-in-header /tmp/slurm_19073176/Rtmp8NVoLY/rmarkdown-str66e646d8d1c.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
 
 Output created: sc_PartA_QC.html
 There were 50 or more warnings (use warnings() to see the first 50)

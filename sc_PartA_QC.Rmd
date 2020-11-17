@@ -1,12 +1,4 @@
 ---
-title: "QC for Project VPL362A"
-subtitle: "Zebrafish Neuron Glia"
-author: 
-  -Stefan Boeing^[The Francis Crick Institute, stefan.boeing@crick.ac.uk]
-
-date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
-
-
 output: 
     html_document:
         code_folding: hide
