@@ -469,17 +469,17 @@ plotList[[tag]] <- ggplot(
     ##                                                                       ##
     ###########################################################################
     
-    link <- paste0('< a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=',paste0(tag, '_AvgExpr'),'&y_axis=',paste0(tag, '_var_std" target = "_blank">here</a>'))
+    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=',paste0(tag, '_AvgExpr'),'&y_axis=',paste0(tag, '_var_std" target = "_blank">here</a>'))
     
 
     figCap <- paste0(
-        "**Figure ",
+        '**Figure ',
         figureCount,
-        ":** Variance versus averaged gene expression for overall sample.", 
+        ':** Variance versus averaged gene expression for overall sample.', 
         names(SampleList)[i],
-        ". ",
-        "Download a pdf of this figure [here](", FNrel, "). ",
-        "An interactive version of this figure can be found ", link, ". "
+        '. ',
+        'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. ',
+        'An interactive version of this figure can be found ', link, '. '
     )
     
     
@@ -622,13 +622,13 @@ for (i in 1:length(SampleList)){
     
 
     figCap <- paste0(
-        "**Figure ",
+        '**Figure ',
         figureCount,
-        ":** Variance versus averaged gene expression for sample ", 
+        ':** Variance versus averaged gene expression for sample ', 
         names(SampleList)[i],
-        ". ",
-        "Download a pdf of this figure [here](", FNrel, "). ",
-        "An interactive version of this figure can be found ", link, ". "
+        '. ',
+        'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. ',
+        'An interactive version of this figure can be found ', link, '. '
     )
     
     NewChnk <- paste0(
@@ -773,12 +773,12 @@ for (i in 1:length(reductionVec)){
     }
     
     figLegend <- paste0(
-        "**Figure ", 
+        '**Figure ', 
         figureCount, 
-        ":** ",
+        ':** ',
         reductionVec[i],
-        " plot depicting all samples. Download a pdf of this figure [here](", FNrel,").",
-        "An interactive version of this figure can be found ", link, ". "
+        ' plot depicting all samples. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+        'An interactive version of this figure can be found ', link, '. '
     )
     
     NewChnk <- paste0(
@@ -1009,11 +1009,11 @@ if (length(unique(dfPlot$Cluster)) > 15){
             link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=UMAP_1&y_axis=UMAP_2" target="_blank">here</a>')  
             
             figLegend <- paste0(
-                "**Figure ", 
+                '**Figure ', 
                 figureCount, 
-                ":** ",
-                " UMAP showing all cells from all samples together. Download a pdf of this figure [here](", FNrel,").",
-                "An interactive version of this figure can be found ", link, ". "
+                ':** ',
+                ' UMAP showing all cells from all samples together. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+                'An interactive version of this figure can be found ', link, '. '
             )
             
             figureCount <- figureCount + 1
@@ -1112,11 +1112,11 @@ if (length(unique(dfPlot$Cluster)) > 15){
             link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=tSNE_1&y_axis=tSNE_2" target="_blank">here</a>')  
             
             figLegend <- paste0(
-                "**Figure ", 
+                '**Figure ', 
                 figureCount, 
-                ":** ",
-                " tSNE showing all cells from all samples together. Download a pdf of this figure [here](", FNrel,").",
-                "An interactive version of this figure can be found ", link, ". "
+                ':** ',
+                ' tSNE showing all cells from all samples together. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+                'An interactive version of this figure can be found ', link, '. '
             )
             
             figureCount <- figureCount + 1
@@ -1214,10 +1214,10 @@ for (i in 1:length(sampleVec)){
             dev.off()
             
             figLegend <- paste0(
-                "**Figure ", 
+                '**Figure ', 
                 figureCount, 
-                ":** ",
-                " Sample-level UMAPs. Download a pdf of this figure [here](", FNrel,")."
+                ':** ',
+                ' Sample-level UMAPs. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
             )
             
             figureCount <- figureCount + 1
@@ -1283,10 +1283,10 @@ if (length(unique(OsC@meta.data$sampleID)) > 3){
   dev.off()
       
   figLegend <- paste0(
-      "**Figure ", 
+      '**Figure ', 
           figureCount, 
-          ":** ",
-          " Clusterplot dendrogram by sample ID. ","A pdf of this figure can be downloaded [here](",FNrel,")."
+          ':** ',
+          ' Clusterplot dendrogram by sample ID. ','A pdf of this figure can be downloaded <a href="',FNrel,'" target="_blank">here</a>.'
       )
       
       
@@ -1331,7 +1331,7 @@ plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree
       panel.border = element_rect(colour = "black", fill=NA, size=1),
       axis.title.x=element_blank(),
       plot.title = element_text(hjust = 0.5, size = 12)
-    )  + xlim(0,1.2*max(OsC@tools$BuildClusterTree[[2]]))
+    )  + xlim(0, 2*max(OsC@tools$BuildClusterTree[[2]]))
     
     #+ xlim(-1,1.2*max(OsC@tools$BuildClusterTree$edge)) 
     
@@ -1346,10 +1346,10 @@ pdf(FN)
 dev.off()
     
 figLegend <- paste0(
-    "**Figure ", 
+    '**Figure ', 
         figureCount, 
-        ":** ",
-        " Clusterplot dendrogram. ","A pdf of this figure can be downloaded [here](",FNrel,")."
+        ':** ',
+        ' Clusterplot dendrogram. ','A pdf of this figure can be downloaded <a href="',FNrel,'" target="_blank">here</a>.'
     )
     
     
@@ -1478,6 +1478,15 @@ names(dfDat) <- paste0(
 
 dfDat <- data.frame(dfDat)
 
+## Insert description row ##
+descriptionRow <- dfDat[1,]
+descriptionRow[1,] <- t(names(dfDat))
+descriptionRow[1,] <- paste0(descriptionRow[1,], " from Seurat FindAllMarkers.")
+
+dfDat <- rbind(
+  descriptionRow, 
+  dfDat
+)
 # dfCatRef <- names(dfCatRef)
 # names(dfCatRef) <- names(dfDat)
 # 
@@ -1489,6 +1498,7 @@ dfDat <- data.frame(dfDat)
 #######################################################################
 ## Upload/update category by category                                ##
 updatedCatIDs <- as.vector(NULL, mode = "character")
+updatedCatNames <- as.vector(NULL, mode = "character")
         
 for (i in 1:ncol(dfDat)){
     cat.name <- names(dfDat)[i]
@@ -1533,9 +1543,17 @@ for (i in 1:ncol(dfDat)){
         updatedCatIDs, 
         catID
     )    
+    
+    updatedCatNames <- c(
+      updatedCatNames, 
+      cat.name
+    )
 } ## End dfDat loop
         
-        
+dfFAMplotIDs <- data.frame(
+  cat_id = updatedCatIDs, 
+  cat_name = updatedCatNames
+)        
         
 ## Done uploading general markers                                            ##
 ###############################################################################
@@ -1641,9 +1659,9 @@ if (length(pos) > 0){
               
               ## Create R markdown chunk ##
               figLegend <- paste0(
-                  "**Figure ", 
+                  '**Figure ', 
                   figureCount, 
-                  "**: Figure depicting the location of potential doublets in PCA components 1 and 2. Download a pdf of this figure [here](", FNrel, "). "
+                  '**: Figure depicting the location of potential doublets in PCA components 1 and 2. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
               )
               
               figureCount <- figureCount + 1 
@@ -1773,10 +1791,10 @@ if (length(unique(dfPlot$Cluster)) > 15){
             dev.off()
             
             figLegend <- paste0(
-                "**Figure ", 
+                '**Figure ', 
                 figureCount, 
-                ":** ",
-                " UMAP showing all cells from all samples together with the estimated cell-cycle phase color-coded. Download a pdf of this figure [here](", FNrel,")."
+                ':** ',
+                ' UMAP showing all cells from all samples together with the estimated cell-cycle phase color-coded. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
             )
             
             figureCount <- figureCount + 1
@@ -1873,10 +1891,10 @@ if (length(unique(dfPlot$Cluster)) > 15){
             dev.off()
             
             figLegend <- paste0(
-                "**Figure ", 
+                '**Figure ', 
                 figureCount, 
-                ":** ",
-                " tSNE showing all cells from all samples together. The esimated cell-cycle phase is color coded. Download a pdf of this figure [here](", FNrel,")."
+                ':** ',
+                ' tSNE showing all cells from all samples together. The esimated cell-cycle phase is color coded. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
             )
             
             figureCount <- figureCount + 1
@@ -1974,10 +1992,10 @@ for (i in 1:length(sampleVec)){
             dev.off()
             
             figLegend <- paste0(
-                "**Figure ", 
+                '**Figure ', 
                 figureCount, 
-                ":** ",
-                " Sample-level UMAPs. Estimated cell-cylce phase color-coded. Download a pdf of this figure [here](", FNrel,")."
+                ':** ',
+                ' Sample-level UMAPs. Estimated cell-cylce phase color-coded. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
             )
             
             figureCount <- figureCount + 1
@@ -2043,10 +2061,10 @@ if (length(unique(OsC@meta.data$sampleID)) > 3){
   dev.off()
       
   figLegend <- paste0(
-      "**Figure ", 
+      '**Figure ', 
           figureCount, 
-          ":** ",
-          " Clusterplot dendrogram by sample ID. ","A pdf of this figure can be downloaded [here](",FNrel,")."
+          ':** ',
+          ' Clusterplot dendrogram by sample ID. ','A pdf of this figure can be downloaded <a href="',FNrel,'", target="_blank>here</a>.'
       )
       
       
@@ -2106,10 +2124,10 @@ pdf(FN)
 dev.off()
     
 figLegend <- paste0(
-    "**Figure ", 
+    '**Figure ', 
         figureCount, 
-        ":** ",
-        " Clusterplot dendrogram. ","A pdf of this figure can be downloaded [here](",FNrel,")."
+        ':** ',
+        ' Clusterplot dendrogram. ','A pdf of this figure can be downloaded <a href="',FNrel,'" target="_blank">here</a>.'
     )
     
     
@@ -2277,11 +2295,11 @@ for (i in 1:length(cellTypeIDs)){
   ###########################################################################
   ## Add to chunk                                                          ##
   figCap <- paste0(
-      "**Figure ",
+      '**Figure ',
       figureCount,
-      "A:** Cell Count in each cluster for ", 
+      'A:** Cell Count in each cluster for ', 
       tag,
-      "Download a pdf of this figure [here](", FNrel, "). "
+      'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
   )
   
   NewChnk <- paste0(
@@ -2326,11 +2344,11 @@ for (i in 1:length(cellTypeIDs)){
   ###########################################################################
   ## Add to chunk                                                          ##
   figCap <- paste0(
-      "**Figure ",
+      '**Figure ',
       figureCount,
-      "B:** Cell percentages in each cluster for ", 
+      'B:** Cell percentages in each cluster for ', 
       tag,
-      "Download a pdf of this figure [here](", FNrel, "). "
+      'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
   )
   
   NewChnk <- paste0(
@@ -2605,11 +2623,11 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
     dev.off()
     ## Create R markdown chunk ##
     figLegend <- paste0(
-        "**Figure ", 
+        '**Figure ', 
         figureCount, 
-        "A:** Category Scatter showing gene category ", 
-        HMname, ". ", legendNote, 
-        ". Download a pdf of this figure [here](", FNrel,"). "
+        'A:** Category Scatter showing gene category ', 
+        HMname, '. ', legendNote, 
+        '. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
     )
             
             
@@ -2679,11 +2697,11 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
         dev.off()
         ## Create R markdown chunk ##
         figLegend <- paste0(
-            "**Figure ", 
+            '**Figure ', 
             figureCount, 
-            "B:** Dotplot showing gene category ", 
-            HMname, ". ", legendNote, 
-            ". Download a pdf of this figure [here](", FNrel,"). "
+            'B:** Dotplot showing gene category ', 
+            HMname, '. ', legendNote, 
+            '. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
         )
                 
                 
@@ -2825,6 +2843,7 @@ for (i in 1:length(clusterVec)){
 #######################################################################
 ## Upload/update category by category                                ##
 updatedCatIDs <- as.vector(NULL, mode = "character")
+updatedCatNames <- as.vector(NULL, mode = "character")
         
 for (i in 1:length(residualClusterMarkers)){
     cat.name <- names(residualClusterMarkers)[i]
@@ -2869,9 +2888,14 @@ for (i in 1:length(residualClusterMarkers)){
         updatedCatIDs, 
         catID
     )    
+    
+    updatedCatNames <- c(
+        updatedCatNames,
+        cat.name
+    )
 } ## End dfDat loop
 
-dfCatNameID <- data.frame(catID = updatedCatIDs, cat_name= names(residualClusterMarkers))
+dfCatNameLR <- data.frame(catID = updatedCatIDs, cat_name= updatedCatNames)
 
 ###############################################################################
 ## Creaate Plot array                                                        ##
@@ -2963,25 +2987,39 @@ for (i in 1:length(clusterVec)){
     ##                                                                       ##
     ###########################################################################
     
-    pos <- grep(paste0(clusterVec[i],"_"), dfCatNameID$cat_name)
+    pos <- grep(paste0(clusterVec[i],"_"), dfCatNameLR$cat_name)
     
-    catID <- ""
+    LRcatID <- ""
     if (length(pos) == 1){
-      catID <- as.vector(dfCatNameID[pos, "catID"])
+      LRcatID <- as.vector(dfCatNameLR[pos, "catID"])
     }
     
-    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=norm_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', catID,'" target="_blank">here</a>')
+    pos <- grep(paste0(gsub("C_", "Cluster_",clusterVec[i]),"$"), dfFAMplotIDs$cat_name)
     
-    heatmaplink <- paste0('In order to identify cluster specific marker genes a <a href="https://biologic.crick.ac.uk/vpl362A/category-view/', catID,'" target="_blank">cluster-maker gene heatmap for this gene set</a> might be interesting.')
+    DGEcatID <- ""
+    if (length(pos) == 1){
+      DGEcatID <- as.vector(dfFAMplotIDs[pos, "cat_id"])
+    }
+    
+    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=norm_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', LRcatID,'" target="_blank">here</a>')
+    
+    linkDGE <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=norm_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', DGEcatID,'" target="_blank">here</a>')
+    
+    heatmaplink <- paste0('In order to identify cluster specific marker genes a <a href="https://biologic.crick.ac.uk/vpl362A/category-view/', LRcatID,'" target="_blank">cluster-maker gene heatmap for the linear-regression derrived marker gene set</a> might be interesting.')
+    
+    heatmaplinkDGE <- paste0('In order to identify cluster specific marker genes a <a href="https://biologic.crick.ac.uk/vpl362A/category-view/', DGEcatID,'" target="_blank">cluster-maker gene heatmap for the differential-gene expression derrived marker gene set</a> might be interesting.')
+    
+    
 
 
     figCap <- paste0(
-        "**Figure ",
+        '**Figure ',
         figureCount,
-        ":** Average gene expression intensity of all cells together versus averaged expression intensities for cluster ",clusterVec[i],". ",
-        "Download a pdf of this figure [here](", FNrel, "). ",
-        "An interactive version of this figure can be found ", link, ". ",
-        heatmaplink
+        ':** Average gene expression intensity of all cells together versus averaged expression intensities for cluster ',clusterVec[i],'. ',
+        'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. ',
+        'An interactive version of this scatterplot can be found ', link, ' with the linear regression marker genes highlighted, and ',linkDGE,' with the differential gene expression marker genes highlighted. ',
+        heatmaplink,
+        heatmaplinkDGE
     )
     
     NewChnk <- paste0(
@@ -3008,14 +3046,14 @@ for (i in 1:length(clusterVec)){
 
 ```
 
-Cluster Markers By Linear Regression {.tabset .tabset-fade .tabset-pills}
+### Cluster Markers By Linear Regression {.tabset .tabset-fade .tabset-pills}
 ```{r plot_linear_regression, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 ## plot list will be integrated in full figure ##
 cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 ```
 
 
-### Heatmap and Dotplot for the top5 cluster defining genes
+### Heatmap and Dotplot for the top5 cluster defining genes {.tabset .tabset-fade .tabset-pills}
 
 In this section we will try to determine what are good markers for the clusters in this experiment. 
 
@@ -3103,7 +3141,8 @@ Obio@parameterList[["cat2HMplotList"]][["Top5_TF_Cluster_Markers"]] <- as.vector
 
 for (i in 1:length(Obio@parameterList[["cat2HMplotList"]])){
     tag <- paste0("HMM_", names(Obio@parameterList$cat2HMplotList)[i])
-    textSize <- 5    
+    textSize <- 5
+    HMname <- names(Obio@parameterList[["cat2HMplotList"]])[i]
     
     plotList[[tag]] <- DoHeatmap(
                 object = OsC_HM,
@@ -3133,10 +3172,10 @@ for (i in 1:length(Obio@parameterList[["cat2HMplotList"]])){
 
             ## Create R markdown chunk ##
             figLegend <- paste0(
-                "**Figure ",
+                '**Figure ',
                 figureCount,
-                ":** Heatmap showing the most distinct marker genes in each cluster. " , subsetString,
-                "Download a pdf of this figure [here](", FNrel,"). "
+                ':** ',HMname ,' Heatmap showing the most distinct marker genes in each cluster. ' , subsetString,
+                'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
             )
 
 
@@ -3147,7 +3186,7 @@ for (i in 1:length(Obio@parameterList[["cat2HMplotList"]])){
             figureCount <- figureCount + 1
 
             NewChnk <- paste0(
-                "#### Heatmap_var_genes",
+                "#### Heatmap ", HMname,
                 "\n```{r Heatmap_", tag,
                 ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
                 figLegend,"'}\n",
@@ -3223,10 +3262,10 @@ plotList[[tag]] <- DotPlotSB(
 
             ## Create R markdown chunk ##
             figLegend <- paste0(
-                "**Figure ",
+                '**Figure ',
                 figureCount,
-                ":** Dotplot showing showing selected marker genes. ",
-                "Download a pdf of this figure [here](", FNrel,"). "
+                ':** Dotplot showing showing selected marker genes. ',
+                'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
             )
 
 
@@ -3315,6 +3354,15 @@ library(tidyverse)
 dfLongResiduals <- data.frame(
     dfClusterResiduals %>% pivot_longer(!gene, names_to = "cluster", values_to = "residuals")
 )
+
+
+###############################################################################
+## Calculate Coefficient of variation for no-cluster X genes to find best unique cluster markers
+
+## Done                                                                      ##
+###############################################################################
+
+
 dfLongResiduals <- dfLongResiduals[abs(dfLongResiduals$residuals) > 1, ]
 dfLongResiduals$cluster <- gsub("_Residuals", "", dfLongResiduals$cluster)
 
@@ -3390,7 +3438,7 @@ linkFeatureView <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameter
     }
     
     
-    dfTempDat$gene <- paste0("<a href='https://",urlString,"/",Obio@parameterList$project_id,"/gene-view?query=",dfTempDat$gene,"&exact=TRUE' target='_blank'>", dfTempDat$gene, "</a>")
+    dfTempDat$gene <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/gene-view?query=',dfTempDat$gene,'&exact=TRUE" target="_blank">', dfTempDat$gene, '</a>')
     
     NewChnk <- paste0(
         "#### ", names(dtList),
@@ -3600,7 +3648,7 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 #                 figureCount, 
 #                 "**: GO-BP category enrichment analysis for genes that are <font color = \\'yellow\\'>higher</font> and <font color = \\'blue\\'>lower</font> expressed in Cluster ", 
 #                 clusterIDs[j],
-#                 " as compared to all other clusters. Download a pdf of this figure [here](", FNrel, "). To view these gene sets in the context of your data, go to [CategoryView > GO-BP](",link,") and find the above categories using the search box."
+#                 " as compared to all other clusters. Download a pdf of this figure <a href='",FNrel,"' target='_blank'>here</a>. To view these gene sets in the context of your data, go to [CategoryView > GO-BP](",link,") and find the above categories using the search box."
 #             )
 #             figureCount <- figureCount + 1 
 #             
@@ -3897,7 +3945,7 @@ if (length(unique(OsC@meta.data$hmIdent)) > 25){
 #                 ":** Heatmap showing gene category ", 
 #                 HMname, ". ", 
 #                 legendNote, 
-#                 "Download a pdf of this figure [here](", FNrel,"). "
+#                 "Download a pdf of this figure <a href='",FNrel,"' target='_blank'>here</a>. "
 #             )
 #             
 #             
@@ -3946,7 +3994,7 @@ if (length(unique(OsC@meta.data$hmIdent)) > 25){
 DefaultAssay(OsC) <- "RNA"
 
 cat(paste0(
-    "Feature plots for any gene in this experiment can be viewed [**here**](http://shiny.thecrick.org/babs/boeings/",Obio@parameterList$project_id,"_app/). This link will only work when you are on the Crick network or VPN-connected to the Crick. "
+    'Feature plots for any gene in this experiment can be viewed <a href="https://biologic.crick.ac.uk/mdata/',Obio@parameterList$project_id,'/html/FeatureView.html" target="_blank">here</a>.'
 ))
 
 
@@ -4123,9 +4171,9 @@ for (i in 1:length(xVec)){
     link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=',gsub('_', '', xVec[i]),'&y_axis=',gsub('_', '', yVec[i]),'" target = "_blank">here</a>')
     
     figCap <- paste0(
-        "**Figure, " ,figureCount,"A:** Cell-level PCA plot for dimensions ", xVec[i], " and ", yVec[i],". ", 
-        "Download a pdf of this figure [here](", FNrel,"). ",
-        "An interactive version of this figure can be found ", link, ". "
+        '**Figure, ' ,figureCount,'A:** Cell-level PCA plot for dimensions ', xVec[i], ' and ', yVec[i],'. ', 
+        'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. ',
+        'An interactive version of this figure can be found ', link, '. '
     )
     
     
@@ -4332,11 +4380,11 @@ for (i in 1:length(clusterVec)){
     
     
     figCap <- paste0(
-        "**Figure, " ,
+        '**Figure, ' ,
         figureCount,
-        ":** This plot may help you to identify PCA dimensions, in which marker genes for cluster ",
+        ':** This plot may help you to identify PCA dimensions, in which marker genes for cluster ',
         clusterVec[i],
-        " become evident. Download a pdf of this figure [here](", FNrel,"). "
+        ' become evident. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
     )
     
     figureCount <- figureCount + 1
@@ -4530,11 +4578,11 @@ for (j in 1:length(PCAdimensions)){
             
             ## Create R markdown chunk ##
             figLegend <- paste0(
-                "**Figure ", 
+                '**Figure ', 
                 figureCount, 
-                "**: GO-BP category enrichment analysis for the 15 genes that have  <font color = \\'yellow\\'> the most positive </font> and <font color = \\'blue\\'>the most negative</font> PCA loading values in dimension ", 
+                '**: GO-BP category enrichment analysis for the 15 genes that have  <font color = "yellow"> the most positive </font> and <font color = "blue">the most negative</font> PCA loading values in dimension ', 
                PCAdimensions[j],
-                " associated with them. Download a pdf of this figure [here](", FNrel, "). To view these gene sets in the context of your data, go to ",link," and find these categories using the search box."
+                ' associated with them. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. To view these gene sets in the context of your data, go to ',link,' and find these categories using the search box.'
             )
             figureCount <- figureCount + 1 
             
@@ -4693,9 +4741,9 @@ if (Obio@parameterList$addDmaps){
             
             ## Create R markdown chunk ##
             figLegend <- paste0(
-                "**Figure ", 
+                '**Figure ', 
                 figureCount, 
-                "**: Figure depicting PCA components 1 and 2 with the diffusion map pseudotime highlighted in color. Download a pdf of this figure [here](", FNrel, "). "
+                '**: Figure depicting PCA components 1 and 2 with the diffusion map pseudotime highlighted in color. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
             )
             figureCount <- figureCount + 1 
             

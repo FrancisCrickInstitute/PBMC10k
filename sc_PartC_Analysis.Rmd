@@ -1403,13 +1403,16 @@ for (i in 1:length(Obio@referenceTableList)) {
 catIdGroupsExemptFromFiltering <- c(
     Obio@parameterList$lab.categories.table,
     "mysigdb_c5_BP",
-    "GO_Biological_Process_2017"
+    "GO_Biological_Process_2017",
+    "mysigdb_sc_sig",
+    "cibersort_L22"
 )
+
 
 dfUnfiltered <- df.db.table[as.vector(unlist(sapply(catIdGroupsExemptFromFiltering, function(x) grep(x, df.db.table$cat_id)))),]    
 
 dim(df.db.table)
-df.db.table <- df.db.table[df.db.table$cat_count >= 3,]
+#df.db.table <- df.db.table[df.db.table$cat_count >= 3,]
 dim(df.db.table)
 
 ## Add unfiltered categories ##
@@ -1451,7 +1454,7 @@ if (exists("df.ref") & nrow(df.ref) > 0){
         df.ref = df.ref,
         cat_group_name = "Cluster Marker Genes This project",
         reference.gene.vector = reference.gene.vector,
-        ref.gene.vec.id = Obio@parameterList$geneIDcolumn,
+        ref.gene.vec.id = queryGS,
         cat_views = NA
     )
     
