@@ -2897,6 +2897,8 @@ for (i in 1:length(residualClusterMarkers)){
 
 dfCatNameLR <- data.frame(catID = updatedCatIDs, cat_name= updatedCatNames)
 
+Obio@dataTableList[["residualClusterMarkers"]] <- residualClusterMarkers
+
 ###############################################################################
 ## Creaate Plot array                                                        ##
 
@@ -3052,6 +3054,196 @@ for (i in 1:length(clusterVec)){
 cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 ```
 
+### Cell Type Plots {.tabset .tabset-fade .tabset-pills}
+```{r CellTypePlot_dataprep, echo=TRUE, eval=TRUE, warning=FALSE,  results=F}
+###############################################################################
+## Hypergeometric test enrichment                                            ##
+
+
+# Input gmt file with categories to test: dfGmt
+# Output: table with enrichments
+markerList <- Obio@dataTableList[["residualClusterMarkers"]]
+host <- Obio@dbDetailList$host
+db.user <- Obio@dbDetailList$db.user
+refdbname <- Obio@dbDetailList$ref.cat.db
+dbtableList <- list(
+    "Cell Type Signatures" = "mysigdb_sc_sig",
+    "Cell Type Signatures" = "cibersort_L22"
+)
+
+if (Obio@parameterList$geneIDcolumn != "mgi_symbol" & Obio@parameterList$geneIDcolumn != "hgnc_symbol") {
+    queryGS <- "hgnc_symbol" 
+} else {
+    queryGS <- Obio@parameterList$geneIDcolumn
+}
+
+nSel <- 10
+
+## Retrieve gmt files from database
+## Add custom gmt files
+library(clusterProfiler)
+library(ggplot2)
+
+gmtList <- list()
+
+for (i in 1:length(dbtableList)){
+    
+    dfTemp <- import.db.table.from.db(
+        host = host,
+        dbname = refdbname,
+        dbtable = dbtableList [[i]],
+        password = db.pwd,
+        user = db.user
+    )
+    
+    dfTemp <- dbcat2gmt(
+        dfTemp, # As downloaded from reference_categories_db_new database
+        gene.id.column = queryGS
+    )
+    
+    write.table(
+        dfTemp,
+        "temp.gmt.txt",
+        row.names = F, 
+        sep = "\t",
+        col.names = F,
+        quote = F
+    )
+    
+    CPgmt <- read.gmt("temp.gmt.txt")
+    unlink("temp.gmt.txt")
+    CPgmt <- CPgmt[CPgmt$gene != "", ]
+    
+    gmtList[[dbtableList[[i]]]] <- CPgmt
+}
+    
+    
+catEnrichmentList <- list()
+
+for (i in 1:length(markerList)){
+        geneVec <- markerList[[i]][2:length(markerList)]
+        geneVec <- geneVec[geneVec != ""]
+        geneVec <- geneVec[!is.na(geneVec)]
+        first <- TRUE
+        
+        
+        for (j in 1:length(gmtList)){
+            egmt <- data.frame(
+                    enricher(
+                    geneVec, 
+                    TERM2GENE=gmtList[[j]],
+                    pvalueCutoff = 0.25
+                )
+            )
+            
+            
+            if (!is.null(egmt)){
+                if (first){
+                    dfTempEnriched <- egmt    
+                    first <- FALSE
+                } else {
+                    dfTempEnriched <- rbind(
+                        dfTempEnriched, 
+                        egmt
+                    )    
+                }
+                
+            } 
+        }
+        
+        if (!first){
+            dfTempEnriched <- dfTempEnriched[order(dfTempEnriched$p.adjust, decreasing=F),]
+            catEnrichmentList[[names(markerList)[i]]] <- dfTempEnriched   
+        }
+        print(paste0(names(markerList)[i], " done."))
+}
+    
+## Make the plots ##    
+plotList <- list()
+chnkVec <- as.vector(NULL, mode = "character")
+for (i in 1:length(catEnrichmentList)){
+    catName <- names(catEnrichmentList)[i]
+    catNameString <- gsub("_", " ", names(catEnrichmentList)[i])
+    dfEnr <- catEnrichmentList[[i]]
+    dfEnr[["lg10p"]] <- -1*log10(dfEnr$p.adjust)
+    dfEnr <- unique(dfEnr[,c("ID", "lg10p")])
+    dfEnr <- dfEnr[order(dfEnr$lg10p, decreasing = T),]
+    if (nSel > nrow(dfEnr)){
+        tempSel <- nrow(dfEnr)
+    } else {
+        tempSel <- nSel
+    }
+    dfEnr <- dfEnr[1:tempSel, ]
+    dfEnr <- dfEnr[order(dfEnr$lg10p, decreasing = F),]
+    dfEnr$ID <- substr(dfEnr$ID, 1, 60)
+    dfEnr$ID <- factor(dfEnr$ID, levels = unique(dfEnr$ID))
+    tag <- paste0("Cell_Types_", names(catEnrichmentList)[i])
+    
+    plotList[[tag]] <- ggplot(
+        data=dfEnr, aes(x= ID, y=lg10p, fill="#009900")
+    ) + geom_bar(stat="identity", colour="black"
+    ) + coord_flip() +scale_fill_manual(values=c("#009900"))  +  theme(
+        axis.text.y   = element_text(size=8),
+        axis.text.x   = element_text(size=8),
+        axis.title.y  = element_text(size=8),
+        axis.title.x  = element_text(size=8),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12)
+    )  + labs(title = paste0(gsub("_", " ", tag)," enriched genes") ,y = "-log10(padj)", x = ""
+    ) + geom_hline(yintercept = c(-1*log10(0.05)), color = "red", size=0.5, lty=2
+    ) + geom_hline(yintercept = 0, color = "black", size=0.5
+    ) + theme_bw()
+    
+    
+    
+    
+    ## Save to file ##
+    FNbase <- paste0("CellTypeEnrichment_", tag, VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    
+    pdf(FN)
+    print(plotList[[tag]])
+    dev.off()
+    
+    link <- paste0(
+        '<a href="https://', urlString, '/',
+        Obio@parameterList$project_id,
+        '/category-view?category_type=Cell Type Signatures" target="_blank">CategoryView > Cell Signatures</a>'
+    )
+    
+    ## Create R markdown chunk ##
+    figLegend <- paste0(
+        '**Figure ', 
+        figureCount, 
+        '**: Enrichment analysis of cluster gene signatures to infer the cluster cell type. ', 
+        'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. To view these gene sets in the context of your data, go to ',link,' and find these categories using the search box.'
+    )
+    figureCount <- figureCount + 1 
+    
+    NewChnk <- paste0(
+        "#### ", gsub("_", " ", tag),
+        "\n```{r enrichr_", tag, ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+}
+``` 
+
+```{r CellTypePlot, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+``` 
 
 ### Heatmap and Dotplot for the top5 cluster defining genes {.tabset .tabset-fade .tabset-pills}
 
