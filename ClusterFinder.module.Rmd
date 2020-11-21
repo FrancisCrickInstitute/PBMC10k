@@ -1,0 +1,453 @@
+---
+title: "Cluster Definitions"
+author: "Stefan Boeing"
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+
+output: 
+    html_document:
+        code_folding: hide
+        df_print: tibble
+        toc: true
+        toc_depth: 5
+        toc_float: true
+        css:
+
+always_allow_html: yes
+
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    tidy = TRUE,
+    tidy.opts = list(width.cutoff = 120),
+    message = FALSE,
+    warning = FALSE
+)
+```
+
+
+## Prepare Data
+
+module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;R;
+
+```{r populate_meta_data_database, eval=TRUE, echo=F, results=F}
+## libraries ##
+library(tidyverse)
+library(Seurat)
+library(knitr)
+
+figureCount <- 1
+
+#Create the environment and load a suitable version of R, e.g. so:
+
+
+
+VersionPdfExt <- paste0(".V", gsub("-", "", Sys.Date()), ".pdf")
+
+if (dir.exists("/Volumes/babs/working/boeings/")){
+    hpc.mount <- "/Volumes/babs/working/boeings/"
+} else if (dir.exists("Y:/working/boeings/")){
+    hpc.mount <- "Y:/working/boeings/"
+} else if (dir.exists("/camp/stp/babs/working/boeings/")){
+    hpc.mount <- "/camp/stp/babs/working/boeings/"
+} else {
+    hpc.mount <- ""
+}
+
+
+source("assets/scTools.r")
+source("assets/SBwebtools.pckg.r")
+
+
+if (length(.libPaths()) > 2){
+    .libPaths(.libPaths()[2:3])
+}
+
+ObioFN <- paste0("../", list.files("..")[grep(".bioLOGIC.Robj", list.files(".."))])
+
+load(ObioFN)
+
+## Reset paths to local environment
+Obio <- setMountingPoint(Obio)
+Obio <- setAnalysisPaths(Obio)
+Obio <- setCrickGenomeAndGeneNameTable(Obio)
+Obio <- createAnalysisFolders(
+    Obio,
+    baseDir="/camp/stp/babs/working/boeings/Projects/",
+    localBaseDir = paste0(hpc.mount, "Projects/")
+)
+Obio <- setDataBaseParameters(Obio)
+
+
+## Load Seurat object
+SeuratFN <- paste0("../", list.files("..")[grep(".Seurat.Robj", list.files(".."))])
+
+load(SeuratFN)
+
+
+
+## External database credentials ##
+#Obio@parameterList$host <- "10.27.241.82"
+#Obio@parameterList$db.user <- "boeingS"
+#db.pwd <- "5+3f4nB04042018"
+
+
+
+```
+
+## Cluster Options {.tabset .tabset-fade .tabset-pills}
+```{r populate_expr_database_1, eval=TRUE, echo=F, results=F}
+if (length(Obio@sampleDetailList) > 1){
+    DefaultAssay(OsC) <- "integrated"
+} else {
+    Obio@parameterList$singleCellClusterString <- gsub("integrated", "RNA", Obio@parameterList$singleCellClusterString)
+}
+
+
+clusterOptionVec <- c(0.3,0.5,0.7,0.9, 1,1,1.3,1.5, 1.7,1.9, 2.1,2.3)
+
+
+plotList <- list()
+chnkVec <- as.vector(NULL, mode = "character")
+reductionVec <- c("umap", "tsne")
+j =1
+
+for (i in 1:length(clusterOptionVec)){
+    OsC <- FindClusters(OsC, resolution = clusterOptionVec[i])
+    names(OsC@meta.data) <- gsub("\\.", "_", names(OsC@meta.data))
+## Rational: Run PCA on variable features, then scale data for heatmaps and other applications
+    allGenes <- rownames(x = OsC@assays$RNA)
+    OsC <- ScaleData(OsC, verbose = FALSE, features=allGenes)
+    
+    tag <- paste0("Clusterplot_all", "_",i,"_",gsub("[.]", "_", clusterOptionVec[i]))
+    
+    plotList[[tag]] <- DimPlot(OsC, reduction = reductionVec[j], group.by = "seurat_clusters",label = TRUE)
+    
+    
+    ## Save to file ##
+    FNbase <- paste0("clusterplot.", tag,".", VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+        print(plotList[[tag]])
+    dev.off()
+    
+    figLegend <- paste0(
+        "**Figure ", 
+        figureCount, 
+        "A:** ",
+        reductionVec[j],
+        " Clusterplot with parameter ",clusterOptionVec[i]," [here](", FNrel,")."
+    )
+    
+    
+    NewChnk <- paste0(
+        "### ",tag,
+        "\n```{r D_",tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+    
+    ## with split by sample ##
+    tag <- paste0("Clusterplot_by_sample",  "_",i,"_", gsub("[.]", "_", clusterOptionVec[i]))
+    
+    plotList[[tag]] <- DimPlot(OsC, reduction = reductionVec[j], group.by = paste0("integrated_snn_res.", clusterOptionVec[i]),label = TRUE, split.by = "sampleID")
+    
+    
+    ## Save to file ##
+    FNbase <- paste0(tag,".", VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+        print(plotList[[tag]])
+    dev.off()
+    
+    figLegend <- paste0(
+        "**Figure ", 
+        figureCount, 
+        "B:** ",
+        reductionVec[j],
+        " Clusterplot with parameter ",clusterOptionVec[j]," [here](", FNrel,")."
+    )
+    
+    
+    NewChnk <- paste0(
+        "\n```{r Dimplot_by_sample_",tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+    
+    ## Add cluster dendrogram ##
+    OsC <- BuildClusterTree(OsC)
+    
+    tag <- paste0("Cluster_dendrogram_" , "_",i,"_",gsub("[.]", "_", clusterOptionVec[i]))
+    
+    OsC@tools$BuildClusterTree$tip.label <- paste0("C", OsC@tools$BuildClusterTree$tip.label)
+    
+    library(ggtree)
+    plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree) + geom_tree() + theme_tree() + geom_tiplab() + labs(title=tag
+    ) +  theme(
+      panel.border = element_rect(colour = "black", fill=NA, size=1),
+      axis.title.x=element_blank(),
+      plot.title = element_text(hjust = 0.5, size = 12)
+    ) 
+    
+    #+ xlim(-1,1.2*max(OsC@tools$BuildClusterTree$edge)) 
+    
+    
+    ## Save to file ##
+    FNbase <- paste0("clusterdendro.", tag,".", VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+        print(plotList[[tag]])
+    dev.off()
+    
+    figLegend <- paste0(
+        "**Figure ", 
+        figureCount, 
+        "A:** ",
+        reductionVec[j],
+        " Clusterplot dendrogram with parameter ",clusterOptionVec[i]," [here](", FNrel,")."
+    )
+    
+    
+    NewChnk <- paste0(
+        "\n```{r Clusterdendro_",tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+    
+    
+    figureCount <- figureCount + 1
+    
+}
+
+
+```
+
+
+```{r Plot_tsne_data_plotting, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+```
+
+
+## Example Gene categories to help with the clustering decission {.tabset .tabset-fade .tabset-pills}
+```{r AUC_prep_from_file, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
+
+library(AUCell)
+plotList <- list()
+chnkVec <- as.vector(NULL, mode = "character")
+
+FN <- paste0(hpc.mount, "Projects/lovellbadger/emily.frost/358_RLL_EF_single_cell_p27kip1_in_ovarian_granulosa_cells_SC19235/basedata/20200120.category.file.txt")
+
+dfHeatmapGenes <- read.delim(
+  FN,
+  header = T,
+  sep = "\t",
+  stringsAsFactors = F
+  
+)
+
+geneSets <- list()
+
+for (i in 1:ncol(dfHeatmapGenes)){
+    genes <- as.vector(dfHeatmapGenes[2:nrow(dfHeatmapGenes),i])
+    genes <- genes[genes %in% rownames(x = OsC@assays$RNA)]
+    geneSets[[names(dfHeatmapGenes)[i]]] <- genes
+}
+
+
+Obio@parameterList[["cat2DplotList"]] <- geneSets
+
+
+
+###############################################################################
+## Get backdrop
+
+exprMatrix <- as.matrix(OsC@assays$RNA@counts)
+#logMat <- log10(exprMatrix+1)
+
+# When using a Seurat object #
+logMat <- data.frame(OsC[["RNA"]]@data)
+
+## Load tSNE coordinates ##
+cellsTsne <- data.frame(OsC@reductions$umap@cell.embeddings)
+
+## done
+FNbase <- paste0("CatScatter_Rankings", VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
+    
+
+pdf(FN)
+    cells_rankings <- AUCell_buildRankings(exprMatrix)
+dev.off()
+
+geneSets <- Obio@parameterList$cat2DplotList
+
+cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=nrow(cells_rankings)*0.05)
+
+## Select thresholds ##
+
+
+FNbase <- paste0("CatScatterHist", VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
+            
+pdf(FN)
+    set.seed(123)
+    cells_assignment <- AUCell_exploreThresholds(
+        cells_AUC, 
+        plotHist=TRUE, 
+        nCores=1, 
+        assign=TRUE
+    )
+dev.off()
+
+
+## Add data to dfExpr ##
+
+## Plot CatScatters ##
+for (i in 1:length(Obio@parameterList$cat2DplotList)){
+    HMname <- names(Obio@parameterList$cat2DplotList)[i]
+    tag <- gsub("[.]", "_", HMname)
+    
+    FNbase <- paste0("CatScatterHist_", HMname, VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    
+    selectedThresholds <-  cells_assignment[[i]]$aucThr$thresholds 
+    
+    if ("minimumDens" %in% rownames(selectedThresholds)) {
+        pThr <- selectedThresholds["minimumDens", "threshold"]
+    } else if ("Global_k1" %in% rownames(selectedThresholds)){
+        pThr <- selectedThresholds["Global_k1", "threshold"]
+    } else {
+        pThr <- selectedThresholds[1, "threshold"]
+    }
+    
+    if (nrow(cellsTsne) > 15000){
+        cex = 0.25
+    } else if (nrow(cellsTsne) > 1000){
+        cex = 0.5 
+    } else {
+        cex = 1
+    }
+    
+    
+    ## Get AUC matrix ##
+    tSNE.df <- data.frame(cellsTsne, cell=rownames(cellsTsne))
+    mAUC <- getAUC(cells_AUC)[HMname,rownames(tSNE.df)]
+    dfAUC <- data.frame(mAUC)
+    dfAUC[["cellID"]] <- row.names(dfAUC)
+    dfAUC <- merge(dfAUC, tSNE.df, by.x = "cellID", by.y = "cell")
+    
+    
+    input <- list(
+        "x_axis" = "UMAP1",
+        "y_axis" = "UMAP2",
+        "gene" = HMname
+    )
+    dotsize <- cex
+    
+    legendNote <- paste0(
+            " The following genes of this dataset are represented in this figure: ",
+            paste0(sort(Obio@parameterList$cat2DplotList[[i]]), collapse = ", ")
+        )
+    
+     plotList[[tag]] <- ggplot(data = dfAUC, aes(x=UMAP_1, y=UMAP_2, color = mAUC)
+            )+ geom_point( shape=16, size = dotsize
+            ) + scale_color_gradient2(low="grey", high="darkblue"
+            ) + xlab(input$x_axis) + ylab(input$y_axis)  +  theme(
+                axis.text.y   = element_text(size=8),
+                axis.text.x   = element_text(size=8),
+                axis.title.y  = element_text(size=8),
+                axis.title.x  = element_text(size=8),
+                axis.line = element_line(colour = "black"),
+                panel.border = element_rect(colour = "black", fill=NA, size=1),
+                plot.title = element_text(hjust = 0.5, size = 12)
+            )+ ggtitle(paste0("Category: ", input$gene)
+            ) + coord_fixed(ratio = 1) #+ theme(legend.position="none") 
+     
+     FNbase <- paste0("CatScatter", HMname, VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+        print(plotList[[tag]])
+    dev.off()
+    ## Create R markdown chunk ##
+    figLegend <- paste0(
+        "**Figure ", 
+        figureCount, 
+        ":** Category Scatter showing gene category ", 
+        HMname, ". ", legendNote, 
+        ". Download a pdf of this figure [here](", FNrel,"). "
+    )
+            
+            
+    figureCount <- figureCount + 1 
+            
+    NewChnk <- paste0(
+        "### Category Feature Plot ",HMname,
+                "\n```{r CatFeatPlot1_",
+                i,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+                figLegend,"'}\n",
+                "\n",
+                "\n print(plotList[['",tag,"']])",
+                "\n cat(  '\n')",
+                "\n\n\n```\n"   
+            )
+          
+        
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+}
+
+
+```
+
+```{r enrichment_plots, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+```
+
+
+## Documentation
+```{r documentation, eval=TRUE, echo=T, results=T}
+sessionInfo()
+```

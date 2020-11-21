@@ -33,7 +33,9 @@ knitr::opts_chunk$set(
 
 # module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;R;
 
-# sbatch --time=12:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runA.r" --job-name="rA" -p hmem --mem=100G -o rA.slurm >> commands.txt
+# sbatch --time=12:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runA.r" --job-name="rA"  --mem=100G -o rA.slurm >> commands.txt
+
+# sbatch --time=12:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runA.r" --job-name="rA" -p hmem --mem=300G -o rA.slurm >> commands.txt
 
 # --mem-per-cpu=14G -p hmem --pty bash
 
@@ -44,12 +46,12 @@ knitr::opts_chunk$set(
 ```{r init, eval=T, echo=T}
 ###############################################################################
 ## Create biologic Object for visualization                                  ##
-singleCellClusterParameter <- 0.7
+singleCellClusterParameter <- 0.4
 NtopGenes <- 2000
-singleCellSeuratMtCutoff <- c(5)
+singleCellSeuratMtCutoff <- c(10)
 singleCellSeuratNpcs4PCA <- 30
 SeuratNrnaMaxFeatures <- 10000
-SeuratNrnaMinFeatures <- 750
+SeuratNrnaMinFeatures <- 1000
 ## Done                                                                      ##
 ###############################################################################
 
@@ -115,15 +117,30 @@ library(DT)
 # type must be in c("TenX", "matrixFiles", "loomFiles", "hdf5Files")
 
 sampleDetailList <- list(
-    "S" = list(
+    "mliGlia" = list(
         "type" = "TenX",
-        "path" = "/camp/stp/babs/working/boeings/Projects/pachnisv/tiffany.heanue/362_10X_single_cell_RNA_seq_enteric_neurons_nuclei_rerun_SC18139/FASTQ_files/HEA614A1/outs/filtered_feature_bc_matrix",
+        "gene.column" = 1, # default 2
+        "path" = "/camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/FASTQ_files/mliGlia/outs/filtered_feature_bc_matrix",
         "singleCellClusterParameter" = singleCellClusterParameter,
         "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "SC18139",
+        "limsId"= "SCP1038",
+        "singleCellChemistry" = NULL,
+	    "singleCellCellrangerVersion" = NULL, 
+        "machine" = NULL
+    ),
+    "mliNeuron" = list(
+        "type" = "TenX",
+        "gene.column" = 1,
+        "path" = "/camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/FASTQ_files/mliNeuron/outs/filtered_feature_bc_matrix",
+        "singleCellClusterParameter" = singleCellClusterParameter,
+        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
+        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        "limsId"= "SCP1038",
         "singleCellChemistry" = NULL,
 	    "singleCellCellrangerVersion" = NULL, 
         "machine" = NULL
@@ -136,7 +153,7 @@ sampleDetailList <- list(
 ###############################################################################
 ## dbDetailList                                                              ##
 dbDetailList <- list(
-    "primDataDB" = "rll_data",
+    "primDataDB" = "vpl_data",
     "ref.cat.db" = "reference_categories_db_new",
      "db.user" = "boeingS",
      "host" = "10.27.241.82"
@@ -147,15 +164,15 @@ dbDetailList <- list(
 ###############################################################################
 ## Project detail list                                                       ##
 projectDetailList <- list(
-    "folder" = "pachnisv/tiffany.heanue/362A_10X_single_cell_RNA_seq_enteric_neurons_nuclei_rerun_SC18139/",
+    "folder" = "pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/",
     "sra.id.vector" = "",
     "gse.id.vector" = "",
-    "asf.id" = "SC18139",
+    "asf.id" = "SCP1038",
     "experiment.type" = "sc_rna_seq",   
-    "species" = "danio_rerio", 
+    "species" = "mus_musculus", 
     "release" = "release-89", 
-    "project_id" = "vpl362A",
-    "labname" = "Pachnis",
+    "project_id" = "vpl409",
+    "labname" = "Regev",
     "timecourse.units" = "",
     "count.table.headline" = "lg10 Expr for all Samples",
     "count.table.sidelabel" = "lg10 Expr",
@@ -167,9 +184,9 @@ projectDetailList <- list(
 ###############################################################################
 ## Project Parameters                                                        ##
 documentationParams <- list(
-    "title" = "Mechanisms of stress induced brain sparing in mammals",
-    "subtitle" = "Pachnis Lab - Tiffany Heanue and Tiffany Heanue and Elina Fourli",
-    "abstract" = "TBA"
+    "title" = "The human and mouse enteric nervous system at single cell resolution",
+    "subtitle" = "Regev Lab - Cell 2020",
+    "abstract" = "The enteric nervous system (ENS) coordinates diverse functions in the intestine, but has eluded comprehensive molecular characterization due to the rarity and diversity of cells. Here, we develop two methods to profile the ENS of adult mice and humans at single cell resolution: RAISIN RNA-Seq, for profiling intact nuclei with ribosome-bound mRNA, and MIRACL-Seq, for label-free enrichment of rare cell types by droplet-based profiling. The 1,187,535 nuclei in our mouse atlas include 5,068 neurons from the ileum and colon, revealing extraordinary neuron diversity. We highlight circadian expression changes in enteric neurons, show that disease-related genes are dysregulated with aging, and identify differences between the ileum and proximal/distal colon. In human, we profile 436,202 nuclei recovering 1,445 neurons and identify conserved and species-specific transcriptional programs, and putative neuro-epithelial, neuro-stromal, and neuro-immune interactions. The human ENS expresses risk genes for neuropathic, inflammatory, and extra-intestinal diseases, suggesting neuronal contributions to disease. In this analysis the mouse mli Neuron and mli Glia subset is re-analysed."
 )
 
 
@@ -319,7 +336,7 @@ Obio = new(
         "sra.id.vector" = "",
         "gse.id.vector" = "",
         "addDmaps" = TRUE,
-       "lims.id"= "SC18139",
+       "lims.id"= "",
         "asf.id" = "",
         "machine" = NULL,
         "experiment.type" = "sc_rna_seq",   
@@ -344,6 +361,7 @@ Obio = new(
         "NtopGenes" =  NtopGenes,
         "singleCellClusterParameter" = singleCellClusterParameter,
         "singleCellClusterString" = paste0("integrated_snn_res.", singleCellClusterParameter),
+        "singleCellRead10XgeneColumn" = 1, # default is 2
         "singleCellPercExpressedMinCutOff" = 10,
         "singleCellTranscriptome"="GRCh38",
 	    "singleCellChemistry" = NULL,
@@ -356,7 +374,7 @@ Obio = new(
         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
         "primReduction" = "umap",
         "qcReports" = list(),
-        "catRefFile" = "/camp/stp/babs/working/boeings/Projects/pachnisv/tiffany.heanue/362_10X_single_cell_RNA_seq_enteric_neurons_nuclei_rerun_SC18139/basedata/cell.type.gene.list.TH16Jan2020.txt",
+        "catRefFile" = "/camp/stp/babs/working/boeings/Projects/pachnisv/song.chng/330_10xscRNAseq_DIV4_DIV11_DIV20_SC19069/basedata/vpl330.mm.AUC.gene.cats.txt",
         referenceTableList = referenceTableList
     )
 )

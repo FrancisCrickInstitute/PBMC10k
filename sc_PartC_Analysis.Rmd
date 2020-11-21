@@ -39,7 +39,7 @@ knitr::opts_chunk$set(
 
 # module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;R;
 
-# sbatch --time=12:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runD.r" --job-name="rD" -p hmem --mem=300G -o rD.slurm >> commands.txt
+# sbatch --time=12:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runC.r" --job-name="rC" -p hmem --mem=300G -o rC.slurm >> commands.txt
 
 # --mem-per-cpu=14G -p hmem --pty bash
 
@@ -1082,7 +1082,7 @@ if (length(pos) == 1){
          database.table,
          dfAddCounts,
          by.x = Obio@parameterList$geneIDcolumn,
-         by.y = "dr_symbol",
+         by.y = Obio@parameterList$geneIDcolumn,
          all = TRUE
       )
       database.table[is.na(database.table)] <- 0

@@ -131,7 +131,7 @@ Obio <- setDataBaseParameters(Obio)
 ## database table
 
 dfAddCounts <- import.db.table.from.db(
-    dbtable = "vpl367_rna_seq_table",
+    dbtable = "vpl369A_rna_seq_table",
     dbname = "vpl_data",
     user = Obio@dbDetailList$db.user,
     password = db.pwd,
@@ -139,22 +139,36 @@ dfAddCounts <- import.db.table.from.db(
 )
 # # 
 selVec <- c(
-    "dr_symbol",
+    "mgi_symbol",
     names(dfAddCounts)[grep("contrast_1_logFC", names(dfAddCounts))],
     names(dfAddCounts)[grep("contrast_1_lg10p", names(dfAddCounts))],
-    names(dfAddCounts)[grep("contrast_1_padj", names(dfAddCounts))]
+    names(dfAddCounts)[grep("contrast_1_padj", names(dfAddCounts))],
+    names(dfAddCounts)[grep("contrast_2_logFC", names(dfAddCounts))],
+    names(dfAddCounts)[grep("contrast_2_lg10p", names(dfAddCounts))],
+    names(dfAddCounts)[grep("contrast_2_padj", names(dfAddCounts))],
+    names(dfAddCounts)[grep("contrast_3_logFC", names(dfAddCounts))],
+    names(dfAddCounts)[grep("contrast_3_lg10p", names(dfAddCounts))],
+    names(dfAddCounts)[grep("contrast_3_padj", names(dfAddCounts))]
 )
 # # 
 dfAddCounts <- unique(dfAddCounts[,selVec])
-dfAddCounts <- dfAddCounts[dfAddCounts$dr_symbol != "",]
+dfAddCounts <- dfAddCounts[dfAddCounts$mgi_symbol != "",]
 
 #dfNormCounts <- spread(data = dfNormCounts, key=condition, value=measurement)
 #names(dfNormCounts) <- paste0("norm_counts_", names(dfNormCounts))
 #names(dfNormCounts) <- gsub("norm_counts_gene", "gene", names(dfNormCounts))
 
-names(dfAddCounts) <- gsub("contrast_1_logFC_", "contrast_A_logFC_bulkRNASeq_vpl367_", names(dfAddCounts) )
-names(dfAddCounts) <- gsub("contrast_1_padj_", "contrast_A_padj_bulkRNASeq_vpl367_", names(dfAddCounts) )
-names(dfAddCounts) <- gsub("contrast_1_lg10p_", "contrast_A_lg10p_bulkRNASeq_vpl367_", names(dfAddCounts) )
+names(dfAddCounts) <- gsub("contrast_1_logFC_", "contrast_A_logFC_bulkRNASeq_vpl369A_", names(dfAddCounts) )
+names(dfAddCounts) <- gsub("contrast_1_padj_", "contrast_A_padj_bulkRNASeq_vpl369A_", names(dfAddCounts) )
+names(dfAddCounts) <- gsub("contrast_1_lg10p_", "contrast_A_lg10p_bulkRNASeq_vpl369A_", names(dfAddCounts) )
+
+names(dfAddCounts) <- gsub("contrast_2_logFC_", "contrast_A_logFC_bulkRNASeq_vpl369A_", names(dfAddCounts) )
+names(dfAddCounts) <- gsub("contrast_2_padj_", "contrast_A_padj_bulkRNASeq_vpl369A_", names(dfAddCounts) )
+names(dfAddCounts) <- gsub("contrast_2_lg10p_", "contrast_A_lg10p_bulkRNASeq_vpl369A_", names(dfAddCounts) )
+
+names(dfAddCounts) <- gsub("contrast_3_logFC_", "contrast_A_logFC_bulkRNASeq_vpl369A_", names(dfAddCounts) )
+names(dfAddCounts) <- gsub("contrast_3_padj_", "contrast_A_padj_bulkRNASeq_vpl369A_", names(dfAddCounts) )
+names(dfAddCounts) <- gsub("contrast_3_lg10p_", "contrast_A_lg10p_bulkRNASeq_vpl369A_", names(dfAddCounts) )
 
 
 dfRefDatasets <- dfAddCounts

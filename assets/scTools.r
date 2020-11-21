@@ -45,6 +45,13 @@ setGeneric(
         dotsize = 0.5
     ) {
 
+        pos <- grep("gene.column", names(obj@sampleDetailList[[sampleID]]))
+        if (length(pos) == 0){
+            gene.column = 2
+        } else {
+            gene.column <-  obj@sampleDetailList[[sampleID]]$gene.column
+        }
+        
         figureCreated <- FALSE
         sampleNames <- names(Obio@sampleDetailList)
 
@@ -57,8 +64,8 @@ setGeneric(
                 rawFN <- gsub("filtered_feature_bc_matrix", "raw_feature_bc_matrix", baseFN)
 
                 if (file.exists(rawFN)){
-                    rawSampleList[[sampleNames[i]]] <- Read10X(data.dir = rawFN)
-                    filtSampleList[[sampleNames[i]]] <- Read10X(data.dir = baseFN)
+                    rawSampleList[[sampleNames[i]]] <- Read10X(data.dir = rawFN, gene.column = gene.column)
+                    filtSampleList[[sampleNames[i]]] <- Read10X(data.dir = baseFN, gene.column = gene.column)
 
                     cellID <- colnames(rawSampleList[[sampleNames[i]]])
 
@@ -1051,7 +1058,7 @@ setGeneric(
     name="createNormSampleList",
     def=function(
         obj,
-        reduce = NULL #,
+        reduce = NULL
         #figureCount = 1,
         #VersionPdfExt = ".pdf",
         #tocSubLevel = 4
@@ -1105,13 +1112,20 @@ setGeneric(
                 )
 
             } else {
+                pos <- grep("gene.column", names(obj@sampleDetailList[[sampleID]]))
+                if (length(pos) == 0){
+                    gene.column = 2
+                } else {
+                    gene.column <-  obj@sampleDetailList[[sampleID]]$gene.column
+                }
+                
                 dataDir <- obj@sampleDetailList[[sampleID]]$path
 
                 #print(paste0("Reading ", dataDir, "..."))
 
                 assign(
                     "fullMat", #names(obj@parameterList[[obj@parameterList$inputMode]])[i],
-                    Read10X(data.dir = dataDir)
+                    Read10X(data.dir = dataDir, gene.column = gene.column)
                 )
 
 
@@ -1276,13 +1290,20 @@ setGeneric(
             )
 
         } else {
+            pos <- grep("gene.column", names(obj@sampleDetailList[[sampleID]]))
+            if (length(pos) == 0){
+                gene.column = 2
+            } else {
+                gene.column <-  obj@sampleDetailList[[sampleID]]$gene.column
+            }
+            
             dataDir <- obj@sampleDetailList[[sampleID]]$path
 
             #print(paste0("Reading ", dataDir, "..."))
 
             assign(
                 "fullMat", #names(obj@parameterList[[obj@parameterList$inputMode]])[i],
-                Read10X(data.dir = dataDir)
+                Read10X(data.dir = dataDir, gene.column = gene.column)
             )
 
         }
