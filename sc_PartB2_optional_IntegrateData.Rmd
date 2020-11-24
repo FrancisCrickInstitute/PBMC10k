@@ -139,7 +139,7 @@ dfAddCounts <- import.db.table.from.db(
 )
 # # 
 selVec <- c(
-    "mgi_symbol",
+    Obio@parameterList$geneIDcolumn,
     names(dfAddCounts)[grep("contrast_1_logFC", names(dfAddCounts))],
     names(dfAddCounts)[grep("contrast_1_lg10p", names(dfAddCounts))],
     names(dfAddCounts)[grep("contrast_1_padj", names(dfAddCounts))],
@@ -172,6 +172,46 @@ names(dfAddCounts) <- gsub("contrast_3_lg10p_", "contrast_A_lg10p_bulkRNASeq_vpl
 
 
 dfRefDatasets <- dfAddCounts
+
+####################3
+## Add vpl367
+dfAddCounts <- import.db.table.from.db(
+    dbtable = "vpl367_rna_seq_table",
+    dbname = "vpl_data",
+    user = Obio@dbDetailList$db.user,
+    password = db.pwd,
+    host = Obio@dbDetailList$host
+)
+# # 
+selVec <- c(
+    Obio@parameterList$geneIDcolumn,
+    names(dfAddCounts)[grep("contrast_1_logFC", names(dfAddCounts))],
+    names(dfAddCounts)[grep("contrast_1_lg10p", names(dfAddCounts))],
+    names(dfAddCounts)[grep("contrast_1_padj", names(dfAddCounts))]
+)
+# # 
+dfAddCounts <- unique(dfAddCounts[,selVec])
+dfAddCounts <- dfAddCounts[Obio@parameterList$geneIDcolumn != "",]
+
+#dfNormCounts <- spread(data = dfNormCounts, key=condition, value=measurement)
+#names(dfNormCounts) <- paste0("norm_counts_", names(dfNormCounts))
+#names(dfNormCounts) <- gsub("norm_counts_gene", "gene", names(dfNormCounts))
+
+names(dfAddCounts) <- gsub("contrast_1_logFC_", "contrast_A_logFC_bulkRNASeq_vpl367_", names(dfAddCounts) )
+names(dfAddCounts) <- gsub("contrast_1_padj_", "contrast_A_padj_bulkRNASeq_vpl367_", names(dfAddCounts) )
+names(dfAddCounts) <- gsub("contrast_1_lg10p_", "contrast_A_lg10p_bulkRNASeq_vpl367_", names(dfAddCounts) )
+
+dfRefDatasets <- merge(
+    dfRefDatasets, 
+    dfAddCounts, 
+    by.x = Obio@parameterList$geneIDcolumn, 
+    by.y = Obio@parameterList$geneIDcolumn,
+    all =TRUE
+)
+
+dfRefDatasets[is.na(dfRefDatasets)] <- 0
+## Done
+######################
 
 Obio@dataTableList[["dfRefDatasets"]] <- data.frame(NULL)
 Obio@dataTableList[["dfRefDatasets"]] <- dfRefDatasets
