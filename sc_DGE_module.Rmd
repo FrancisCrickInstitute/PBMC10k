@@ -64,13 +64,7 @@ dbTable <- read.delim(
 db.pwd <- as.vector(dbTable[1,1])
 
 
-source(
-    paste0(
-        hpc.mount,
-        "Stefan/protocol_files/github/boeings/packages/packageSourceCode/SBwebtools.pckg.r"
-    )
-)
-
+source("assets/SBwebtools.pckg.r")
 
 if (length(.libPaths()) > 2){
     .libPaths(.libPaths()[2:3])
@@ -109,17 +103,7 @@ load(paste0(
     ".Seurat.Robj"
 )
 )
-OsC@meta.data[["sampleID"]] <- ""
-OsC@meta.data[["sampleID"]] <- OsC@meta.data[["orig.ident"]] 
 
-dfTemp <- import.db.table.from.db(
-    dbtable=  Obio@parameterList$PCAdbTableName,   
-    dbname= Obio@dbDetailList$primDataDB,   
-    user= Obio@dbDetailList$db.user,     
-    password= db.pwd, 
-    host= Obio@parameterList$host
-)
-row.names(dfTemp) <- dfTemp$cellID
 
 
 
@@ -251,31 +235,12 @@ DGEtagVec <- as.vector(NULL, mode = "character")
 DGEinputList <- list(
   "comp_1" = list(
       "name"    = "DGE_Glia_vs_Neuron",
-      "DGEselCol" = "seurat_clusters",
+      "DGEselCol" = "sampleID",
       "DGEsampleList" = list(
-        "Glia"   = c(2),
-        "Neuron" = c(4,6,0,3,7,5,10,1)
+          "Glia"   = c("mliGlia"),
+          "Neuron" = c("mliNeuron")
       )
-    ),
-  
-  "comp_2" = list(
-      "name"    = "DGE_NitChol_vs_Serotonergic",
-      "DGEselCol" = "seurat_clusters",
-      "DGEsampleList" = list(
-        "NitChol" = c(7,5,10,1,3,0,6),
-        "Serotonergic" = c(4)
-      )
-    ),
-  
-  "comp_3" = list(
-      "name"    = "DGE_Nitrergic_vs_Cholinergic",
-      "DGEselCol" = "seurat_clusters",
-      "DGEsampleList" = list(
-        "Nitrergic" = c(7,5,10,1),
-      "Cholinergic" = c(3,0,6)
-      )
-    )
-  
+  )
 )
 
 
@@ -290,7 +255,7 @@ DGEinputList <- list(
 
 
 for (i in 1:length(DGEinputList)){
-    tag <- paste0("DGE_", unlist(DGEinputList[[i]]["name"]))
+    tag <- paste0(unlist(DGEinputList[[i]]["name"]))
     
     resList <- doDGEsc(
         obj = OsC,
@@ -465,10 +430,10 @@ Obio@databaseTable$Gene_description <- NULL
 
 
 cmd.vec <- upload.datatable.to.database(
-    host = Obio@parameterList$host, 
-    user = Obio@parameterList$db.user,
+    host = Obio@dbDetailList$host, 
+    user = Obio@dbDetailList$db.user,
     password = db.pwd,
-    prim.data.db = Obio@parameterList$primDataDB,
+    prim.data.db = Obio@dbDetailList$primDataDB,
     dbTableName = Obio@parameterList$rnaseqdbTableName,
     df.data = Obio@databaseTable, #[Obio@databaseTable$count_cut_off > 1, ],
     db.col.parameter.list = list(
