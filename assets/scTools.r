@@ -45,12 +45,7 @@ setGeneric(
         dotsize = 0.5
     ) {
 
-        pos <- grep("gene.column", names(obj@sampleDetailList[[sampleID]]))
-        if (length(pos) == 0){
-            gene.column = 2
-        } else {
-            gene.column <-  obj@sampleDetailList[[sampleID]]$gene.column
-        }
+        
         
         figureCreated <- FALSE
         sampleNames <- names(Obio@sampleDetailList)
@@ -60,6 +55,14 @@ setGeneric(
 
         for (i in 1:length(sampleNames)){
             if (obj@sampleDetailList[[sampleNames[i]]]$type == "TenX"){
+                
+                pos <- grep("gene.column", names(obj@sampleDetailList[[sampleNames[i]]]))
+                if (length(pos) == 0){
+                    gene.column = 2
+                } else {
+                    gene.column <-  obj@sampleDetailList[[sampleID]]$gene.column
+                }
+                
                 baseFN <- obj@sampleDetailList[[sampleNames[i]]]$path
                 rawFN <- gsub("filtered_feature_bc_matrix", "raw_feature_bc_matrix", baseFN)
 

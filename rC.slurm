@@ -160,3 +160,70 @@ List of 3
  $ echo   : symbol F
  $ results: symbol F
 
+  |                                                                              |.......................................                               |  56%
+  ordinary text without R code
+
+  |                                                                              |............................................                          |  62%
+label: populate_expr_database (with options) 
+List of 3
+ $ eval   : logi TRUE
+ $ echo   : symbol F
+ $ results: symbol F
+
+
+Attaching package: 'gplots'
+
+The following object is masked from 'package:IRanges':
+
+    space
+
+The following object is masked from 'package:S4Vectors':
+
+    space
+
+The following object is masked from 'package:stats':
+
+    lowess
+
+  |                                                                              |................................................                      |  69%
+  ordinary text without R code
+
+  |                                                                              |....................................................                  |  75%
+label: create_ref (with options) 
+List of 3
+ $ eval   : logi TRUE
+ $ echo   : symbol F
+ $ results: symbol F
+
+  |                                                                              |.........................................................             |  81%
+  ordinary text without R code
+
+  |                                                                              |.............................................................         |  88%
+label: create_microwebsite (with options) 
+List of 3
+ $ eval   : logi TRUE
+ $ echo   : symbol F
+ $ results: symbol F
+
+  |                                                                              |..................................................................    |  94%
+  ordinary text without R code
+
+  |                                                                              |......................................................................| 100%
+label: documentation (with options) 
+List of 3
+ $ eval   : logi TRUE
+ $ echo   : symbol T
+ $ results: symbol T
+
+
+output file: sc_PartC_Analysis.knit.md
+
+/camp/apps/misc/stp/babs/conda/envs/R_deps/bin/pandoc +RTS -K512m -RTS sc_PartC_Analysis.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output sc_PartC_Analysis.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 3 --variable toc_float=1 --variable toc_selectors=h1,h2,h3 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --variable 'theme:bootstrap' --include-in-header /tmp/slurm_19219906/RtmpIfykhx/rmarkdown-str2411bb911fb.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
+
+Output created: sc_PartC_Analysis.html
+Warning messages:
+1: In sink() : no sink to remove
+2: In heatmap.2(m.df1, trace = "none", dendrogram = "both", density.info = "none",  :
+  Discrepancy: Colv is FALSE, while dendrogram is `both'. Omitting column dendogram.
+3: In in_dir(input_dir(), evaluate(code, envir = env, new_device = FALSE,  :
+  You changed the working directory to /camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/workdir (probably via setwd()). It will be restored to /camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/workdir/sc_dev. See the Note section in ?knitr::knit
