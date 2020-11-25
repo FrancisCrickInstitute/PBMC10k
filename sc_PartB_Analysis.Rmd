@@ -33,7 +33,7 @@ knitr::opts_chunk$set(
 
 # sbatch --time=08:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runB.r" --job-name="rB" --mem=42G -o rB.slurm >> commands.txt
 
-# sbatch --time=12:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runB.r" --job-name="rB" -p hmem --mem=300G -o rB.slurm >> commands.txt
+# sbatch --time=18:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runB.r" --job-name="rB" -p hmem --mem=300G -o rB.slurm >> commands.txt
 
 ```
 
@@ -3353,9 +3353,9 @@ for (i in 1:length(clusterVec)){
     
     linkDGE <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=norm_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', DGEcatID,'" target="_blank">here</a>')
     
-    heatmaplink <- paste0('In order to identify cluster specific marker genes a <a href="https://biologic.crick.ac.uk/vpl362A/category-view/', LRcatID,'" target="_blank">cluster-maker gene heatmap for the linear-regression derrived marker gene set</a> might be interesting.')
+    heatmaplink <- paste0('In order to identify cluster specific marker genes a <a href="https://biologic.crick.ac.uk/',Obio@parameterList$project_id,'/category-view/', LRcatID,'" target="_blank">cluster-maker gene heatmap for the linear-regression derrived marker gene set</a> might be interesting.')
     
-    heatmaplinkDGE <- paste0('In order to identify cluster specific marker genes a <a href="https://biologic.crick.ac.uk/vpl362A/category-view/', DGEcatID,'" target="_blank">cluster-maker gene heatmap for the differential-gene expression derrived marker gene set</a> might be interesting.')
+    heatmaplinkDGE <- paste0('In order to identify cluster specific marker genes a <a href="https://biologic.crick.ac.uk/',Obio@parameterList$project_id,'/category-view/', DGEcatID,'" target="_blank">cluster-maker gene heatmap for the differential-gene expression derrived marker gene set</a> might be interesting.')
     
     
 
