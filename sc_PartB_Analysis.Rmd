@@ -3176,13 +3176,19 @@ clusterVec <- clusterVec[clusterVec != "gene"]
 
 for (i in 1:length(clusterVec)){
     clusterGenes <- as.vector(sort(unique(dfClusterResiduals[dfClusterResiduals[, clusterVec[i]] > DefaultcutOff,"gene"])))
+    if (length(clusterGenes) < 3){
+        usedCutOff <- DefaultcutOff/2
+        clusterGenes <- as.vector(sort(unique(dfClusterResiduals[dfClusterResiduals[, clusterVec[i]] > usedCutOff,"gene"])))
+    } else {
+        usedCutOff <- DefaultcutOff
+    }
     
     if (length(clusterGenes) > 1){
         residualClusterMarkers[[paste0(clusterVec[[i]], "_Linear_Regression_Markers_", DefaultcutOff)]] <- c(
-            paste0(clusterVec[[i]], "_Linear_Regression_Markers_", DefaultcutOff, " Experiment ", Obio@parameterList$project_id),
+            paste0(clusterVec[[i]], "_Linear_Regression_Markers_", gsub("\\.", "_", usedCutOff) , " Experiment ", Obio@parameterList$project_id),
             clusterGenes
         )
-    }
+    } 
 }
 
 ## Upload Marker Genes for this Project ##
@@ -3342,6 +3348,9 @@ for (i in 1:length(clusterVec)){
       LRcatID <- as.vector(dfCatNameLR[pos, "catID"])
     }
     
+    
+    clusterVec <- as.vector(dfClustCol$cluster)
+    clusterCol <- as.vector(dfClustCol$clusterCol)
     pos <- grep(paste0(gsub("C_", "Cluster_",clusterVec[i]),"$"), dfFAMplotIDs$cat_name)
     
     DGEcatID <- ""
@@ -3349,9 +3358,9 @@ for (i in 1:length(clusterVec)){
       DGEcatID <- as.vector(dfFAMplotIDs[pos, "cat_id"])
     }
     
-    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=norm_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', LRcatID,'" target="_blank">here</a>')
+    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=add_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', LRcatID,'" target="_blank">here</a>')
     
-    linkDGE <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=norm_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', DGEcatID,'" target="_blank">here</a>')
+    linkDGE <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=add_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', DGEcatID,'" target="_blank">here</a>')
     
     heatmaplink <- paste0('In order to identify cluster specific marker genes a <a href="https://biologic.crick.ac.uk/',Obio@parameterList$project_id,'/category-view/', LRcatID,'" target="_blank">cluster-maker gene heatmap for the linear-regression derrived marker gene set</a> might be interesting.')
     
