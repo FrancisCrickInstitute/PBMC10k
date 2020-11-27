@@ -66,11 +66,11 @@ knitr::opts_chunk$set(
 
 ### Set Parameters
 ```{r set_directories, eval=T}
-
+library(tidyverse)
 library(dplyr)
 library(Seurat)
 library(ggplot2)
-library(tidyverse)
+
 library(tidyr)
 library(knitr)
 
@@ -367,8 +367,7 @@ if (nrow(OsC@meta.data) > 10000){
 ```
 
 
-## Result Figures
-### Quality Control Plots: Variable Features in the combined and all individual dataset {.tabset .tabset-fade .tabset-pills}
+
 ```{r create-individual-varFeatures, echo=TRUE, eval=TRUE, warning=FALSE, results=FALSE}
 plotList <- list()
 chnkVec <- as.vector(NULL, mode = "character")
@@ -442,8 +441,10 @@ plotList[[tag]] <- ggplot(
             x=Avg.Expression, 
             y=variance.standardized, label = text, color = Type
         )
-) + geom_point( shape=16, size = dotsize
-)  + xlab("Average Expression") + ylab("Variance Standarized")  +  theme(
+  ) + geom_point( shape=16, size = dotsize
+  ) + xlab("Average Expression") + ylab("Variance Standarized"
+  ) + theme_bw(
+  ) +  theme(
     axis.text.y   = element_text(size=8),
     axis.text.x   = element_text(size=8),
     axis.title.y  = element_text(size=8),
@@ -454,7 +455,7 @@ plotList[[tag]] <- ggplot(
 ) + ggtitle(paste0("Variance vs. Expression in the Overall Experiment")
 ) + scale_color_manual(values=c("#FF0000", "#000000")
 ) + geom_text_repel(
-) + theme_bw()
+) 
 
 
     
@@ -591,7 +592,9 @@ for (i in 1:length(SampleList)){
             x=Avg.Expression, 
             y=variance.standardized, label = text, color = Type)
             ) + geom_point( shape=16, size = dotsize
-            )  + xlab("Average Expression") + ylab("Variance Standarized")  +  theme(
+            ) + xlab("Average Expression") + ylab("Variance Standarized"
+            ) + theme_bw(
+            ) +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -603,7 +606,7 @@ for (i in 1:length(SampleList)){
             ) + scale_color_manual(values=c("#FF0000", "#000000")
             ) + geom_text_repel(
             ) +  xlim(0, xmax) + ylim(0, ymax
-            ) + theme_bw()
+            ) 
 
 
     
@@ -681,7 +684,17 @@ for (i in 1:length(SampleList)){
 ## Make sure summary goes first ##
 Obio@dataTableList[["dfVariation"]] <- dfVarRes
 
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
 ```
+
+
+## Result Figures
+### Quality Control Plots: Variable Features in the combined and all individual dataset {`r tabVar`}
 
 ```{r create-var-feature-plot-II, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 ## plot list will be integrated in full figure ##
@@ -737,7 +750,7 @@ OsC <- ScaleData(OsC, verbose = FALSE, features=allGenes)
 
 ```
 
-### Dimensionality Reduction Plots by Sample {.tabset .tabset-fade .tabset-pills}
+
 If you wish to get a bit of background on tSNE dimensionality reduction, take a look at 
 <a href="https://www.youtube.com/watch?v=NEaUSP4YerM" target="_blank"> this youtube video</a> by Josh Starmer from the University of North Carolina.
 
@@ -803,7 +816,9 @@ dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)
 
 plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(UMAP_1, UMAP_2, color=sampleID)
             ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("UMAP1") + ylab("UMAP2")  +  theme(
+            ) + xlab("UMAP1") + ylab("UMAP2"
+            ) + theme_bw(
+            )  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -815,7 +830,7 @@ plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(UMAP_1, UMAP
             ) + ggtitle(paste0("Sample: ", tag)
             ) + xlim(minX, maxX) + ylim(minY, maxY
             ) + coord_fixed(ratio=1
-            ) + theme_bw()
+            ) 
             
 if (length(unique(dfPlot$Cluster)) > 15){
    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
@@ -913,7 +928,9 @@ dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)
 
 plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(tSNE_1, tSNE_2, color=sampleID)
             ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("tSNE1") + ylab("tSNE2")  +  theme(
+            ) + xlab("tSNE1") + ylab("tSNE2"
+            ) + theme_bw(
+            )  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -925,7 +942,7 @@ plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(tSNE_1, tSNE
             ) + ggtitle(paste0("Sample: ", tag)
             ) + xlim(minX, maxX) + ylim(minY, maxY
             ) + coord_fixed(ratio=1
-            ) + theme_bw() 
+            ) 
             
 if (length(unique(dfPlot$Cluster)) > 15){
    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
@@ -1020,7 +1037,9 @@ for (i in 1:length(sampleVec)){
             
     plotList[[tag]] <- ggplot(data=dfPlotSel[dfPlot$included == "+",], aes(UMAP_1, UMAP_2, color=sampleID)
             ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("UMAP1") + ylab("UMAP2")  +  theme(
+            ) + xlab("UMAP1") + ylab("UMAP2"
+            ) + theme_bw(
+            )  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -1033,7 +1052,7 @@ for (i in 1:length(sampleVec)){
             ) + xlim(minX, maxX) + ylim(minY, maxY
             ) + coord_fixed(ratio=1
             ) + scale_color_manual(values = clusterCols[i]
-            ) + theme_bw() 
+            ) 
     
     if (length(unique(dfPlot$Cluster)) > 15){
    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
@@ -1146,7 +1165,15 @@ if (length(unique(OsC@meta.data$sampleID)) > 3){
 ## Done by sample                                                            ##
 ###############################################################################
 
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
 ```
+
+### Dimensionality Reduction Plots by Sample {`r tabVar`}
 
 ```{r Plot_tsne_data_plotting, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 
@@ -1272,7 +1299,7 @@ Obio@dataTableList[["dfAvglg10ExprBySampleScaled"]] <- dfAvgScaledData
 ```
 
 
-### Dimensionality Reduction Plots by Cluster {.tabset .tabset-fade .tabset-pills}
+
 ```{r Plot_dimred_by_cluster_data_prep, echo=TRUE, eval=TRUE, warning=FALSE, results=FALSE} 
 
 reductionVec <- c("umap", "tsne")
@@ -1327,7 +1354,9 @@ dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)
 
 plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(UMAP_1, UMAP_2, color=Cluster)
             ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("UMAP1") + ylab("UMAP2")  +  theme(
+            ) + xlab("UMAP1") + ylab("UMAP2"
+            ) + theme_bw(
+            )  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -1339,7 +1368,7 @@ plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(UMAP_1, UMAP
             ) + ggtitle(paste0("Sample: ", tag)
             ) + xlim(minX, maxX) + ylim(minY, maxY
             ) + coord_fixed(ratio=1
-            ) + theme_bw()
+            ) 
             
 if (length(unique(dfPlot$Cluster)) > 15){
    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
@@ -1430,7 +1459,9 @@ dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)
 
 plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(tSNE_1, tSNE_2, color=Cluster)
             ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("tSNE1") + ylab("tSNE2")  +  theme(
+            ) + xlab("tSNE1") + ylab("tSNE2"
+            ) + theme_bw(
+            )  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -1442,7 +1473,7 @@ plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(tSNE_1, tSNE
             ) + ggtitle(paste0("Sample: ", tag)
             ) + xlim(minX, maxX) + ylim(minY, maxY
             ) + coord_fixed(ratio=1
-            ) + theme_bw() 
+            )  
             
 if (length(unique(dfPlot$Cluster)) > 15){
    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
@@ -1533,7 +1564,9 @@ for (i in 1:length(sampleVec)){
             
     plotList[[tag]] <- ggplot(data=dfPlotSel[dfPlot$included == "+",], aes(UMAP_1, UMAP_2, color=Cluster)
             ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("UMAP1") + ylab("UMAP2")  +  theme(
+            ) + xlab("UMAP1") + ylab("UMAP2"
+            )  + theme_bw(
+            ) + theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -1545,7 +1578,7 @@ for (i in 1:length(sampleVec)){
             ) + ggtitle(paste0("Sample: ", tag)
             ) + xlim(minX, maxX) + ylim(minY, maxY
             ) + coord_fixed(ratio=1
-            ) + theme_bw() 
+            ) 
     
     if (length(unique(dfPlot$Cluster)) > 15){
    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
@@ -1904,8 +1937,16 @@ dfFAMplotIDs <- data.frame(
 ## Done uploading general markers                                            ##
 ###############################################################################
 
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
 
 ```
+
+
+### Dimensionality Reduction Plots by Cluster {`r tabVar`}
 
 ```{r Plot_dim_red_by_cluster, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 
@@ -1931,8 +1972,7 @@ htmltools::includeHTML(paste(Obio@parameterList$outputDir,"sleepwalk.UMAP.html",
 </div>
 
 
-### Highlight Potential Doublets {.tabset .tabset-fade .tabset-pills}
-This analyis gives an indication of which cells MIGHT be doublets. Chris McGinnis <a href="https://github.com/chris-mcginnis-ucsf/DoubletFinder" target="_blank">DoubletFinder</a> package is used to identify potential doublets. 
+ 
 
 ```{r doublet-data, echo=TRUE, eval=TRUE, warning=FALSE, results=FALSE, message = FALSE}
 
@@ -1974,7 +2014,9 @@ if (length(pos) > 0){
           )+ geom_point( 
               shape = 16,
               size = as.numeric(dotsize)
-          ) + xlab("UMAP1") + ylab("UMAP2")  +  theme(
+          ) + xlab("UMAP1") + ylab("UMAP2"
+          ) + theme_bw(
+          )  +  theme(
               axis.text.y   = element_text(size=8),
               axis.text.x   = element_text(size=8),
               axis.title.y  = element_text(size=8),
@@ -1985,7 +2027,7 @@ if (length(pos) > 0){
               panel.background = element_rect(fill = "lightgrey")
           ) + ggtitle("Potential Doublets"
           ) + scale_color_manual(values=c("#000000","#FF0000")
-          ) + theme_bw()
+          ) 
   
   #+ xlim(minX, maxX) + ylim(minY, maxY)  
       
@@ -2027,7 +2069,17 @@ if (length(pos) > 0){
                   NewChnk
               )
 }
+
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
 ```
+
+### Highlight Potential Doublets {`r tabVar`}
+This analyis gives an indication of which cells MIGHT be doublets. Chris McGinnis <a href="https://github.com/chris-mcginnis-ucsf/DoubletFinder" target="_blank">DoubletFinder</a> package is used to identify potential doublets.
+
 
 ```{r doublet-plot, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 ## plot list will be integrated in full figure ##
@@ -2039,7 +2091,7 @@ if (length(pos) > 0){
 
 
 
-### Cell Cycle Markers {.tabset .tabset-fade .tabset-pills}
+
 ```{r Plot_dimred_by_cell_cycle_phase_data_prep, echo=TRUE, eval=TRUE, warning=FALSE, results=FALSE} 
 
 ###############################################################################
@@ -2111,7 +2163,9 @@ minY <- 1.1*min(dfPlot$UMAP_2, na.rm = T)
 
 plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(UMAP_1, UMAP_2, color=Phase)
             ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("UMAP1") + ylab("UMAP2")  +  theme(
+            ) + xlab("UMAP1") + ylab("UMAP2"
+            ) + theme_bw(
+            )  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -2123,7 +2177,7 @@ plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(UMAP_1, UMAP
             ) + ggtitle(paste0("Sample: ", tag)
             ) + xlim(minX, maxX) + ylim(minY, maxY
             ) + coord_fixed(ratio=1
-            ) + theme_bw() 
+            ) 
             
 if (length(unique(dfPlot$Cluster)) > 15){
    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
@@ -2211,7 +2265,9 @@ minY <- 1.1*min(dfPlot$tSNE_2, na.rm = T)
 
 plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(tSNE_1, tSNE_2, color=Phase)
             ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("tSNE1") + ylab("tSNE2")  +  theme(
+            ) + xlab("tSNE1") + ylab("tSNE2"
+            ) + theme_bw(
+            )  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -2223,7 +2279,7 @@ plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(tSNE_1, tSNE
             ) + ggtitle(paste0("Sample: ", tag)
             ) + xlim(minX, maxX) + ylim(minY, maxY
             ) + coord_fixed(ratio=1
-            ) + theme_bw() 
+            ) 
             
 if (length(unique(dfPlot$Cluster)) > 15){
    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
@@ -2311,7 +2367,9 @@ for (i in 1:length(sampleVec)){
             
     plotList[[tag]] <- ggplot(data=dfPlotSel[dfPlot$included == "+",], aes(UMAP_1, UMAP_2, color=Phase)
             ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("UMAP1") + ylab("UMAP2")  +  theme(
+            ) + xlab("UMAP1") + ylab("UMAP2"
+            ) + theme_bw(
+            )  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -2323,7 +2381,7 @@ for (i in 1:length(sampleVec)){
             ) + ggtitle(paste0("Sample: ", tag)
             ) + xlim(minX, maxX) + ylim(minY, maxY
             ) + coord_fixed(ratio=1
-            ) + theme_bw() 
+            ) 
     
     if (length(unique(dfPlot$Cluster)) > 15){
    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
@@ -2498,10 +2556,16 @@ figLegend <- paste0(
 ## Done integraed analysis                                                   ##
 ###############################################################################
 
-
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
 
 
 ```
+
+### Cell Cycle Markers {`r tabVar`}
 
 ```{r Plot_dim_red_by_cell_cycle_phase, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 
@@ -2512,8 +2576,7 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 
 
-### Barchart N cells and Percent in Clusters {.tabset .tabset-fade .tabset-pills}
-if you could prepare a bar-shape graph with the %of cells clusters representing our populations (like in the Nat Med)
+
 
 ```{r make_percent_N_cells_barchart, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 ###############################################################################
@@ -2605,26 +2668,25 @@ for (i in 1:length(cellTypeIDs)){
  
 dfRes <- dfRes4
 
-plotListNcells <- list()
-plotListPercent <- list()
+plotList <- list()
 chnkVec <- as.vector(NULL, mode = "character")
 
 for (i in 1:length(cellTypeIDs)){
   #############################################################################
   ## Create cell number plot                                                 ##
-  tag <- cellTypeIDs[i]
+  tag <- paste0(cellTypeIDs[i], "_Number")
   dfResTemp <- dfRes[dfRes$cellIdent == cellTypeIDs[i], ]
   
   ## Calculate percentages for this subset ##
   
-  plotListNcells[[tag]] <- ggplot(
+  plotList[[tag]] <- ggplot(
     ) + geom_bar(aes(y = N_cells, x = Cluster, fill = sampleID), data = dfResTemp, stat="identity"
     ) + labs(title=tag, x="Cluster", y = "Cell Count"
+    ) + theme_bw(
     ) +  theme(
       panel.border = element_rect(colour = "black", fill=NA, size=1),
-      axis.title.x=element_blank(),
       plot.title = element_text(hjust = 0.5, size = 12)
-    ) + coord_flip()
+    ) + coord_flip() 
   
   ###########################################################################
   ## Save plot to file                                                     ##
@@ -2633,7 +2695,7 @@ for (i in 1:length(cellTypeIDs)){
   FNrel <- paste0("report_figures/", FNbase)
     
   pdf(FN)
-      print(plotListNcells[[tag]])
+      print(plotList[[tag]])
   dev.off()
   ##                                                                       ##
   ###########################################################################
@@ -2652,7 +2714,7 @@ for (i in 1:length(cellTypeIDs)){
     paste0("#### Barchart_ ", tag),
         "\n```{r Barchart-",tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",figCap,"'}\n",
         "\n",
-        "\n print(plotListNcells[['",tag,"']])",
+        "\n print(plotList[['",tag,"']])",
         "\n cat(  '\n')",
         "\n\n\n```\n"   
   )
@@ -2666,14 +2728,15 @@ for (i in 1:length(cellTypeIDs)){
   
   #############################################################################
   ## Add percentage plot                                                     ##
-  plotListPercent[[tag]] <- ggplot(
+  tag <- paste0(cellTypeIDs[i], "_Percent")
+  plotList[[tag]] <- ggplot(
     ) + geom_bar(aes(x = Cluster, y = Perc_cells, fill = sampleID), data = dfResTemp, stat="identity"
     ) + labs(title=tag, x="Cluster", y = "Percent Cells"
+    ) + theme_bw(
     ) +  theme(
       panel.border = element_rect(colour = "black", fill=NA, size=1),
-      axis.title.x=element_blank(),
       plot.title = element_text(hjust = 0.5, size = 12)
-    ) +  coord_flip()
+    ) +  coord_flip() 
   
   ###########################################################################
   ## Save plot to file                                                     ##
@@ -2682,7 +2745,7 @@ for (i in 1:length(cellTypeIDs)){
   FNrel <- paste0("report_figures/", FNbase)
     
   pdf(FN)
-      print(plotListPercent[[tag]])
+      print(plotList[[tag]])
   dev.off()
   ##                                                                       ##
   ###########################################################################
@@ -2698,9 +2761,10 @@ for (i in 1:length(cellTypeIDs)){
   )
   
   NewChnk <- paste0(
+    paste0("#### Barchart_ ", tag),
         "\n```{r Barchart-percent_",tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",figCap,"'}\n",
         "\n",
-        "\n print(plotListPercent[['",tag,"']])",
+        "\n print(plotList[['",tag,"']])",
         "\n cat(  '\n')",
         "\n\n\n```\n"   
   )
@@ -2719,8 +2783,16 @@ for (i in 1:length(cellTypeIDs)){
 ## Done creating data table                                                  ##
 ###############################################################################
 
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
 
 ```
+
+### Barchart N cells and Percent in Clusters {`r tabVar`}
+if you could prepare a bar-shape graph with the %of cells clusters representing our populations (like in the Nat Med)
 
 ```{r plot_barchart, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
@@ -2729,7 +2801,7 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 
 
-### Category Enrichment Scatterplots {.tabset .tabset-fade .tabset-pills}
+
 
 ```{r AUC_prep_from_file, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
 
@@ -2945,7 +3017,9 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
      plotList[[tag]] <- ggplot(data = dfAUC, aes(x=UMAP_1, y=UMAP_2, color = mAUC)
             )+ geom_point( shape=16, size = dotsize
             ) + scale_color_gradient("AUC", low="grey", high="darkblue"
-            ) + xlab(input$x_axis) + ylab(input$y_axis)  +  theme(
+            ) + xlab(input$x_axis) + ylab(input$y_axis
+            ) + theme_bw(
+            )  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -2955,7 +3029,7 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
                 plot.title = element_text(hjust = 0.5, size = 12)
             )+ ggtitle(paste0("Category: ", input$gene)
             ) + coord_fixed(ratio = 1
-            ) + theme_bw() 
+            ) 
      
      
      #+ theme(legend.position="none") 
@@ -3079,13 +3153,21 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
 
 Obio@dataTableList[["dfResAUC"]] <- dfResAUC
 
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
 ```
+
+### Category Enrichment Scatterplots {`r tabVar`}
 
 ```{r enrichment_plots, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 ```
 
-### Linear Regression {.tabset .tabset-fade .tabset-pills}
+
 ```{r data_pre_linear_regression, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
 
 ## Get average Expression for all cells
@@ -3176,13 +3258,19 @@ clusterVec <- clusterVec[clusterVec != "gene"]
 
 for (i in 1:length(clusterVec)){
     clusterGenes <- as.vector(sort(unique(dfClusterResiduals[dfClusterResiduals[, clusterVec[i]] > DefaultcutOff,"gene"])))
+    if (length(clusterGenes) < 3){
+        usedCutOff <- DefaultcutOff/2
+        clusterGenes <- as.vector(sort(unique(dfClusterResiduals[dfClusterResiduals[, clusterVec[i]] > usedCutOff,"gene"])))
+    } else {
+        usedCutOff <- DefaultcutOff
+    }
     
     if (length(clusterGenes) > 1){
         residualClusterMarkers[[paste0(clusterVec[[i]], "_Linear_Regression_Markers_", DefaultcutOff)]] <- c(
-            paste0(clusterVec[[i]], "_Linear_Regression_Markers_", DefaultcutOff, " Experiment ", Obio@parameterList$project_id),
+            paste0(clusterVec[[i]], "_Linear_Regression_Markers_", gsub("\\.", "_", usedCutOff) , " Experiment ", Obio@parameterList$project_id),
             clusterGenes
         )
-    }
+    } 
 }
 
 ## Upload Marker Genes for this Project ##
@@ -3305,7 +3393,9 @@ for (i in 1:length(clusterVec)){
     #) + geom_abline(intercept = intersectVec[i], slope = slopeVec[i], linetype="dashed", color = "grey"
     ) + geom_smooth(method='lm', formula= y ~ x, linetype="dashed", se = T, colour = "grey"
     ) + geom_point( shape=16, size = dotsize
-            )  + xlab("Average Expression All Cells") + ylab(paste0("Average Expression ", clusterVec[[i]]))  +  theme(
+            )  + xlab("Average Expression All Cells") + ylab(paste0("Average Expression ", clusterVec[[i]])
+            ) + theme_bw(
+            )  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -3316,7 +3406,7 @@ for (i in 1:length(clusterVec)){
             ) + ggtitle(paste0("Cluster Markers  ", clusterVec[[i]])
             ) + scale_color_manual(values=c("#000000", clusterCol[i])
             ) + geom_text_repel(
-            ) + theme_bw()
+            ) 
     
     
             # +  xlim(0, xmax) + ylim(0, ymax)
@@ -3342,6 +3432,9 @@ for (i in 1:length(clusterVec)){
       LRcatID <- as.vector(dfCatNameLR[pos, "catID"])
     }
     
+    
+    clusterVec <- as.vector(dfClustCol$cluster)
+    clusterCol <- as.vector(dfClustCol$clusterCol)
     pos <- grep(paste0(gsub("C_", "Cluster_",clusterVec[i]),"$"), dfFAMplotIDs$cat_name)
     
     DGEcatID <- ""
@@ -3349,9 +3442,9 @@ for (i in 1:length(clusterVec)){
       DGEcatID <- as.vector(dfFAMplotIDs[pos, "cat_id"])
     }
     
-    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=norm_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', LRcatID,'" target="_blank">here</a>')
+    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=add_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', LRcatID,'" target="_blank">here</a>')
     
-    linkDGE <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=norm_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', DGEcatID,'" target="_blank">here</a>')
+    linkDGE <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=add_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', DGEcatID,'" target="_blank">here</a>')
     
     heatmaplink <- paste0('In order to identify cluster specific marker genes a <a href="https://biologic.crick.ac.uk/',Obio@parameterList$project_id,'/category-view/', LRcatID,'" target="_blank">cluster-maker gene heatmap for the linear-regression derrived marker gene set</a> might be interesting.')
     
@@ -3392,9 +3485,16 @@ for (i in 1:length(clusterVec)){
 ## Done creating plot array                                                  ##
 ###############################################################################
 
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
 ```
 
-### Cluster Markers By Linear Regression {.tabset .tabset-fade .tabset-pills}
+
+### Cluster Markers By Linear Regression {`r tabVar`} 
 ```{r plot_linear_regression, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 ## plot list will be integrated in full figure ##
 cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
@@ -3402,9 +3502,7 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 
 
-### Heatmap and Dotplot for the top5 cluster defining genes {.tabset .tabset-fade .tabset-pills}
 
-In this section we will try to determine what are good markers for the clusters in this experiment. 
 
 ```{r Cluster_overview_data_prep, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
 
@@ -3651,7 +3749,18 @@ plotList[[tag]] <- DotPlotSB(
 ## done making cat feature plot
 ################################
 
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}    
+    
 ```
+
+
+### Heatmap and Dotplot for the top5 cluster defining genes {`r tabVar`}
+
+In this section we will try to determine what are good markers for the clusters in this experiment. 
 
 ```{r Cluster_overview, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 
@@ -3659,7 +3768,7 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 ```
 
-### Cluster-defining Genes Table {.tabset .tabset-fade .tabset-pills}
+
 
 ```{r ClusterTable_data_prep, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 library(DT)
@@ -3810,6 +3919,7 @@ linkFeatureView <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameter
 ##############################################################################
 ```
 
+### Cluster-defining Genes Table {.tabset .tabset-fade .tabset-pills}
 
 ```{r render_ClusterTable, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 
@@ -3818,7 +3928,7 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 ```
 
 
-### Define Cell Type Categories Enriched in Individual Clusters {.tabset .tabset-fade .tabset-pills}
+
 ```{r CellTypePlot_dataprep, echo=TRUE, eval=TRUE, warning=FALSE,  results=F}
 
 ###########################
@@ -3896,7 +4006,15 @@ resList <- profileCluster(
 
 plotList <- resList$plotList
 chnkVec <- resList$chnkVec
+
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
 ``` 
+
+### Define Cell Type Categories Enriched in Individual Clusters {`r tabVar`}
 
 ```{r CellTypePlot, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 
@@ -4373,6 +4491,7 @@ for (i in 1:length(xVec)){
     ) + geom_vline(xintercept = 0, color = "grey", size=0.5
     ) + geom_hline(yintercept = 0, color = "grey", size=0.5
     ) + geom_point()+ ggtitle(paste0("PCA - Cell Level")
+    ) + theme_bw(
     ) +  theme(
         axis.text.y   = element_text(size=8),
         axis.text.x   = element_text(size=8),
@@ -4381,7 +4500,7 @@ for (i in 1:length(xVec)){
         axis.line = element_line(colour = "black"),
         panel.border = element_rect(colour = "black", fill=NA, size=1),
         plot.title = element_text(hjust = 0.5, size = 12)
-    )    
+    )     
     
     ## Save to file ##
     FNbase <- paste0("PCA.cell.level.", xVec[i],".", yVec[i], ".", VersionPdfExt)
@@ -4470,7 +4589,8 @@ for (i in 1:length(xVec)){
     
     plotListGene[[tag]] <- ggplot(data=dfSel, aes_string(x=selXY[1],y=selXY[2], col="highlight")
     ) + geom_vline(xintercept = 0, color = "grey", size=0.5
-    ) + geom_hline(yintercept = 0, color = "grey", size=0.5) + geom_point() + scale_color_manual(values=c("black", "red")) + ggtitle(paste0("PCA - Cell Level")
+    ) + geom_hline(yintercept = 0, color = "grey", size=0.5) + geom_point() + scale_color_manual(values=c("black", "red")) + ggtitle(paste0("PCA - Cell Level"
+    )) + theme_bw(
     ) +  theme(
         axis.text.y   = element_text(size=8),
         axis.text.x   = element_text(size=8),
@@ -4531,13 +4651,21 @@ for (i in 1:length(xVec)){
     figureCount <- figureCount + 1
 }
 
+
+if (length(plotListGene) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
 ```
 
+### Characterization of PCA Loadings {`r tabVar`}
 ```{r plot_PCADimPlots, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 ```
 
-### Characterize PCA Dimensions {.tabset .tabset-fade .tabset-pills}
+
 ```{r pca_boxplot_dataprep, echo=T, eval=TRUE, warning=FALSE, results=F}
 selVec <- c(Obio@parameterList$singleCellClusterString, names(OsC@meta.data)[grep("^PC", names(OsC@meta.data))])
 
@@ -4581,6 +4709,7 @@ for (i in 1:length(clusterVec)){
         ) + geom_hline(yintercept = 0, color = "black", size=0.5
         )  + geom_jitter(width=0.1,alpha=0.2
         ) + geom_boxplot(
+        )  + theme_bw(
         ) +    theme(
             legend.position = "none",
             axis.text.y   = element_text(size=8),
@@ -4591,7 +4720,7 @@ for (i in 1:length(clusterVec)){
             panel.border = element_rect(colour = "black", fill=NA, size=1),
             plot.title = element_text(hjust = 0.5, size = 12)
         ) + ggtitle(paste0("PCA Distribution: ", a)
-        ) + ylim(ymin, ymax) + scale_fill_manual(values=rep(clusterColVec[i], Ncolumns))
+        ) + ylim(ymin, ymax) + scale_fill_manual(values=rep(clusterColVec[i], Ncolumns))  
     
     ## Save to file ##
     FNbase <- paste0(tag, VersionPdfExt)
@@ -4630,15 +4759,20 @@ for (i in 1:length(clusterVec)){
     )
 }
 
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
 ```
 
-
+### Characterize PCA Dimensions {`r tabVar`}
 ```{r pca_boxplot, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 ```
 
-### Characterize PCA Dimensions {.tabset .tabset-fade .tabset-pills}
+
 ```{r create-pca-enrichment-data, echo=T, eval=TRUE, warning=FALSE, results=F}
 library(knitr)
 library(ggplot2)
@@ -4768,7 +4902,9 @@ for (j in 1:length(PCAdimensions)){
             plotList[[paste0("PCA_ENR_", j)]] <- ggplot(
                 data=dfSel, aes(x= Term, y=log10FDR, fill=Category, order=log10FDR)
             ) + geom_bar(stat="identity", colour="black"
-            ) + coord_flip() +scale_fill_manual(values=c("yellow", "blue"))  +  theme(
+            ) + coord_flip() +scale_fill_manual(values=c("yellow", "blue")
+            ) + theme_bw(
+            )  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -4779,7 +4915,7 @@ for (j in 1:length(PCAdimensions)){
             )  + labs(title = paste0("Cluster ", PCAdimensions[j]," enriched genes") ,y = "-log10(FDR)", x = ""
             ) + geom_hline(yintercept = c(-log10(0.05), log10(0.05)), color = "red", size=0.5, lty=2
             ) + geom_hline(yintercept = 0, color = "black", size=0.5
-            )
+            ) 
             cat("  \n")
             
             
@@ -4828,8 +4964,14 @@ for (j in 1:length(PCAdimensions)){
     )
 }
 
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
 ```
 
+### Characterize PCA Dimensions {`r tabVar`} 
 ```{r create-pca-enrichment-plot, echo=T, eval=TRUE, warning=FALSE, results='asis'}
 ###############################################################################
 ## Do category enrichment on clusters                                        ##
@@ -4840,7 +4982,7 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 ```
 
-### Pseudotime {.tabset .tabset-fade .tabset-pills}
+
 ```{r pseudotime-enrichment-data, echo=T, eval=TRUE, warning=FALSE, results=F}
 
 ## Add default ##
@@ -4937,6 +5079,7 @@ if (Obio@parameterList$addDmaps){
             low="#ff6600", 
             high=dotcolor #, 
             #limits=c(0,maxExpr)
+        ) + theme_bw(
         ) +  theme(
             axis.text.y   = element_text(size=8),
             axis.text.x   = element_text(size=8),
@@ -4947,7 +5090,7 @@ if (Obio@parameterList$addDmaps){
             plot.title = element_text(hjust = 0.5, size = 12),
             panel.background = element_rect(fill = "lightgrey")
         ) + ggtitle("PC1, PC2 and DM Pseudotime"
-        ) #+ xlim(minX, maxX) + ylim(minY, maxY)  
+        )  #+ xlim(minX, maxX) + ylim(minY, maxY)  
     
     
     
@@ -4988,9 +5131,15 @@ if (Obio@parameterList$addDmaps){
 } # end dmap
 
 
-
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
 
 ```
+
+### Pseudotime {`r tabVar`} 
 
 ```{r pseudotime-plot, echo=T, eval=TRUE, warning=FALSE, results='asis'}
 ###############################################################################
