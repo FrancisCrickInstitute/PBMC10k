@@ -3944,7 +3944,8 @@ dbtableList <- list(
     "Cell Type Signatures" = "mysigdb_sc_sig",
     "Cell Type Signatures" = "cibersort_L22",
     "GO-MF" = "mysigdb_c5_MF",
-    "Pathways" = "mysigdb_c2_1329_canonical_pathways"
+    "Pathways" = "mysigdb_c2_1329_canonical_pathways",
+    "Allen_Brain_Atlas" = "Allen_Brain_Atlas"
 )
 
 for (i in 1:length(dbtableList)){
@@ -4000,7 +4001,7 @@ resList <- profileCluster(
     obj = Obio,
     markerList = Obio@dataTableList[["residualClusterMarkers"]],
     gmtList = gmtList,
-    nTop = 10,
+    nTop = 15,
     pvalueCutoff= 0.5
 )
 
