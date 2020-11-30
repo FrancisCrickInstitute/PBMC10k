@@ -225,6 +225,16 @@ referenceTableList = list(
     "Cell Type Signatures" = "cibersort_L22"
 )
 
+##############################################################################
+## Tables for signature enrichment                                          ##
+clusterSigEnrichmentList = list(
+    "Cell Type Signatures" = "mysigdb_sc_sig",
+    "Cell Type Signatures" = "cibersort_L22",
+    "GO-MF" = "mysigdb_c5_MF",
+    "Pathways" = "mysigdb_c2_1329_canonical_pathways",
+    "Allen_Brain_Atlas" = "Allen_Brain_Atlas"
+)
+
     # mysigdb_sc_sig
     # cibersort_L22
     # Allen_Brain_Atlas                            |
@@ -325,6 +335,7 @@ referenceTableList = list(
 
 Obio = new(
     "bioLOGIC",
+    clusterSigEnrichmentList = clusterSigEnrichmentList,
     documentationParams = documentationParams,
     dbDetailList = dbDetailList,        
     projectDetailList = projectDetailList,

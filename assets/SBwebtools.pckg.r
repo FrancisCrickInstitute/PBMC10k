@@ -6,6 +6,7 @@ library(DESeq2)
 setClass(
     "bioLOGIC", 
     representation(
+        clusterSigEnrichmentList = "list",
         documentationParams = "list",
         sampleDetailList = "list",
         dbDetailList = "list",
