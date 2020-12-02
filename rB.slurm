@@ -296,23 +296,23 @@ List of 4
 Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric
 To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'
 This message will be shown once per session
-05:42:19 UMAP embedding parameters a = 0.9922 b = 1.112
-05:42:19 Read 3520 rows and found 20 numeric columns
-05:42:19 Using Annoy for neighbor search, n_neighbors = 30
-05:42:19 Building Annoy index with metric = cosine, n_trees = 50
+10:24:23 UMAP embedding parameters a = 0.9922 b = 1.112
+10:24:23 Read 3520 rows and found 20 numeric columns
+10:24:23 Using Annoy for neighbor search, n_neighbors = 30
+10:24:23 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-05:42:20 Writing NN index file to temp file /tmp/slurm_19480895/RtmpLC70eR/file509870e1bfb0
-05:42:20 Searching Annoy index using 30 threads, search_k = 3000
-05:42:20 Annoy recall = 100%
-05:42:20 Commencing smooth kNN distance calibration using 30 threads
-05:42:22 Initializing from normalized Laplacian + noise
-05:42:22 Commencing optimization for 500 epochs, with 144114 positive edges
+10:24:24 Writing NN index file to temp file /tmp/slurm_19482275/Rtmp3NyAiz/file3048236d5d59
+10:24:24 Searching Annoy index using 30 threads, search_k = 3000
+10:24:24 Annoy recall = 100%
+10:24:24 Commencing smooth kNN distance calibration using 30 threads
+10:24:26 Initializing from normalized Laplacian + noise
+10:24:26 Commencing optimization for 500 epochs, with 144114 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-05:42:33 Optimization finished
+10:24:38 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
@@ -661,9 +661,431 @@ List of 4
  $ warning: logi FALSE
  $ results: chr "asis"
 
-Quitting from lines 2864-3110 (sc_PartB_Analysis.Rmd) 
-Error in eval(expr, envir, enclos) : object 'dfResTemp' not found
-Calls: <Anonymous> ... handle -> withCallingHandlers -> withVisible -> eval -> eval
-In addition: There were 50 or more warnings (use warnings() to see the first 50)
+`summarise()` ungrouping output (override with `.groups` argument)
+  |                                                                              |..............................                                        |  42%
+   inline R code fragments
 
-Execution halted
+  |                                                                              |..............................                                        |  43%
+label: plot_barchart (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |...............................                                       |  44%
+  ordinary text without R code
+
+  |                                                                              |................................                                      |  45%
+label: AUC_prep_from_file (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: symbol F
+
+Quantiles for the number of genes detected by cell: 
+(Non-detected genes are shuffled at the end of the ranking. Keep it in mind when choosing the threshold for calculating the AUC).
+Coordinate system already present. Adding new coordinate system, which will replace the existing one.
+Coordinate system already present. Adding new coordinate system, which will replace the existing one.
+Coordinate system already present. Adding new coordinate system, which will replace the existing one.
+Coordinate system already present. Adding new coordinate system, which will replace the existing one.
+Coordinate system already present. Adding new coordinate system, which will replace the existing one.
+  |                                                                              |................................                                      |  46%
+   inline R code fragments
+
+  |                                                                              |.................................                                     |  47%
+label: enrichment_plots (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |..................................                                    |  48%
+  ordinary text without R code
+
+  |                                                                              |...................................                                   |  49%
+label: data_pre_linear_regression (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: symbol F
+
+  |                                                                              |...................................                                   |  51%
+   inline R code fragments
+
+  |                                                                              |....................................                                  |  52%
+label: plot_linear_regression (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |.....................................                                 |  53%
+  ordinary text without R code
+
+  |                                                                              |......................................                                |  54%
+label: Cluster_overview_data_prep (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: symbol F
+
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Coordinate system already present. Adding new coordinate system, which will replace the existing one.
+  |                                                                              |......................................                                |  55%
+   inline R code fragments
+
+  |                                                                              |.......................................                               |  56%
+label: Cluster_overview (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |........................................                              |  57%
+  ordinary text without R code
+
+  |                                                                              |........................................                              |  58%
+label: ClusterTable_data_prep (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+
+Attaching package: 'DT'
+
+The following object is masked from 'package:Seurat':
+
+    JS
+
+  |                                                                              |.........................................                             |  59%
+  ordinary text without R code
+
+  |                                                                              |..........................................                            |  60%
+label: render_ClusterTable (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |...........................................                           |  61%
+  ordinary text without R code
+
+  |                                                                              |...........................................                           |  62%
+label: CellTypePlot_dataprep (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: symbol F
+
+
+Registered S3 method overwritten by 'enrichplot':
+  method               from
+  fortify.enrichResult DOSE
+clusterProfiler v3.12.0  For help: https://guangchuangyu.github.io/software/clusterProfiler
+
+If you use clusterProfiler in published research, please cite:
+Guangchuang Yu, Li-Gen Wang, Yanyan Han, Qing-Yu He. clusterProfiler: an R package for comparing biological themes among gene clusters. OMICS: A Journal of Integrative Biology. 2012, 16(5):284-287.
+
+Attaching package: 'clusterProfiler'
+
+The following object is masked from 'package:DelayedArray':
+
+    simplify
+
+The following object is masked from 'package:purrr':
+
+    simplify
+
+Loading required package: GSEABase
+Loading required package: annotate
+Loading required package: AnnotationDbi
+
+Attaching package: 'AnnotationDbi'
+
+The following object is masked from 'package:dplyr':
+
+    select
+
+Loading required package: XML
+Loading required package: graph
+
+Attaching package: 'graph'
+
+The following object is masked from 'package:XML':
+
+    addNode
+
+The following object is masked from 'package:stringr':
+
+    boundary
+
+--> No gene can be mapped....
+--> Expected input gene ID: Arrb1,Sp140,Fcgr2b,Tnfrsf13b,Nr4a3,Ncf2
+--> return NULL...
+--> No gene can be mapped....
+--> Expected input gene ID: LOC100043921,Gm12407,Mmp12,Bend5,Siglec1,Abcb4
+--> return NULL...
+--> No gene can be mapped....
+--> Expected input gene ID: Gpr97,Csf1,Hpgds,Tnfsf14,Ear5,Birc3
+--> return NULL...
+--> No gene can be mapped....
+--> Expected input gene ID: Il1rl1,H2-Aa,Slc12a8,Slc12a1,Adamdec1,Lamp3
+--> return NULL...
+--> No gene can be mapped....
+--> Expected input gene ID: Pla2g7,Ugt1a10,Siglec1,Igsf6,Sell,Tec
+--> return NULL...
+--> No gene can be mapped....
+--> Expected input gene ID: Cd80,Pla2g7,Scn9a,Depdc5,Ltb,Stap1
+--> return NULL...
+--> No gene can be mapped....
+--> Expected input gene ID: Crybb1,Gm2023,Smpdl3b,Cd40,Prg2,Aif1
+--> return NULL...
+--> No gene can be mapped....
+--> Expected input gene ID: Adamdec1,Tlr7,Slc15a3,Aif1,Tnfrsf4,Gpr97
+--> return NULL...
+--> No gene can be mapped....
+--> Expected input gene ID: Hhex,Slc15a3,Ncf2,Ccl17,Frk,D830031N03Rik
+--> return NULL...
+--> No gene can be mapped....
+--> Expected input gene ID: Ccr7,Sell,Ptgir,Cd27,Fam198b,Treml2
+--> return NULL...
+--> No gene can be mapped....
+--> Expected input gene ID: Zfp286,Clec4a2,Cd79b,Epn2,Ear5,Rsad2
+--> return NULL...
+--> No gene can be mapped....
+--> Expected input gene ID: LOC100043918,Ifi44l,Blk,Nme8,LOC100043918,Slc15a3
+--> return NULL...
+  |                                                                              |............................................                          |  63%
+   inline R code fragments
+
+  |                                                                              |.............................................                         |  64%
+label: CellTypePlot (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |.............................................                         |  65%
+  ordinary text without R code
+
+  |                                                                              |..............................................                        |  66%
+label: MakeHM (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |...............................................                       |  67%
+  ordinary text without R code
+
+  |                                                                              |................................................                      |  68%
+label: calculate-markdown-heatmap-chunks-dynamically (with options) 
+List of 4
+ $ echo   : symbol F
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |................................................                      |  69%
+  ordinary text without R code
+
+  |                                                                              |.................................................                     |  70%
+label: ExampleFeaturePlot_dataprep (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |..................................................                    |  71%
+  ordinary text without R code
+
+  |                                                                              |...................................................                   |  72%
+label: ExampleFeaturePlot (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |...................................................                   |  73%
+  ordinary text without R code
+
+  |                                                                              |....................................................                  |  74%
+label: elbow_plot (with options) 
+List of 3
+ $ fig.height: num 6
+ $ fig.width : num 10
+ $ fig.cap   : language paste0("**Figure, ", figureCount, ": Elbowplot** Variance explained per PCA dimension")
+
+  |                                                                              |.....................................................                 |  75%
+  ordinary text without R code
+
+  |                                                                              |.....................................................                 |  76%
+label: PCA_dataprep (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: symbol F
+
+  |                                                                              |......................................................                |  77%
+   inline R code fragments
+
+  |                                                                              |.......................................................               |  78%
+label: plot_PCADimPlots (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |........................................................              |  79%
+  ordinary text without R code
+
+  |                                                                              |........................................................              |  80%
+label: pca_boxplot_dataprep (with options) 
+List of 4
+ $ echo   : symbol T
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: symbol F
+
+  |                                                                              |.........................................................             |  81%
+   inline R code fragments
+
+  |                                                                              |..........................................................            |  82%
+label: pca_boxplot (with options) 
+List of 4
+ $ echo   : logi TRUE
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |..........................................................            |  84%
+  ordinary text without R code
+
+  |                                                                              |...........................................................           |  85%
+label: create-pca-enrichment-data (with options) 
+List of 4
+ $ echo   : symbol T
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: symbol F
+
+Welcome to enrichR
+Checking connection ... Connection is Live!
+  |                                                                              |............................................................          |  86%
+   inline R code fragments
+
+  |                                                                              |.............................................................         |  87%
+label: create-pca-enrichment-plot (with options) 
+List of 4
+ $ echo   : symbol T
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |.............................................................         |  88%
+  ordinary text without R code
+
+  |                                                                              |..............................................................        |  89%
+label: pseudotime-enrichment-data (with options) 
+List of 4
+ $ echo   : symbol T
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: symbol F
+
+
+Attaching package: 'destiny'
+
+The following object is masked from 'package:SummarizedExperiment':
+
+    distance
+
+The following object is masked from 'package:GenomicRanges':
+
+    distance
+
+The following object is masked from 'package:IRanges':
+
+    distance
+
+  |                                                                              |...............................................................       |  90%
+   inline R code fragments
+
+  |                                                                              |................................................................      |  91%
+label: pseudotime-plot (with options) 
+List of 4
+ $ echo   : symbol T
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: chr "asis"
+
+  |                                                                              |................................................................      |  92%
+  ordinary text without R code
+
+  |                                                                              |.................................................................     |  93%
+label: Additional tables (with options) 
+List of 4
+ $ echo   : symbol F
+ $ eval   : logi TRUE
+ $ warning: logi FALSE
+ $ results: symbol F
+
+  |                                                                              |..................................................................    |  94%
+  ordinary text without R code
+
+  |                                                                              |..................................................................    |  95%
+label: saveobject (with options) 
+List of 3
+ $ eval   : logi TRUE
+ $ echo   : symbol T
+ $ results: symbol F
+
+  |                                                                              |...................................................................   |  96%
+  ordinary text without R code
+
+  |                                                                              |....................................................................  |  97%
+label: create_report_params (with options) 
+List of 2
+ $ eval   : symbol T
+ $ results: chr "asis"
+
+  |                                                                              |..................................................................... |  98%
+  ordinary text without R code
+
+  |                                                                              |..................................................................... |  99%
+label: documentation (with options) 
+List of 3
+ $ eval   : logi TRUE
+ $ echo   : symbol T
+ $ results: symbol T
+
+  |                                                                              |......................................................................| 100%
+   inline R code fragments
+
+
+output file: sc_PartB_Analysis.knit.md
+
+/camp/apps/eb/dev/software/Anaconda2/2019.10/bin/pandoc +RTS -K512m -RTS sc_PartB_Analysis.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output sc_PartB_Analysis.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 5 --variable toc_float=1 --variable toc_selectors=h1,h2,h3,h4,h5 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --css /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css --variable 'theme:bootstrap' --include-in-header /tmp/slurm_19482275/Rtmp3NyAiz/rmarkdown-str304819451ffe.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
+
+Output created: sc_PartB_Analysis.html
+There were 50 or more warnings (use warnings() to see the first 50)

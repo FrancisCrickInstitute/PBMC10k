@@ -2957,7 +2957,7 @@ for (i in 1:length(cellTypeIDs)){
   #############################################################################
   ## Create cell number plot                                                 ##
   tag <- paste0(cellTypeIDs[i], "_Number")
-  dfResTemp <- dfResTemp[order(dfResTemp$Cluster, decreasing = F),]
+  dfResTemp <- dfRes[dfRes$cellIdent == cellTypeIDs[i], ]
   
   ## Set cluster order large to small ##
   library(tidyverse)
