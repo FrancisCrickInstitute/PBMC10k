@@ -1,0 +1,493 @@
+---
+output: 
+    html_document:
+        code_folding: hide
+        df_print: tibble
+        toc: true
+        toc_depth: 5
+        toc_float: true
+        css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
+
+always_allow_html: yes
+
+
+
+---
+
+```{css setup_css, echo=FALSE}
+
+
+.table{
+  width:auto;
+  font-size: 10px;
+}
+
+```
+
+## Prepare GEO submission
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    tidy = TRUE,
+    tidy.opts = list(width.cutoff = 120),
+    message = FALSE,
+    warning = FALSE
+)
+```
+
+
+```{r set_directories, eval=T}
+## Setup plot collection object
+library(knitr)
+library(ggplot2)
+library(ggpubr)
+library(DT)
+
+
+VersionPdfExt <- paste0(".V", gsub("-", "", Sys.Date()), ".pdf")
+
+if (dir.exists("/Volumes/babs/working/boeings/")){
+    hpc.mount <- "/Volumes/babs/working/boeings/"
+} else if (dir.exists("Y:/working/boeings/")){
+    hpc.mount <- "Y:/working/boeings/"
+} else if (dir.exists("/camp/stp/babs/working/boeings/")){
+    hpc.mount <- "/camp/stp/babs/working/boeings/"
+} else {
+    hpc.mount <- ""
+}
+
+
+#Create the environment and load a suitable version of R, e.g. so:
+FN <- paste0(hpc.mount, "Projects/reference_data/documentation/BC.parameters.txt")
+dbTable <- read.delim(
+    FN, 
+    sep = "\t",
+    stringsAsFactors = F
+)
+
+db.pwd <- as.vector(dbTable[1,1])
+
+source("assets/SBwebtools.pckg.r")
+
+
+if (length(.libPaths()) > 2){
+    .libPaths(.libPaths()[2:3])
+}
+
+#setwd(Obio@parameterList$localWorkDir)
+
+
+ObioFN <- paste0("../",list.files("..")[grep(".bioLOGIC.Robj", list.files(".."))])
+
+load(ObioFN)
+
+# checkFile = paste0(
+#          Obio@parameterList$project_id,
+#          ".bioLOGIC.Robj"
+# )
+# 
+# if (ObioFN != checkFile){
+#     exit()
+# }
+
+
+Obio <- setMountingPoint(Obio)
+Obio <- setAnalysisPaths(Obio)
+Obio <- setCrickGenomeAndGeneNameTable(Obio)
+Obio <- createAnalysisFolders(
+    Obio,
+    baseDir="/camp/stp/babs/working/boeings/Projects/",
+    localBaseDir = paste0(hpc.mount, "Projects/")
+)
+Obio <- setDataBaseParameters(Obio)
+
+
+Obio@parameterList[["reportFigDir"]] <- paste0(Obio@parameterList$localWorkDir,Obio@parameterList$project_id, "/report_figures/")
+
+## Create outputfolders ##
+if (!dir.exists(paste0(Obio@parameterList$localWorkDir,Obio@parameterList$project_id))){
+    dir.create(paste0(Obio@parameterList$localWorkDir,Obio@parameterList$project_id))
+}
+
+if (!dir.exists(Obio@parameterList$reportFigDir)){
+    dir.create(Obio@parameterList$reportFigDir)
+}
+
+figureCount <- 1
+
+## Load R module load R/3.5.1-foss-2018b ##
+#setwd(Obio@parameterList$localWorkDir)
+
+###########################
+## Set default 
+Obio@parameterList$HmDisplayCatsFromDb <- list(
+  "Transcription Factors" = "ag_lab_categories__10"
+  )
+
+
+
+
+
+
+###############################################################################
+## single-cell GEO submission 
+
+GEOdir <- gsub("workdir", "GEO_submission", Obio@parameterList$localWorkDir)
+
+if (!dir.exists(GEOdir)){
+    dir.create(GEOdir)
+}
+
+#mouse strain C57Bl/6 mice
+
+
+################################################
+## Organise FASTQ files
+
+if (dir.exists("/Volumes/")){
+    hpc.mount <- "/Volumes/"
+} else if (dir.exists("Z:/")){
+    hpc.mount <- "Z:/"
+} else if (dir.exists("/camp/stp/sequencing/")){
+    hpc.mount <- "/camp/stp/sequencing/"
+} else {
+    hpc.mount <- ""
+}
+
+
+# workdir <- getwd()
+# workdir <- paste0(
+#     "Y:/babs/working/boeings/Projects/schaefera/tobias.ackels/319_scRNAseq_mm_olfactory_bulb_proj_neuron_analysis_SC19135/GEO_submission_asl319"
+# )
+
+
+
+fastqFolders <- c(
+  paste0(hpc.mount, "inputs/instruments/fastq/190723_K00102_0369_BH5N22BBXY/fastq/SC19135/"),
+  paste0(hpc.mount, "inputs/instruments/fastq/190719_K00102_0367_BH7VNFBBXY/fastq/SC19135/")
+)
+
+cmdVec <- as.vector(NULL, mode="character")
+
+for (i in 1:length(fastqFolders)){
+  temp.dir <- fastqFolders[i]
+  temp.files <- list.files(temp.dir)
+  #temp.dir <- gsub(hpc.mount, "/camp/", temp.dir)
+  temp.dest <- temp.files
+  temp.dest <- gsub("ACK419A1", "SNseqR1", temp.dest)
+  temp.dest <- gsub("ACK419A2", "SNseqR2", temp.dest)
+  temp.dest <- gsub("ACK419A3", "SNseqR3", temp.dest)
+  temp.dest <- paste0(GEOdir, "/", temp.dest)
+  temp.cmd <- paste0("cp ", temp.dir, temp.files, " ", temp.dest)
+  cmdVec <- c(
+    cmdVec, 
+    temp.cmd
+  )
+}
+
+## Done organizing FASTQ files                                               ##
+###############################################################################
+
+###############################################################################
+## Transfer 10X files
+
+for (i in 1:length(Obio@sampleDetailList)){
+    tempPath <- Obio@sampleDetailList[[i]]$path
+    tempCmd <- paste0("# ", names(Obio@sampleDetailList)[i])
+    tempCmd <- c(
+      tempCmd,
+      paste0("cp ", tempPath, "/barcodes.* ", GEOdir, names(Obio@sampleDetailList)[i], "_barcodes.tsv.gz"),
+      paste0("cp ", tempPath, "/features.* ", GEOdir, names(Obio@sampleDetailList)[i], "_features.tsv.gz"),
+      paste0("cp ", tempPath, "/matrix.* ", GEOdir, names(Obio@sampleDetailList)[i], "_matrix.tsv.gz")
+    )
+    cmdVec <- c(
+    cmdVec, 
+    "",
+    "# Transfer 10x matrices",
+    tempCmd
+  )
+}
+
+
+## Done transfering 10X files
+###############################################################################
+
+
+###############################################################################
+## Transfer integrated data object                                           ##
+dfMeta <- import.db.table.from.db(
+        dbname = "asl_data",
+        dbtable = "asl319_PCA",
+        user = "boeingS",
+        password = db.pwd,
+        host = Obio@parameterList$host
+    )
+
+selVec <- c(
+  'cellID',
+  'sample_group',
+  'orig_ident',
+  'nCount_RNA',
+  'nFeature_RNA',
+  'sampleID',
+  'percent_mt',
+  'nCount_SCT',
+  'nFeature_SCT',
+  'seurat_clusters',
+  'UMAP_1',
+  'UMAP_2',
+  'sub_clusters_ExNeurons',
+  'UMAP_1_sub_clusters_ExNeurons',
+  'UMAP_2_sub_clusters_ExNeurons'
+)
+
+dfMeta <- dfMeta[,selVec]
+## Create Excel file ##
+    # library(openxlsx)
+    # 
+    # wb <- createWorkbook()
+    # addWorksheet(wb, paste0("Meta_data"))
+    # freezePane(wb, paste0("Meta_data") ,  firstActiveRow = 2)
+    # 
+    # ## Filter is inactivated, as it does not appear to be compatible with the current version of Excel
+    # #addFilter(wb, 1, row = 1, cols = 1:ncol(dfOutput))
+    # 
+    # ## Style headers ##
+    # hs1 <- createStyle(
+    #     fontColour = "#ffffff",
+    #     fgFill = "#000000", 
+    #     halign = "CENTER", 
+    #     textDecoration = "Bold"
+    # )
+    # 
+    # writeData(wb, 1, dfMeta, startRow = 1, startCol = 1, headerStyle = hs1)
+    # 
+
+    
+    # FNgeo <- paste0(GEOdir, "meta.data.xlsx")
+    # saveWorkbook(
+    #     wb, 
+    #     FNgeo, 
+    #     overwrite = TRUE
+    # )
+    FNgeo <- paste0(GEOdir, "meta.data.csv")
+    write.csv(dfMeta, FNgeo, row.names = FALSE)
+
+## Done                                                                      ##
+###############################################################################
+
+sink("GEO.transfer.sh")
+for (i in 1:length(cmdVec)){
+  cat(cmdVec[i]);cat("\n")
+}
+sink()
+
+
+
+###############################################################################
+## Create sections for meta data                                             ##
+
+md5CMD <- paste0("md5sum ",GEOdir,"* > ",GEOdir,"checklist.chk")
+system(md5CMD)
+
+## Done                                                                      ##
+###############################################################################
+
+###############################################################################
+## Create sections for meta data                                             ##
+
+md5CMD <- paste0("md5sum ",GEOdir,"* > ",GEOdir,"checklist.chk")
+system(md5CMD)
+
+## Done                                                                      ##
+###############################################################################
+
+###############################################################################
+## Create sections for meta data                                             ##
+dfCheck <- read.delim(
+    paste0(GEOdir,"checklist.chk"),
+    header = F,
+    sep = " "
+)
+dfCheck$V2 <- NULL
+dfCheck$V3 <- gsub(GEOdir, "", dfCheck$V3 )
+
+names(dfCheck) <- c("file_checksum", "file_name")
+
+## Done                                                                      ##
+###############################################################################
+
+###############################################################################
+## First section Seurat files                                                ##
+## PROCESSED DATA FILES
+
+patterns <- c("meta.data.csv", "barcodes", "features", "matrix")
+
+pos <- unique(
+  grep(
+    paste(
+      patterns,collapse="|"
+    ), 
+    dfCheck$file_name #, value=TRUE
+  )
+)
+
+dfPro <- dfCheck[pos, ]
+dfPro[["file_type"]] <- ""
+dfPro[grep("barcodes", dfPro$file_name),"file_type"] <- "CellRanger barcodes file"
+dfPro[grep("matrix", dfPro$file_name),"file_type"] <- "CellRanger matrix file"
+dfPro[grep("features", dfPro$file_name),"file_type"] <- "CellRanger features file"
+
+dfPro <- dfPro[,c("file_name",	"file_type",	"file_checksum")]
+
+write.csv(
+    dfPro,
+    paste0(GEOdir, "processed.data.section.csv")
+)
+
+
+## Done                                                                      ##
+###############################################################################
+
+###############################################################################
+## Second section Seurat files                                               ##
+## RAW FILES	
+
+
+patterns <- c("fastq.gz")
+
+pos <- unique(
+  grep(
+    paste(
+      patterns,collapse="|"
+    ), 
+    dfCheck$file_name #, value=TRUE
+  )
+)
+
+dfPro <- dfCheck[pos, ]
+dfPro[["file_type"]] <- "fastq"
+dfPro[["instrument_model"]] <- "Illumina HiSeq 4000"
+dfPro[["single_or_paired_end"]] <- "paired-end"
+
+# zcat SNseqR1_S15_L007_R1_001.fastq.gz | awk '{if(NR%4==2) print length($1)}' | head
+# zcat SNseqR1_S15_L007_R2_001.fastq.gz | awk '{if(NR%4==2) print length($1)}' | head
+# zcat SNseqR1_S15_L007_I1_001.fastq.gz | awk '{if(NR%4==2) print length($1)}' | head
+
+dfPro[["read_length"]] <- 0
+
+
+dfPro[grep("_R1_", dfPro$file_name),"read_length"] <- 26
+dfPro[grep("_R2_", dfPro$file_name),"read_length"] <- 98
+dfPro[grep("_I1_", dfPro$file_name),"read_length"] <- 8
+
+dfPro <- dfPro[,c(
+  'file_name', 
+  'file_type',
+  'file_checksum',
+  'instrument_model',
+  'read_length',
+  'single_or_paired_end'
+)]
+
+write.csv(
+    dfPro,
+    paste0(GEOdir, "raw.files.section.csv")
+)
+
+
+## Done                                                                      ##
+###############################################################################
+
+###############################################################################
+## Third section Paired-end experiments                                      ##
+
+
+
+patterns <- c("_R1_")
+
+posR1 <- unique(
+  grep(
+    paste(
+      patterns,collapse="|"
+    ), 
+    dfCheck$file_name #, value=TRUE
+  )
+)
+
+patterns <- c("_R2_")
+
+posR2 <- unique(
+  grep(
+    paste(
+      patterns,collapse="|"
+    ), 
+    dfCheck$file_name #, value=TRUE
+  )
+)
+
+patterns <- c("_I1_")
+
+posI1 <- unique(
+  grep(
+    paste(
+      patterns,collapse="|"
+    ), 
+    dfCheck$file_name #, value=TRUE
+  )
+)
+
+length(posR1)
+length(posR2)
+length(posI1)
+
+for (i in 1:length(posR1)){
+    R1FN <- dfCheck[posR1[i], "file_name"]
+    R2FN <- gsub("_R1_", "_R2_", R1FN)
+    I1FN <- gsub("_R1_", "_I1_", R1FN)
+    h <- sum(c(R1FN, R2FN, I1FN) %in% dfCheck$file_name)
+    if (h != 3){
+      stop()
+    }
+    
+    new.row <- data.frame(
+        file_name_1 = R1FN,
+        file_name_2 = R2FN,
+        file_name_3 = I1FN
+    )
+    
+    if (i ==1){
+        dfSec <- new.row
+    } else {
+        dfSec <- rbind(
+            dfSec,
+            new.row
+        )
+    }
+    
+}
+
+
+write.csv(
+    dfSec,
+    paste0(GEOdir, "paired.end.section.csv")
+)
+
+
+## Done                                                                      ##
+###############################################################################
+
+###############################################################################
+## Upload to GEO
+
+ml purge
+ml ncftp/3.2.6-foss-2016b
+ncftpput -F -R -z -u geoftp -p "rebUzyi1" ftp-private.ncbi.nlm.nih.gov ./uploads/sjboulton_WFS5ymYo ./DRIPSeq_GEO
+
+ml purge
+ml ncftp/3.2.6-foss-2016b
+ncftpput -F -R -z -u geoftp -p "rebUzyi1" ftp-private.ncbi.nlm.nih.gov ./uploads/schaefer_lab_KPsRsW2K /camp/stp/babs/working/boeings/Projects/schaefera/tobias.ackels/319A_scRNAseq_mm_olfactory_bulb_proj_neuron_analysis_SC19135/GEO_submission
+
+
+
+```
