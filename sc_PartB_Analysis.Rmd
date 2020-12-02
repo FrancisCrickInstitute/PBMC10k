@@ -318,6 +318,7 @@ if (nrow(OsC@meta.data) > 10000){
 }
 
 legendDotSize <- 5
+dendrofactor <- 5
 
 OsC@meta.data[["cellID"]] <- row.names(OsC@meta.data)
 ## Done integration                                                          ##
@@ -756,6 +757,8 @@ OsC <- ScaleData(OsC, verbose = FALSE, features=allGenes)
 ###############################################################################
 ## Add custom cluster annotation if specified                                ##
 FNcol <- paste0(Obio@parameterList$localWorkDir, "sc_dev/clusterAnnotation.txt")
+tableValid <- FALSE
+
 if (file.exists(FNcol)){
     dfClusterAnnotation <- read.delim(
         FNcol, 
@@ -779,22 +782,23 @@ if (file.exists(FNcol)){
 if (!file.exists(FNcol) | !tableValid){
     dfClusterAnnotation <- OsC@meta.data[,c("cellID", "seurat_clusters")]
     
-    levels <- sort(unique(dfClusterAnnotation$seurat_clusters))
+    levels <- as.vector(sort(unique(dfClusterAnnotation$seurat_clusters)))
     
     library(scales)
     clusterCols <- hue_pal()(length(levels))
     
     dfClusterAnnotation <- data.frame(
         seurat_clusters = levels,
-        clusterName = levels,
-        clusterColor = clusterCols
+        clusterName = paste0("C", levels),
+        clusterColor = clusterCols,
+        stringsAsFactors = F
     )
     
     ## Add sample colors ##
     
     
     write.table(
-        dfColor,
+        dfClusterAnnotation,
         FNcol,
         row.names=F,
         sep = "\t"
@@ -806,7 +810,6 @@ if (!file.exists(FNcol) | !tableValid){
 ## Merge into OsC@meta.data                                                  ##
 
 dfAdd <- OsC@meta.data[,c("seurat_clusters", "cellID")]
-row.names(dfAdd) <- dfAdd$cellID
 
 dfAdd <- merge(
     dfAdd,
@@ -815,7 +818,9 @@ dfAdd <- merge(
     by.y = "seurat_clusters"
 )
 
+row.names(dfAdd) <- dfAdd$cellID
 dfAdd$cellID <- NULL
+dfAdd$seurat_clusters <- NULL
 
 OsC <- addDf2seuratMetaData(
     obj = OsC, 
@@ -830,9 +835,11 @@ OsC <- addDf2seuratMetaData(
 ###############################################################################
 ## Add custom sample annotation if specified                                 ##
 FNsample <- paste0(Obio@parameterList$localWorkDir, "sc_dev/sampleAnnotation.txt")
+tableValid <- FALSE
+
 if (file.exists(FNsample)){
     dfSampleAnnotation <- read.delim(
-        FNcol, 
+        FNsample, 
         header = T, 
         sep = "\t",
         stringsAsFactors = F
@@ -1312,6 +1319,7 @@ if (length(unique(OsC@meta.data$sampleID)) > 3){
       ) + theme_tree(
       ) 
   
+  h <- sum(c("sampleName", "sampleColor") %in% OsC@meta.data)
   if (h ==2){
     dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
     colVec <- as.vector(dfCol$sampleColor)
@@ -1328,7 +1336,7 @@ if (length(unique(OsC@meta.data$sampleID)) > 3){
         panel.border = element_rect(colour = "black", fill=NA, size=1),
         axis.title.x=element_blank(),
         plot.title = element_text(hjust = 0.5, size = 12)
-      )  + xlim(0,3*max(OsC@tools$BuildClusterTree[[2]]))
+      )  + xlim(0,dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
  
       
   ## Save to file ##
@@ -1414,7 +1422,7 @@ Obio@dataTableList[["dfAvglg10ExprAllScaled"]] <- dfAvgScaledData
 ###############################################################################
 
 OsC@meta.data[["clustIdent"]] <- paste0(
-    "C_", OsC@meta.data[,Obio@parameterList$singleCellClusterString]
+    "C_", OsC@meta.data[,"seurat_clusters"]
 )
 
 
@@ -1536,8 +1544,10 @@ dfPlot <- dfPlot[dfPlot$UMAP_1 != 0 & dfPlot$UMAP_2 != 0,]
             
             
 ## Add cluster colors ##
-dfPlot[["Cluster"]] <- paste0("C", dfPlot$seurat_clusters)
-clusterVec <- as.vector(paste0("C", unique(sort(dfPlot$seurat_clusters))))
+dfPlot[["Cluster"]] <- dfPlot$clusterName
+clusterVec <- as.vector(unique(sort(dfPlot$clusterName)))
+dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)
+
 
 maxX <- 1.1*max(dfPlot$UMAP_1, na.rm = T)
 minX <- 1.1*min(dfPlot$UMAP_1, na.rm = T)
@@ -1546,7 +1556,6 @@ minY <- 1.1*min(dfPlot$UMAP_2, na.rm = T)
 
 library(scales)
 clusterCols = hue_pal()(length(clusterVec))
-dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)
 
 # dotsize  = 1
 # if (nrow(dfPlot) > 10000){
@@ -1653,8 +1662,10 @@ dfPlot <- dfPlot[dfPlot$tSNE_1 != 0 & dfPlot$tSNE_2 != 0,]
             
             
 ## Add cluster colors ##
-dfPlot[["Cluster"]] <- paste0("C", dfPlot$seurat_clusters)
-clusterVec <- as.vector(paste0("C", unique(sort(dfPlot$seurat_clusters))))
+dfPlot[["Cluster"]] <- dfPlot$clusterName
+clusterVec <- as.vector(unique(sort(dfPlot$clusterName)))
+dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)
+
 
 maxX <- 1.1*max(dfPlot$tSNE_1, na.rm = T)
 minX <- 1.1*min(dfPlot$tSNE_1, na.rm = T)
@@ -1674,6 +1685,7 @@ dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)
 #   dotsize = 0.25
 # }
 
+dfPlot$clusterName <- factor(dfPlot$clusterName)
 plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(tSNE_1, tSNE_2, color=Cluster)
             ) + geom_point( shape=16, size = as.numeric(dotsize)
             ) + xlab("tSNE1") + ylab("tSNE2"
@@ -1697,6 +1709,7 @@ h <- sum(c("clusterName", "clusterColor") %in% names(dfPlot))
 if (h ==2){
     dfCol <- unique(dfPlot[,c("clusterName", "clusterColor")])
     colVec <- as.vector(dfCol$clusterColor)
+    
     names(colVec) <- as.vector(dfCol$clusterName)
     plotList[[tag]] <- plotList[[tag]] + scale_colour_manual("Clusters" ,values = colVec
     ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
@@ -1770,8 +1783,8 @@ dfPlot <- dfPlot[dfPlot$UMAP_1 != 0 & dfPlot$UMAP_2 != 0,]
             
             
 ## Add cluster colors ##
-dfPlot[["Cluster"]] <- paste0("C", dfPlot$seurat_clusters)
-clusterVec <- as.vector(paste0("C", unique(sort(dfPlot$seurat_clusters))))
+dfPlot[["Cluster"]] <- dfPlot$clusterName
+clusterVec <- as.vector(unique(sort(dfPlot$clusterName)))
             
 library(scales)
 clusterCols = hue_pal()(length(clusterVec))
@@ -1884,6 +1897,7 @@ if (length(unique(OsC@meta.data$sampleID)) > 3){
       ) + theme_tree(
       ) 
   
+  h <- sum(c("clusterName", "clusterColor") %in% names(OsC@meta.data))
   if (h ==2){
     dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
     colVec <- as.vector(dfCol$sampleColor)
@@ -1900,7 +1914,7 @@ if (length(unique(OsC@meta.data$sampleID)) > 3){
         panel.border = element_rect(colour = "black", fill=NA, size=1),
         axis.title.x=element_blank(),
         plot.title = element_text(hjust = 0.5, size = 12)
-      )  + xlim(0,3*max(OsC@tools$BuildClusterTree[[2]]))
+      )  + xlim(0,dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
  
       
   ## Save to file ##
@@ -1957,6 +1971,7 @@ plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree
     ) + theme_tree(
     ) 
 
+h <- sum(c("clusterName", "clusterColor") %in% names(OsC@meta.data))
 if (h ==2){
     dfCol <- unique(OsC@meta.data[,c("clusterName", "clusterColor")])
     colVec <- as.vector(dfCol$clusterColor)
@@ -1974,7 +1989,7 @@ plotList[[tag]] <- plotList[[tag]]  + labs(title=tag
       panel.border = element_rect(colour = "black", fill=NA, size=1),
       axis.title.x=element_blank(),
       plot.title = element_text(hjust = 0.5, size = 12)
-    )  + xlim(0, 3*max(OsC@tools$BuildClusterTree[[2]]))
+    )  + xlim(0, dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
     
     #+ xlim(-1,1.2*max(OsC@tools$BuildClusterTree$edge)) 
     
@@ -2021,7 +2036,7 @@ figLegend <- paste0(
 ###############################################################################
 ## Find all markers                                                          ##
 DefaultAssay(OsC) <- "RNA"
-Idents(OsC) <- Obio@parameterList$singleCellClusterString
+Idents(OsC) <- "seurat_clusters"
 
 lgFCthreshold <- 0.25
 
@@ -2438,6 +2453,7 @@ plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(UMAP_1, UMAP
                 panel.border = element_rect(colour = "black", fill=NA, size=1),
                 plot.title = element_text(hjust = 0.5, size = 12),
                 legend.title = element_blank()
+            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
             ) + ggtitle(paste0("Sample: ", tag)
             ) + xlim(minX, maxX) + ylim(minY, maxY
             ) + coord_fixed(ratio=1
@@ -2540,6 +2556,7 @@ plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(tSNE_1, tSNE
                 panel.border = element_rect(colour = "black", fill=NA, size=1),
                 plot.title = element_text(hjust = 0.5, size = 12),
                 legend.title = element_blank()
+            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
             ) + ggtitle(paste0("Sample: ", tag)
             ) + xlim(minX, maxX) + ylim(minY, maxY
             ) + coord_fixed(ratio=1
@@ -2642,6 +2659,7 @@ for (i in 1:length(sampleVec)){
                 panel.border = element_rect(colour = "black", fill=NA, size=1),
                 plot.title = element_text(hjust = 0.5, size = 12),
                 legend.title = element_blank()
+            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
             ) + ggtitle(paste0("Sample: ", tag)
             ) + xlim(minX, maxX) + ylim(minY, maxY
             ) + coord_fixed(ratio=1
@@ -2716,7 +2734,7 @@ if (length(unique(OsC@meta.data$sampleID)) > 3){
         panel.border = element_rect(colour = "black", fill=NA, size=1),
         axis.title.x=element_blank(),
         plot.title = element_text(hjust = 0.5, size = 12)
-      )  + xlim(0,1.2*max(OsC@tools$BuildClusterTree[[2]]))
+      )  + xlim(0,dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
  
       
   ## Save to file ##
@@ -2777,7 +2795,7 @@ plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree
       panel.border = element_rect(colour = "black", fill=NA, size=1),
       axis.title.x=element_blank(),
       plot.title = element_text(hjust = 0.5, size = 12)
-    )  + xlim(0,1.2*max(OsC@tools$BuildClusterTree[[2]]))
+    )  + xlim(0,dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
     
     #+ xlim(-1,1.2*max(OsC@tools$BuildClusterTree$edge)) 
     
@@ -2884,10 +2902,10 @@ if (length(grep("^cellIdent$", names(dfTemp))) == 0){
 
 dfTemp <- dfTemp[dfTemp$percent.mt <= max(Obio@parameterList$singleCellSeuratMtCutoff), ]
 dfTemp[["cellID"]] <- row.names(dfTemp)
-dfTemp <- unique(dfTemp[,c("cellID", "sampleID", Obio@parameterList$singleCellClusterString, "cellIdent")])
+dfTemp <- unique(dfTemp[,c("cellID", "sampleID",  Obio@parameterList$singleCellClusterString, "clusterName", "cellIdent")])
 names(dfTemp) <- gsub(Obio@parameterList$singleCellClusterString, "Cluster", names(dfTemp) )
-names(dfTemp) <- gsub(Obio@parameterList$singleCellClusterString, "Cluster", names(dfTemp) )
- dfTemp <- unique(dfTemp[,c("cellID", "sampleID", "Cluster", "cellIdent")])
+
+ dfTemp <- unique(dfTemp[,c("cellID", "sampleID", "Cluster", "clusterName","cellIdent")])
  
 dfRes <- dfTemp
 dfRes$cellID <- NULL
@@ -2941,16 +2959,42 @@ for (i in 1:length(cellTypeIDs)){
   tag <- paste0(cellTypeIDs[i], "_Number")
   dfResTemp <- dfRes[dfRes$cellIdent == cellTypeIDs[i], ]
   
-  ## Calculate percentages for this subset ##
+  ## Set cluster order large to small ##
+  library(tidyverse)
+
+  df <- dfResTemp[,c("clusterName", "N_cells")]
   
-  plotList[[tag]] <- ggplot(
-    ) + geom_bar(aes(y = N_cells, x = Cluster, fill = sampleID), data = dfResTemp, stat="identity"
+  df <- df %>% 
+    group_by(clusterName) %>% 
+    summarise(N_cells = sum(N_cells)) %>% arrange(desc(N_cells))
+  
+  levels <- df$clusterName
+  dfResTemp$clusterName <- factor(dfResTemp$clusterName, levels = levels)
+  
+  ## Order ##
+   
+   plotList[[tag]] <- ggplot(
+    ) + geom_bar(aes(y = N_cells, x = clusterName, fill = sampleID), data = dfResTemp, stat="identity"
     ) + labs(title=tag, x="Cluster", y = "Cell Count"
     ) + theme_bw(
     ) +  theme(
       panel.border = element_rect(colour = "black", fill=NA, size=1),
       plot.title = element_text(hjust = 0.5, size = 12)
     ) + coord_flip() 
+  
+  h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
+  if (h ==2){
+      dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
+      dfCol <- dfCol[dfCol$sampleName %in% unique(dfResTemp$sampleID), ]
+      colVec <- as.vector(dfCol$sampleColor)
+      names(colVec) <- as.vector(dfCol$sampleName)
+      plotList[[tag]] <- plotList[[tag]] + scale_fill_manual("Samples" ,values = colVec
+      ) 
+  }
+  
+  ## Calculate percentages for this subset ##
+  
+ 
   
   ###########################################################################
   ## Save plot to file                                                     ##
@@ -2994,13 +3038,23 @@ for (i in 1:length(cellTypeIDs)){
   ## Add percentage plot                                                     ##
   tag <- paste0(cellTypeIDs[i], "_Percent")
   plotList[[tag]] <- ggplot(
-    ) + geom_bar(aes(x = Cluster, y = Perc_cells, fill = sampleID), data = dfResTemp, stat="identity"
+    ) + geom_bar(aes(x = clusterName, y = Perc_cells, fill = sampleID), data = dfResTemp, stat="identity"
     ) + labs(title=tag, x="Cluster", y = "Percent Cells"
     ) + theme_bw(
     ) +  theme(
       panel.border = element_rect(colour = "black", fill=NA, size=1),
       plot.title = element_text(hjust = 0.5, size = 12)
     ) +  coord_flip() 
+  
+   h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
+  if (h ==2){
+      dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
+      dfCol <- dfCol[dfCol$sampleName %in% unique(dfResTemp$sampleID), ]
+      colVec <- as.vector(dfCol$sampleColor)
+      names(colVec) <- as.vector(dfCol$sampleName)
+      plotList[[tag]] <- plotList[[tag]] + scale_fill_manual("Samples" ,values = colVec
+      ) 
+  }
   
   ###########################################################################
   ## Save plot to file                                                     ##
@@ -3339,11 +3393,11 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
     ## Add part B - dotplot                                                  ##
     DefaultAssay(OsC) <- "RNA"
 
-    OsC@meta.data[["hmIdent2"]] <- paste0("C", OsC@meta.data[,Obio@parameterList$singleCellClusterString])
+    OsC@meta.data[["hmIdent2"]] <- paste0("C", OsC@meta.data[,"seurat_clusters"])
     
     levels <- paste0(
       "C",
-      sort(unique(OsC@meta.data[,Obio@parameterList$singleCellClusterString]))
+      sort(unique(OsC@meta.data[,"seurat_clusters"]))
       )
     
     OsC@meta.data$hmIdent2 <- factor(OsC@meta.data$hmIdent2, levels=levels)
@@ -3782,13 +3836,13 @@ chnkVec <- as.vector(NULL, mode = "character")
 ###############################################################################
 ## Make Heatmap                                                              ##
 
-OsC@meta.data[["hmIdent2"]] <- paste0("C", OsC@meta.data[,Obio@parameterList$singleCellClusterString])
+OsC@meta.data[["hmIdent2"]] <- paste0("C", OsC@meta.data[,"seurat_clusters"])
 
 Idents(OsC) <- "hmIdent2"
 
 levels <- paste0(
   "C",
-  sort(unique(OsC@meta.data[,Obio@parameterList$singleCellClusterString]))
+  sort(unique(OsC@meta.data[,"seurat_clusters"]))
   )
 
 levels(OsC) <- levels
@@ -3937,7 +3991,7 @@ Idents(OsC) <- "hmIdent2"
 
 levels <- paste0(
     "C",
-    sort(unique(OsC@meta.data[,Obio@parameterList$singleCellClusterString]))
+    sort(unique(OsC@meta.data[,"seurat_clusters"]))
  )
 
 levels(OsC) <- levels
@@ -4349,14 +4403,14 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 # ## Add heatmap identities to meta.data ##
 # 
 OsC@meta.data[["hmIdent"]] <- paste0(
-     OsC@meta.data[,Obio@parameterList$singleCellClusterString],
+     OsC@meta.data[,"seurat_clusters"],
      "_",
      substr(OsC@meta.data$sampleID,1,10)
      
 )
 # 
 if (length(unique(OsC@meta.data$hmIdent)) > 25){
-     OsC@meta.data[["hmIdent"]] <- OsC@meta.data[,Obio@parameterList$singleCellClusterString]
+     OsC@meta.data[["hmIdent"]] <- OsC@meta.data[,"seurat_clusters"]
      
 }
 # 
@@ -4767,7 +4821,7 @@ for (i in 1:length(xVec)){
     dfDat <- Obio@dataTableList$meta.data
     dfSel <- dfDat
     selXY <- c(xVec[i], yVec[i])
-    colCol <- Obio@parameterList$singleCellClusterString
+    colCol <- "seurat_clusters"
     
     tag <- paste0(xVec[i], "and", yVec[i])
     tag <- gsub("_", "", tag)
@@ -4953,14 +5007,14 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 
 ```{r pca_boxplot_dataprep, echo=T, eval=TRUE, warning=FALSE, results=F}
-selVec <- c(Obio@parameterList$singleCellClusterString, names(OsC@meta.data)[grep("^PC", names(OsC@meta.data))])
+selVec <- c("seurat_clusters", names(OsC@meta.data)[grep("^PC", names(OsC@meta.data))])
 
 dfPCdat <- OsC@meta.data[, selVec]
 
 ymin <- 1.1*min(dfPCdat$PC_1)
 ymax <- 1.1*max(dfPCdat$PC_1)
 
-clusterVec <- sort(unique(OsC@meta.data[,Obio@parameterList$singleCellClusterString]))
+clusterVec <- sort(unique(OsC@meta.data[,"seurat_clusters"]))
 
 library(scales)
 clusterColVec <- hue_pal()(length(clusterVec))
@@ -4971,8 +5025,8 @@ chnkVec <- as.vector(NULL, mode="character")
 plotList <- list()
 
 for (i in 1:length(clusterVec)){
-    dfTemp <- dfPCdat[dfPCdat[,Obio@parameterList$singleCellClusterString] == clusterVec[i],]
-    dfTemp[,Obio@parameterList$singleCellClusterString] <- NULL
+    dfTemp <- dfPCdat[dfPCdat[,"seurat_clusters"] == clusterVec[i],]
+    dfTemp[,"seurat_clusters"] <- NULL
   
   
   
