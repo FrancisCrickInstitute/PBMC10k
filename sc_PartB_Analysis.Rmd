@@ -66,15 +66,18 @@ knitr::opts_chunk$set(
 
 ### Set Parameters
 ```{r set_directories, eval=T}
+###############################################################################
+## Load packages                                                             ##
+
 library(tidyverse)
 library(dplyr)
 library(Seurat)
 library(ggplot2)
-
 library(tidyr)
 library(knitr)
 
-## Setup plot collection object
+## Set documentation parameters ##
+
 VersionPdfExt <- paste0(".V", gsub("-", "", Sys.Date()), ".pdf")
 
 if (dir.exists("/Volumes/babs/working/boeings/")){
@@ -87,27 +90,11 @@ if (dir.exists("/Volumes/babs/working/boeings/")){
     hpc.mount <- ""
 }
 
-# source(
-#     paste0(
-#         hpc.mount,
-#         "Stefan/protocol_files/github/boeings/packages/packageSourceCode/SBwebtools.pckg.r"
-#     )
-# )
-
-# source(
-#     paste0(
-#         hpc.mount,
-#         "Stefan/protocol_files/github/boeings/packages/scTools/scTools.r"
-#     )
-# )
-
+## Load custom packages specific for this analysis ##
 source("assets/scTools.r")
 source("assets/SBwebtools.pckg.r")
 
-
-
-####
-
+## Set database parameters ##
 FN <- paste0(hpc.mount, "Projects/reference_data/documentation/BC.parameters.txt")
 dbTable <- read.delim(
     FN, 
@@ -122,20 +109,17 @@ if (length(.libPaths()) > 2){
     .libPaths(.libPaths()[2:3])
 }
 
-ObioFN <- paste0("../", list.files("..")[grep(".bioLOGIC.Robj", list.files(".."))])
+
+###############################################################################
+## Load Obio object from step A                                              ##
+ObioFN <- paste0(
+    "../", 
+    list.files("..")[grep(".bioLOGIC.Robj", list.files(".."))]
+)
 
 load(ObioFN)
 
-# checkFile = paste0(
-#          Obio@parameterList$project_id,
-#          ".bioLOGIC.Robj"
-# )
-# 
-# if (ObioFN != checkFile){
-#     exit()
-# }
-
-
+## Set project specific parameters ##
 Obio <- setMountingPoint(Obio)
 Obio <- setAnalysisPaths(Obio)
 Obio <- setCrickGenomeAndGeneNameTable(Obio)
@@ -164,21 +148,26 @@ figureCount <- 1
 #setwd(Obio@parameterList$localWorkDir)
 
 if (Obio@parameterList$host == "10.27.241.234"){
-      urlString <- "biologic.thecrick.org"
-    } else {
-      urlString <- "biologic.crick.ac.uk"
-    }
+    urlString <- "biologic.thecrick.org"
+} else {
+    urlString <- "biologic.crick.ac.uk"
+}
 
+## Done                                                                      ##
+###############################################################################
 ```
 
 ```{r CreateReferenceGeneList, echo=T, eval=TRUE, warning=FALSE, results=FALSE}
 ###############################################################################
-## Compile reference gene list                                               ##
-## Set gene reference list 
+## Set gene reference list                                                   ##
+
+
 Obio@dataTableList[["referenceList"]] <- list()
 
 if (is.null(Obio@parameterList$HmDisplayCatsFromDb)){
-    Obio@parameterList$HmDisplayCatsFromDb <- list("TFs" = "ag_lab_categories__10")
+    Obio@parameterList$HmDisplayCatsFromDb <- list(
+        "TFs" = "ag_lab_categories__10"
+    )
 }
 
 ## Add transcription factors that happen to be cluster markers ##
@@ -186,7 +175,8 @@ catList <- Obio@parameterList$HmDisplayCatsFromDb
 
 
 
-if (Obio@parameterList$geneIDcolumn != "mgi_symbol" & Obio@parameterList$geneIDcolumn != "hgnc_symbol") {
+if (Obio@parameterList$geneIDcolumn != "mgi_symbol" 
+    & Obio@parameterList$geneIDcolumn != "hgnc_symbol") {
     queryGS <- "hgnc_symbol" 
 } else {
     queryGS <- Obio@parameterList$geneIDcolumn
@@ -205,13 +195,8 @@ for (i in 1:length(catList)){
     Obio@dataTableList$referenceList[[names(catList)[i]]] <- tempVec
 }
 
-## Transcription Factors in variable genes ##
-
-
-#tempVec <- tempVec[tempVec %in% Obio@dataTableList$dfGeneralMarkers$gene]
-
-
-
+## Done                                                                      ##
+###############################################################################
 ```
 
 
@@ -464,54 +449,54 @@ plotList[[tag]] <- ggplot(
 
 
     
-    ###########################################################################
-    ## Save plot to file                                                     ##
-    FNbase <- paste0("variation.integrated.samples.", VersionPdfExt)
-    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-    FNrel <- paste0("report_figures/", FNbase)
+###########################################################################
+## Save plot to file                                                     ##
+FNbase <- paste0("variation.integrated.samples.", VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
     
-    pdf(FN)
-        print(plotList[[tag]])
-    dev.off()
-    ##                                                                       ##
-    ###########################################################################
+pdf(FN)
+    print(plotList[[tag]])
+dev.off()
+##                                                                       ##
+###########################################################################
     
-    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=',paste0(tag, '_AvgExpr'),'&y_axis=',paste0(tag, '_var_std" target = "_blank">here</a>'))
+link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=',paste0(tag, '_AvgExpr'),'&y_axis=',paste0(tag, '_var_std" target = "_blank">here</a>'))
     
 
-    figCap <- paste0(
-        '**Figure ',
-        figureCount,
-        ':** Variance versus averaged gene expression for overall sample.', 
-        names(SampleList)[i],
-        '. ',
-        'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. ',
-        'An interactive version of this figure can be found ', link, '. '
-    )
+figCap <- paste0(
+    '**Figure ',
+    figureCount,
+    ':** Variance versus averaged gene expression for overall sample.', 
+    names(SampleList)[i],
+    '. ',
+    'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. ',
+    'An interactive version of this figure can be found ', link, '. '
+)
     
     
    
     
-    NewChnk <- paste0(
-        "#### ",tag,
-        "\n```{r varplot_",tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",figCap,"'}\n",
-        "\n",
-        "\n print(plotList[['",tag,"']])",
-        "\n cat(  '\n')",
-        "\n\n\n```\n"   
-    )
+NewChnk <- paste0(
+    "#### ",tag,
+    "\n```{r varplot_",tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",figCap,"'}\n",
+    "\n",
+    "\n print(plotList[['",tag,"']])",
+    "\n cat(  '\n')",
+    "\n\n\n```\n"   
+)
      
-    ## Histogram Part C done                                                 ##
-    ###########################################################################
+## Histogram Part C done                                                 ##
+###########################################################################
     
        
-    chnkVec <- c(
-        chnkVec,
-        NewChnk
-    )
+chnkVec <- c(
+    chnkVec,
+    NewChnk
+)
     
-    figureCount <- figureCount + 1
-    print(" All variation done.")
+figureCount <- figureCount + 1
+print(" All variation done.")
 
 ## Now the individual samples ##
 
@@ -529,7 +514,8 @@ names(dfVarRes) <- gsub(
 names(dfVarRes) <- gsub(
     "variance.standardized", paste0(tag, "_var_std"), names(dfVarRes)
 )
-    
+
+## Make variation plot for individual samples ##    
 for (i in 1:length(SampleList)){
     tag <- paste0("Ind_var_", names(SampleList)[i])
     
@@ -753,6 +739,15 @@ DefaultAssay(OsC) <- "RNA"
 allGenes <- rownames(x = OsC@assays$RNA)
 OsC <- ScaleData(OsC, verbose = FALSE, features=allGenes)
 
+## Save minimal Seurat object ##
+save(OsC,
+    file = paste0(
+         Obio@parameterList$localWorkDir,
+         Obio@parameterList$project_id,
+        ".Seurat.Robj"
+     )
+)
+
 
 ###############################################################################
 ## Add custom cluster annotation if specified                                ##
@@ -794,6 +789,8 @@ if (!file.exists(FNcol) | !tableValid){
         stringsAsFactors = F
     )
     
+    #row.names(dfClusterAnnotation) <- dfClusterAnnotation$cellID
+    dfClusterAnnotation$cellID <- NULL
     ## Add sample colors ##
     
     
@@ -872,7 +869,8 @@ if (!file.exists(FNsample) | !tableValid){
         sampleColor = sampleCols
     )
     
-    
+    #row.names(dfSampleAnnotation) <- dfSampleAnnotation$cellID
+    #dfClusterAnnotation$cellID <- NULL
     ## Add sample colors ##
     
     
@@ -898,7 +896,9 @@ dfAdd <- merge(
     by.y = "sampleID"
 )
 
+row.names(dfAdd) <- dfAdd$cellID
 dfAdd$cellID <- NULL
+dfAdd$sampleID <- NULL
 
 OsC <- addDf2seuratMetaData(
     obj = OsC, 
@@ -1897,7 +1897,7 @@ if (length(unique(OsC@meta.data$sampleID)) > 3){
       ) + theme_tree(
       ) 
   
-  h <- sum(c("clusterName", "clusterColor") %in% names(OsC@meta.data))
+  h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
   if (h ==2){
     dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
     colVec <- as.vector(dfCol$sampleColor)
@@ -2276,7 +2276,7 @@ plotList <- list()
 chnkVec <- as.vector(NULL, mode = "character")
 dfTemp <- OsC@meta.data
 
-pos <- grep("Doublet_plot", names(dfTemp))
+pos <- grep("DF_Classification", names(dfTemp))
 
 if (length(pos) > 0){
 
@@ -2288,6 +2288,11 @@ if (length(pos) > 0){
   
   #dotsize <- round(7500/nrow(dfTemp),1)
   # dotsize <- 0.3
+  
+  colVec <- c("black", "red")
+  names(colVec) <- c("Singlet", "Doublet")
+  
+  colVec <- colVec[unique(dfTemp$DF_Classification)]
   
   plotList[[tag]] <- ggplot(dfTemp, aes(UMAP_1, UMAP_2, color=DF_Classification)
           )+ geom_point( 
@@ -2302,10 +2307,9 @@ if (length(pos) > 0){
               axis.title.x  = element_text(size=8),
               axis.line = element_line(colour = "black"),
               panel.border = element_rect(colour = "black", fill=NA, size=1),
-              plot.title = element_text(hjust = 0.5, size = 12),
-              panel.background = element_rect(fill = "lightgrey")
+              plot.title = element_text(hjust = 0.5, size = 12)
           ) + ggtitle("Potential Doublets"
-          ) + scale_color_manual(values=c("#000000","#FF0000")
+          ) + scale_color_manual(values=colVec
           ) 
   
   #+ xlim(minX, maxX) + ylim(minY, maxY)  
@@ -3161,13 +3165,13 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 #print("Obio Object saved.")
 
-save(OsC,
-    file = paste0(
-         Obio@parameterList$localWorkDir,
-         Obio@parameterList$project_id,
-        ".Seurat.Robj"
-     )
-)
+# save(OsC,
+#     file = paste0(
+#          Obio@parameterList$localWorkDir,
+#          Obio@parameterList$project_id,
+#         ".Seurat.Robj"
+#      )
+# )
 
 library(AUCell)
 plotList <- list()
@@ -3968,17 +3972,73 @@ for (i in 1:length(Obio@parameterList[["cat2HMplotList"]])){
                 print(plotList[[tag]])
             dev.off()
 
-
+            
+            
+            ###################
+            ## Add link to interactive heatmap for this project
+                    
+            #for (i in 1:length(residualClusterMarkers)){
+            
+            ## Create default ##
+            link <- ""
+            if (Obio@projectDetailList$species %in% c("mus_musculus", "homo_sapiens")){
+                cat.name <- tag
+                cat_type <- paste0("temp_", Obio@parameterList$project_id)
+                        
+                cat.description.text <- tag 
+                        
+                gene.vec <- Obio@parameterList[["cat2HMplotList"]][[i]]
+                        
+                gene.vec <- gene.vec[gene.vec != ""]
+                gene.vec <- sort(na.omit(gene.vec))
+                        
+                ## Determine if cat exists ##
+                        
+                        
+                catID <- add.category.to.lab.reference.table.hs(
+                    host = Obio@dbDetailList$host,
+                    pwd = db.pwd,
+                    user = Obio@dbDetailList$db.user,
+                    cat.ref.db = Obio@dbDetailList$ref.cat.db,
+                    cat.ref.db.table = Obio@parameterList$lab.categories.table,
+                    gene.vector = gene.vec,
+                    gene.id = Obio@parameterList$geneIDcolumn, #options hgnc_symbol, mgi_symbol
+                    mm.hs.conversion.file =  paste0(hpc.mount, "Projects/reference_data/20160303.homologene.data.txt"),
+                    cat_name = cat.name,
+                    cat_type = cat_type,
+                    data_source = paste0(Obio@parameterList$labname, " Lab"),
+                    comments_1 = "",
+                    comments_2 = "",
+                    new.lab.category.table = FALSE,
+                    cat.description.db  = "internal_categories",
+                    cat.description.db.table = "category_description",
+                    cat.description.text = cat.description.text,
+                    lab.name = Obio@parameterList$labname,
+                    replaceExistingCatName = TRUE
+                ) 
+                    
+            link <- paste0('Link to an interactive version of <a href="https://',urlString,'/',Obio@parameterList$project_id,'/category-view/',catID,'" target="_blank">this heatmap</a>. ')            
+               
+            }    
+            #} ## End dfDat loop
+            
+            
+            ## Done adding link
+            ##############################
+            
+            
+            
             ## Create R markdown chunk ##
             figLegend <- paste0(
                 '**Figure ',
                 figureCount,
                 ':** ',HMname ,' Heatmap showing the most distinct marker genes in each cluster. ' , subsetString,
-                'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
+                'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. ',
+                link
             )
 
 
-
+            
 
 
 
@@ -4046,7 +4106,7 @@ plotList[[tag]] <- DotPlotSB(
         dot.scale = 4,
         col.min = 0,
         col.max = 5
-    ) + ggtitle(gsub("_", "", tag)) + coord_fixed() + coord_flip()
+    ) + ggtitle(gsub("_", "", tag)) + coord_fixed() + coord_flip() + theme_bw()
     
 
 ## Save to file ##
@@ -4148,8 +4208,11 @@ Obio@dataTableList[["dfPercCellsExpr"]] <- dfExprMatrix
 dfPercCellsExpr <- Obio@dataTableList$dfPercCellsExpr
 
 dfDat <- Obio@dataTableList$dfGeneralMarkersFilt
+
+
+
 dfDat$avg_diff <- round(dfDat$avg_diff,2)
-dfDat <- dfDat[,c("cluster", "gene", "avg_diff", "power")]
+dfDat <- dfDat[,c("cluster",  "gene", "avg_diff", "power")]
 names(dfDat) <- gsub("avg_diff", "DGE_avg_diff", names(dfDat))
 names(dfDat) <- gsub("power", "DGE_power", names(dfDat))
 dfDat[["join_col"]] <- paste0(dfDat$gene, "_C_", dfDat$cluster)
@@ -4206,15 +4269,33 @@ dfDat[["Cluster"]] <- sapply(
 
 dfDat$join_col <- NULL
 
-dfDat$Cluster <- paste0("Cluster_",dfDat$Cluster, "_C")
+
 dfDat$gene <- substr(dfDat$gene,1,50)
 
 dfDat[["uniqueMarker"]] <- as.character(!duplicated(dfDat$gene))
 dfDat$uniqueMarker <- substr(dfDat$uniqueMarker, 1,1)
 
+#######################
+## Add cluster name
+h <- sum(c("clusterName", "clusterColor") %in% names(OsC@meta.data))
+if (sum(h) == 2){
+    dfClust <- unique(OsC@meta.data[,c("seurat_clusters", "clusterName", "clusterColor")])
+
+    dfDat <- merge(
+        dfDat,
+        dfClust,
+        by.x = "Cluster",
+        by.y = "seurat_clusters"
+    )
+}
+
+## Done cluster name
+########################
+dfDat$Cluster <- paste0("Cluster_",dfDat$Cluster, "_C")
+
 dtList <- list()
 
-tabClusters <- sort(unique(dfDat$cluster))
+tabClusters <- sort(unique(dfDat$clusterName))
 chnkVec <- as.vector(NULL, mode="character")
     
 linkGeneView <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/gene-view" target = "_blank">GeneView</a>')
@@ -4247,6 +4328,13 @@ linkFeatureView <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameter
       urlString <- "biologic.crick.ac.uk"
     }
     
+    dfTempDat[["ClusterName"]] <- paste0(
+        '<p style="color:',dfTempDat$clusterColor,';text-align:center">',dfTempDat$clusterName,'</p>'
+    ) 
+    
+    orderVec <- c('gene','ClusterName','DGE_avg_diff','DGE_power','LinearReg_Residuals','uniqueMarker','Cluster','Perc_Cells_Expr')
+    orderVec <- orderVec[orderVec %in% names(dfTempDat)]
+    dfTempDat <- dfTempDat[,orderVec]
     
     dfTempDat$gene <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/gene-view?query=',dfTempDat$gene,'&exact=TRUE" target="_blank">', dfTempDat$gene, '</a>')
     

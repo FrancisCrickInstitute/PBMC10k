@@ -165,6 +165,7 @@ dbDetailList <- list(
 ## Project detail list                                                       ##
 projectDetailList <- list(
     "folder" = "pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/",
+    "lab.categories.table" = "vp_lab_categories", # default NULL
     "sra.id.vector" = "",
     "gse.id.vector" = "",
     "asf.id" = "SCP1038",
@@ -342,7 +343,7 @@ Obio = new(
     sampleDetailList = sampleDetailList, 
     referenceTableList = referenceTableList,
     parameterList = list(
-        "lab.categories.table" = "vp_lab_categories", # default NULL
+        "lab.categories.table" = projectDetailList$lab.categories.table, # default NULL
         "folder" = projectDetailList$folder,
         "sra.id.vector" = "",
         "gse.id.vector" = "",
