@@ -790,7 +790,7 @@ if (!file.exists(FNcol) | !tableValid){
     )
     
     #row.names(dfClusterAnnotation) <- dfClusterAnnotation$cellID
-    dfClusterAnnotation$cellID <- NULL
+    #dfClusterAnnotation$cellID <- NULL
     ## Add sample colors ##
     
     
