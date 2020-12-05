@@ -304,7 +304,7 @@ upload.datatable.to.database(
     dbTableName = Obio@parameterList$PCAdbTableName,
     df.data = dfdbTable,
     db.col.parameter.list = list(
-        "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("cellType","cellIdent","sample_","cellID","orig_ident","old_ident","clustIdent", "hmIdent","sampleID", "CellFromTumor", "Patient", "Region",  "Article_Cell_Type", "Gender","Glia_vs_Neuron", "NitChol_vs_Serotonergic", "Nitrergic_vs_Cholinergic", "Sample_Group"),
+        "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("cellType","cellIdent","sample_","cellID","orig_ident","old_ident","clustIdent", "hmIdent","sampleID", "clusterName",  "clusterColor", "sampleName", "sampleColor", "CellFromTumor", "Patient", "Region",  "Article_Cell_Type", "Gender","Glia_vs_Neuron", "NitChol_vs_Serotonergic", "Nitrergic_vs_Cholinergic", "Sample_Group"),
        "VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("all","included","Phase", gsub("[.]", "_", Obio@parameterList$singleCellClusterString), "seurat_clusters", "RNA_snn_res"),
         "BIGINT(8) NULL DEFAULT NULL" = c("row_names"),
         "INT(8) NULL DEFAULT NULL" = c("nCount_", "nFeature_","DF_Classification"),
