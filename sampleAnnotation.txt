@@ -1,3 +1,3 @@
 "sampleID"	"sampleName"	"sampleColor"
-"mliGlia"	"mliGlia"	"#FF0000"
-"mliNeuron"	"mliNeuron"	"#00FF00"
+"mliGlia"	"mliGlia"	"#F8766D"
+"mliNeuron"	"mliNeuron"	"#00BFC4"
