@@ -3798,9 +3798,15 @@ for (i in 1:length(clusterVec)){
       DGEcatID <- as.vector(dfFAMplotIDs[pos, "cat_id"])
     }
     
-    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=add_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', LRcatID,'" target="_blank">here</a>')
+    if (length(SampleList) > 1){
+        suffix <- "add_counts_"
+    } else {
+        suffix <- "norm_counts_"
+    }
     
-    linkDGE <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=add_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', DGEcatID,'" target="_blank">here</a>')
+    link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=',suffix,'Avg_log10_Expr_',clusterVec[i], '&cat_id=', LRcatID,'" target="_blank">here</a>')
+    
+    linkDGE <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=',suffix,'Avg_log10_Expr_',clusterVec[i], '&cat_id=', DGEcatID,'" target="_blank">here</a>')
     
     heatmaplink <- paste0('In order to identify cluster specific marker genes a <a href="https://biologic.crick.ac.uk/',Obio@parameterList$project_id,'/category-view/', LRcatID,'" target="_blank">cluster-maker gene heatmap for the linear-regression derrived marker gene set</a> might be interesting.')
     
@@ -4332,7 +4338,7 @@ linkFeatureView <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameter
         '<p style="color:',dfTempDat$clusterColor,';text-align:center">',dfTempDat$clusterName,'</p>'
     ) 
     
-    orderVec <- c('gene','ClusterName','DGE_avg_diff','DGE_power','LinearReg_Residuals','uniqueMarker','Cluster','Perc_Cells_Expr')
+    orderVec <- c('gene','ClusterName','Cluster','DGE_avg_diff','DGE_power','LinearReg_Residuals','uniqueMarker','Perc_Cells_Expr')
     orderVec <- orderVec[orderVec %in% names(dfTempDat)]
     dfTempDat <- dfTempDat[,orderVec]
     
