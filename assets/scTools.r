@@ -60,7 +60,7 @@ setGeneric(
                 if (length(pos) == 0){
                     gene.column = 2
                 } else {
-                    gene.column <-  obj@sampleDetailList[[sampleID]]$gene.column
+                    gene.column <-  obj@sampleDetailList[[i]]$gene.column
                 }
                 
                 baseFN <- obj@sampleDetailList[[sampleNames[i]]]$path
