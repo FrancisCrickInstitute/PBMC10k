@@ -1159,9 +1159,14 @@ setGeneric(
             if (!is.null(reduce)){
                 set.seed(127)
                 n.cells <- round(reduce * nrow(SampleList[[sampleID]]@meta.data))
-                SampleList[[sampleID]] <- SubsetData(
-                    SampleList[[sampleID]],
-                    cells.use = sample(x = object@cell.names, size = n.cells) )
+                cellVec <- row.names(SampleList[[sampleID]]@meta.data)
+                cellVec <- cellVec[sample(1:length(cellVec), n.cells)]
+                
+                SampleList[[sampleID]] <- subset(
+                    x = SampleList[[sampleID]],
+                    cells = cellVec
+                )
+                
             }
 
             ## Label mitochondrial cells ##
