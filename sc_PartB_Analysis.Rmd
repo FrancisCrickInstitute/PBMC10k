@@ -1519,13 +1519,14 @@ dfAvgExpr <- dfAvgExpr[,sort(names(dfAvgExpr))]
 assay <- NULL
 assay <- assay %||% DefaultAssay(object = OsC)
 
-features <- features %||% VariableFeatures(object = OsC)
+
+features <- VariableFeatures(object = OsC)
 features <- intersect(x = features, y = rownames(x = OsC))
 data.avg <- AverageExpression(object = OsC, assays = assay, 
 features = features, slot = "data", verbose = T)[[1]]
 data.dist <- dist(x = t(x = data.avg[features, ]))
 dforder <- hclust(d = data.dist)
-orderVec <- dforder$order
+orderVec <- names(dfAvgExpr)[dforder$order]
 dfAvgExpr <- dfAvgExpr[,orderVec]
 
 Obio@parameterList[["clusterNameOrder"]] <- orderVec
@@ -1565,7 +1566,7 @@ selVec <- names(dfAvgExpr)
 assay <- NULL
 assay <- assay %||% DefaultAssay(object = OsC)
 
-features <- features %||% VariableFeatures(object = OsC)
+features <- VariableFeatures(object = OsC)
 features <- intersect(x = features, y = rownames(x = OsC))
 data.avg <- AverageExpression(object = OsC, assays = assay, 
 features = features, slot = "data", verbose = T)[[1]]
@@ -3526,16 +3527,16 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
     ## Add part B - dotplot                                                  ##
     DefaultAssay(OsC) <- "RNA"
 
-    OsC@meta.data[["hmIdent2"]] <- paste0("C", OsC@meta.data[,"seurat_clusters"])
+    # OsC@meta.data[["hmIdent2"]] <- paste0("C", OsC@meta.data[,"seurat_clusters"])
+    # 
+    # levels <- paste0(
+    #   "C",
+    #   sort(unique(OsC@meta.data[,"seurat_clusters"]))
+    #   )
+    # 
+    # OsC@meta.data$hmIdent2 <- factor(OsC@meta.data$hmIdent2, levels=levels)
     
-    levels <- paste0(
-      "C",
-      sort(unique(OsC@meta.data[,"seurat_clusters"]))
-      )
-    
-    OsC@meta.data$hmIdent2 <- factor(OsC@meta.data$hmIdent2, levels=levels)
-    
-    Idents(OsC) <- "hmIdent2"
+    Idents(OsC) <- "clusterName"
     
     
     
@@ -3547,17 +3548,24 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
         dpGenes <- unique(Obio@parameterList$cat2DotplotList[[i]])
         legendNote <- paste0("The following genes were found in this category and the single-cell dataset: ", paste0(dpGenes, collapse=", "))
         
+        OsC_DP <- OsC
+        OsC_DP@meta.data$clusterName <- factor(OsC_DP@meta.data$clusterName, levels = Obio@parameterList[["clusterNameOrder"]])
+        
         plotList[[tag]] <- DotPlotSB(
-            object = OsC,
+            object = OsC_DP,
             features = dpGenes,
             #cols = cols,
             group.by = NULL,
             split.by = NULL,
             dot.scale = 4,
             col.min = 0,
-            col.max = 5,
+            col.max = 5
             #assay = "RNA"
-        ) + ggtitle(gsub("_", "", tag)) + coord_fixed() + coord_flip()
+        ) + ggtitle(gsub("_", " ", tag)) + coord_fixed() + coord_flip() + theme_bw() + theme(
+                axis.title.y  = element_blank(),
+                axis.title.x  = element_blank()
+        )
+        rm(OsC_DP)
         
         FNbase <- paste0(HMname, VersionPdfExt)
         FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
@@ -3893,7 +3901,7 @@ for (i in 1:length(clusterVec)){
     }
     
     
-    clusterVec <- as.vector(dfClustCol$cluster)
+    clusterVec <- as.vector(dfClustCol$clusterName)
     clusterCol <- as.vector(dfClustCol$clusterCol)
     pos <- grep(paste0(gsub("C_", "Cluster_",clusterVec[i]),"$"), dfFAMplotIDs$cat_name)
     
@@ -3974,7 +3982,7 @@ chnkVec <- as.vector(NULL, mode = "character")
 
 #OsC@meta.data[["hmIdent2"]] <- paste0("C", OsC@meta.data[,"seurat_clusters"])
 
-Idents(OsC) <- "clusterNames"
+Idents(OsC) <- "clusterName"
 
 # levels <- Obio@parameterList$clusterNameOrder
 # 
@@ -4046,7 +4054,7 @@ Obio@parameterList[["cat2HMplotList"]][["Top5_TF_Cluster_Markers"]] <- as.vector
 
 
 for (i in 1:length(Obio@parameterList[["cat2HMplotList"]])){
-    tag <- paste0("HMM_", names(Obio@parameterList$cat2HMplotList)[i])
+    tag <- paste0("HM_", names(Obio@parameterList$cat2HMplotList)[i])
     textSize <- 5
     HMname <- names(Obio@parameterList[["cat2HMplotList"]])[i]
     
@@ -4178,14 +4186,14 @@ rm(OsC_HM)
 ###############################################################################
 ## Make dotplot 
 
-Idents(OsC) <- "hmIdent2"
+Idents(OsC) <- "clusterName"
 
-levels <- paste0(
-    "C",
-    sort(unique(OsC@meta.data[,"seurat_clusters"]))
- )
-
-levels(OsC) <- levels
+# levels <- paste0(
+#     "C",
+#     sort(unique(OsC@meta.data[,"seurat_clusters"]))
+#  )
+# 
+# levels(OsC) <- levels
 
 
 dpGenes <- as.vector(unique(dfTop5$gene))
@@ -4209,7 +4217,7 @@ plotList[[tag]] <- DotPlotSB(
         dot.scale = 4,
         col.min = 0,
         col.max = 5
-    ) + ggtitle(gsub("_", "", tag)) + coord_fixed() + coord_flip() + theme_bw()
+    ) + ggtitle(gsub("_", "", tag)) + xlab("") + coord_fixed() + coord_flip() + theme_bw() 
     
 
 ## Save to file ##
@@ -4318,7 +4326,7 @@ dfDat$avg_diff <- round(dfDat$avg_diff,2)
 dfDat <- dfDat[,c("cluster",  "gene", "avg_diff", "power")]
 names(dfDat) <- gsub("avg_diff", "DGE_avg_diff", names(dfDat))
 names(dfDat) <- gsub("power", "DGE_power", names(dfDat))
-dfDat[["join_col"]] <- paste0(dfDat$gene, "_C_", dfDat$cluster)
+dfDat[["join_col"]] <- paste0(dfDat$gene, "_",dfDat$cluster)
 dfDat$cluster <- NULL
 dfDat$gene <- NULL
 
@@ -4367,7 +4375,7 @@ dfDat[["gene"]] <- sapply(
 )
 
 dfDat[["Cluster"]] <- sapply(
-  dfDat$join_col, function(x) unlist(strsplit(x, "_C_"))[2]
+  dfDat$join_col, function(x) unlist(strsplit(x, "_"))[2]
 )
 
 dfDat$join_col <- NULL
@@ -4388,13 +4396,13 @@ if (sum(h) == 2){
         dfDat,
         dfClust,
         by.x = "Cluster",
-        by.y = "seurat_clusters"
+        by.y = "clusterName"
     )
 }
 
 ## Done cluster name
 ########################
-dfDat$Cluster <- paste0("Cluster_",dfDat$Cluster, "_C")
+dfDat$Cluster <- paste0("Cluster_", dfDat$Cluster, "_C")
 
 dtList <- list()
 
@@ -4432,7 +4440,7 @@ linkFeatureView <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameter
     }
     
     dfTempDat[["ClusterName"]] <- paste0(
-        '<p style="color:',dfTempDat$clusterColor,';text-align:center">',dfTempDat$clusterName,'</p>'
+        '<p style="background-color:',dfTempDat$clusterColor,';text-align:center">',dfTempDat$Cluster,'</p>'
     ) 
     
     orderVec <- c('gene','ClusterName','DGE_avg_diff','DGE_power','LinearReg_Residuals','uniqueMarker','Cluster','Perc_Cells_Expr')

@@ -10344,6 +10344,8 @@ DotPlotSB <- function (
         vars = features
     )
     
+    
+    
     data.features$id <- if (is.null(x = group.by)) {
         Idents(object = object)
     } else {
@@ -10407,12 +10409,21 @@ DotPlotSB <- function (
     
     data.plot <- do.call(what = "rbind", args = data.plot)
     
+    dfClust <- data.frame(data.plot %>% pivot_wider(!pct.exp, names_from = features.plot, values_from = avg.exp))
+    row.names(dfClust) <- dfClust$id
+    dfClust$id <- NULL
+    
+    dfDist <- hclust(d=dist(t(dfClust)), method = "ward.D2")
+    
+    
+    orderVec <- names(dfClust)[dfDist$order]
+    
     if (!is.null(x = id.levels)) {
         data.plot$id <- factor(x = data.plot$id, levels = id.levels)
     }
     
     avg.exp.scaled <- sapply(
-        X = unique(x = data.plot$features.plot), 
+        X = orderVec,#unique(x = data.plot$features.plot), 
         FUN = function(x) {
             data.use <- data.plot[data.plot$features.plot == x, "avg.exp"]
             data.use <- scale(x = data.use)
@@ -10471,6 +10482,10 @@ DotPlotSB <- function (
     old <- theme_get()
     theme_set(theme_bw())
     
+    data.plot$features.plot <- factor(data.plot$features.plot, levels = orderVec)
+    levels <- levels(object@meta.data$clusterName)
+    data.plot$id <- factor(data.plot$id, levels = levels)
+    
     plot <- ggplot(
         data=data.plot, aes_string(x= "id", y="features.plot")
     ) +  theme(
@@ -10484,7 +10499,7 @@ DotPlotSB <- function (
     ) + geom_point(
         aes_string(size = "pct.exp",color = color.by)
     #) + coord_fixed(
-    ) + guides(size = guide_legend(title = "Percent Expressed")
+    ) + guides(size = guide_legend(title = "Perc Expr")
     ) + labs(
         x = ifelse(test = is.null(x = split.by), 
                    yes = "Identity", no = "Split Identity"), 
@@ -10502,7 +10517,7 @@ DotPlotSB <- function (
         plot <- plot + scale_color_gradient(low = cols[1], high = cols[2])
     }
     if (is.null(x = split.by)) {
-        plot <- plot + guides(color = guide_colorbar(title = "Average Expression"))
+        plot <- plot + guides(color = guide_colorbar(title = "Avg Expr"))
     }
     
     theme_set(old)
