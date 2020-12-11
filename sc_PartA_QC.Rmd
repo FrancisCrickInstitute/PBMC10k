@@ -343,6 +343,7 @@ Obio = new(
     sampleDetailList = sampleDetailList, 
     referenceTableList = referenceTableList,
     parameterList = list(
+        "debugReduce" = 0.2, # Default NULL
         "lab.categories.table" = projectDetailList$lab.categories.table, # default NULL
         "folder" = projectDetailList$folder,
         "sra.id.vector" = "",

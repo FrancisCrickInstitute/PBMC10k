@@ -1,18 +1,18 @@
 ---
-output: 
+    output: 
     html_document:
-        code_folding: hide
-        df_print: tibble
-        toc: true
-        toc_depth: 5
-        toc_float: true
-        css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
+    code_folding: hide
+df_print: tibble
+toc: true
+toc_depth: 5
+toc_float: true
+css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
 
 always_allow_html: yes
 ---
-
-
-```{r setup, include=FALSE}
+    
+    
+    ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
     tidy = F,
     tidy.opts = list(width.cutoff = 120),
@@ -119,7 +119,6 @@ ObioFN <- paste0(
 
 load(ObioFN)
 
-
 ## Set project specific parameters ##
 Obio <- setMountingPoint(Obio)
 Obio <- setAnalysisPaths(Obio)
@@ -139,11 +138,11 @@ if (Obio@parameterList$hpcMount != "/camp/stp/babs/working/boeings/"){
         
     }
 }
-        
-            
-            
-        
-    
+
+
+
+
+
 
 ## Create outputfolders ##
 if (!dir.exists(paste0(Obio@parameterList$localWorkDir,Obio@parameterList$project_id))){
@@ -298,13 +297,13 @@ if (length(SampleList) > 1){
         detach("package:future", unload=TRUE)
         
     } else {
-    
+        
         sampleAnchors <- FindIntegrationAnchors(
             object.list = SampleList, 
             dims = 1:30
         ) 
-
-
+        
+        
         OsC <- IntegrateData(
             #features.to.integrate = geneIntersectVec,
             anchorset = sampleAnchors, 
@@ -325,11 +324,11 @@ OsC@meta.data[["cellID"]] <- row.names(OsC@meta.data)
 ## Setting plotting parameters                                               ##
 dotsize  = 1
 if (nrow(OsC@meta.data) > 10000){
-  dotsize  = 0.75
+    dotsize  = 0.75
 } else if (nrow(OsC@meta.data) > 20000){
-  dotsize = 0.5
+    dotsize = 0.5
 } else if (nrow(OsC@meta.data) > 50000){
-  dotsize = 0.25
+    dotsize = 0.25
 }
 
 legendDotSize <- 5
@@ -414,9 +413,9 @@ Obio@dataTableList$referenceList[[ label2000]]<- head(
     x = VariableFeatures(object = OsC), 
     2000
 )
-    
+
 label30 <- paste0("integrated", "_", "top30var")
-    Obio@dataTableList$referenceList[[ label30]]<- head(
+Obio@dataTableList$referenceList[[ label30]]<- head(
     x = VariableFeatures(object = OsC), 
     30
 )
@@ -430,14 +429,14 @@ dfVar[["gene"]] <- row.names(dfVar)
 
 OsC@meta.data[["all"]] <- "all"
 Idents(OsC) <- "all"
-    
+
 cluster.averages <- AverageExpression(
     OsC, 
     return.seurat = TRUE
 )
-    
+
 Idents(OsC) <- "sampleID"
-    
+
 dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
 dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
 names(dfAvgExpr)[1] <- "Avg.Expression"
@@ -461,14 +460,14 @@ library(ggrepel)
 
 plotList[[tag]] <- ggplot(
     data = dfVar, 
-        aes(
-            x=Avg.Expression, 
-            y=variance.standardized, label = text, color = Type
-        )
-  ) + geom_point( shape=16, size = dotsize
-  ) + xlab("Average Expression") + ylab("Variance Standarized"
-  ) + theme_bw(
-  ) +  theme(
+    aes(
+        x=Avg.Expression, 
+        y=variance.standardized, label = text, color = Type
+    )
+) + geom_point( shape=16, size = dotsize
+) + xlab("Average Expression") + ylab("Variance Standarized"
+) + theme_bw(
+) +  theme(
     axis.text.y   = element_text(size=8),
     axis.text.x   = element_text(size=8),
     axis.title.y  = element_text(size=8),
@@ -483,21 +482,21 @@ plotList[[tag]] <- ggplot(
 ) 
 
 
-    
+
 ###########################################################################
 ## Save plot to file                                                     ##
 FNbase <- paste0("variation.integrated.samples", VersionPdfExt)
 FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
 FNrel <- paste0("report_figures/", FNbase)
-    
+
 pdf(FN)
-    print(plotList[[tag]])
+print(plotList[[tag]])
 dev.off()
 ##                                                                       ##
 ###########################################################################
-    
+
 link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=',paste0(tag, '_AvgExpr'),'&y_axis=',paste0(tag, '_var_std" target = "_blank">here</a>'))
-    
+
 
 figCap <- paste0(
     '**Figure ',
@@ -508,10 +507,10 @@ figCap <- paste0(
     'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. ',
     'An interactive version of this figure can be found ', link, '. '
 )
-    
-    
-   
-    
+
+
+
+
 NewChnk <- paste0(
     "#### ",tag,
     "\n```{r varplot_",tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",figCap,"'}\n",
@@ -520,16 +519,16 @@ NewChnk <- paste0(
     "\n cat(  '\n')",
     "\n\n\n```\n"   
 )
-     
+
 ## Histogram Part C done                                                 ##
 ###########################################################################
-    
-       
+
+
 chnkVec <- c(
     chnkVec,
     NewChnk
 )
-    
+
 figureCount <- figureCount + 1
 print(" All variation done.")
 
@@ -556,15 +555,15 @@ for (i in 1:length(SampleList)){
     
     
     DefaultAssay(SampleList[[i]]) <- "RNA"
-
+    
     SampleList[[i]] <- FindVariableFeatures(object = SampleList[[i]])
-
+    
     SampleList[[i]] <- FindVariableFeatures(
         object = SampleList[[i]],
         selection.method = 'vst', 
         nfeatures = 2000
     )
-
+    
     # Identify the 10 most highly variable genes
     label2000 <- paste0(names(SampleList)[i], "_", "top2000var")
     Obio@dataTableList$referenceList[[ label2000]]<- head(
@@ -577,14 +576,14 @@ for (i in 1:length(SampleList)){
         x = VariableFeatures(object = SampleList[[i]]), 
         30
     )
-
-
+    
+    
     ## slot for variable features OsC@assays$RNA@var.features
-
+    
     dfVar <- SampleList[[i]]@assays$RNA@meta.features
     names(dfVar) <- gsub("vst.", "",names(dfVar))
     dfVar[["gene"]] <- row.names(dfVar)
-
+    
     Idents(SampleList[[i]]) <- "sampleID"
     cluster.averages <- AverageExpression(
         SampleList[[i]], 
@@ -594,48 +593,48 @@ for (i in 1:length(SampleList)){
     dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
     dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
     names(dfAvgExpr)[1] <- "Avg.Expression"
-
+    
     dfVar <- merge(
         dfVar, 
         dfAvgExpr, 
         by.x = "gene",
         by.y = "gene"
     )
-
+    
     dfVar[["Type"]] <- "Standard"
     dfVar[dfVar$gene %in% SampleList[[i]]@assays$RNA@var.features, "Type"] <- "Most Variable"
-
+    
     dfVar[["text"]] <- ""
     dfVar[dfVar$gene %in% as.vector(Obio@dataTableList$referenceList[[label30]]), "text"] <- Obio@dataTableList$referenceList[label30]
-
+    
     # dotsize <- 0.5
-
+    
     library(ggrepel)
-
+    
     plotList[[tag]] <- ggplot(
         data = dfVar, 
         aes(
             x=Avg.Expression, 
             y=variance.standardized, label = text, color = Type)
-            ) + geom_point( shape=16, size = dotsize
-            ) + xlab("Average Expression") + ylab("Variance Standarized"
-            ) + theme_bw(
-            ) +  theme(
-                axis.text.y   = element_text(size=8),
-                axis.text.x   = element_text(size=8),
-                axis.title.y  = element_text(size=8),
-                axis.title.x  = element_text(size=8),
-                axis.line = element_line(colour = "black"),
-                panel.border = element_rect(colour = "black", fill=NA, size=1),
-                plot.title = element_text(hjust = 0.5, size = 12)
-            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
-            ) + ggtitle(paste0("Individual variance in the ", names(SampleList)[i],  " sample.")
-            ) + scale_color_manual(values=c("#FF0000", "#000000")
-            ) + geom_text_repel(
-            ) +  xlim(0, xmax) + ylim(0, ymax
-            ) 
-
-
+    ) + geom_point( shape=16, size = dotsize
+    ) + xlab("Average Expression") + ylab("Variance Standarized"
+    ) + theme_bw(
+    ) +  theme(
+        axis.text.y   = element_text(size=8),
+        axis.text.x   = element_text(size=8),
+        axis.title.y  = element_text(size=8),
+        axis.title.x  = element_text(size=8),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12)
+    ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+    ) + ggtitle(paste0("Individual variance in the ", names(SampleList)[i],  " sample.")
+    ) + scale_color_manual(values=c("#FF0000", "#000000")
+    ) + geom_text_repel(
+    ) +  xlim(0, xmax) + ylim(0, ymax
+    ) 
+    
+    
     
     ###########################################################################
     ## Save plot to file                                                     ##
@@ -644,7 +643,7 @@ for (i in 1:length(SampleList)){
     FNrel <- paste0("report_figures/", FNbase)
     
     pdf(FN)
-        print(plotList[[tag]])
+    print(plotList[[tag]])
     dev.off()
     ##                                                                       ##
     ###########################################################################
@@ -652,7 +651,7 @@ for (i in 1:length(SampleList)){
     
     link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=',paste0(tag, '_AvgExpr'),'&y_axis=',paste0(tag, '_var_std" target="_blank">here</a>'))
     
-
+    
     figCap <- paste0(
         '**Figure ',
         figureCount,
@@ -671,11 +670,11 @@ for (i in 1:length(SampleList)){
         "\n cat(  '\n')",
         "\n\n\n```\n"   
     )
-     
+    
     ## Histogram Part C done                                                 ##
     ###########################################################################
     
-       
+    
     chnkVec <- c(
         chnkVec,
         NewChnk
@@ -686,7 +685,7 @@ for (i in 1:length(SampleList)){
     
     ## Add to result table ##
     dfVarTemp <- unique(
-    dfVar[,c("gene", "Avg.Expression", "variance.standardized")]
+        dfVar[,c("gene", "Avg.Expression", "variance.standardized")]
     )
     
     names(dfVarTemp) <- gsub(
@@ -766,7 +765,7 @@ OsC <- FindClusters(OsC, resolution = Obio@parameterList$singleCellClusterParame
 ## Rational: Run PCA on variable features, then scale data for heatmaps and other applications
 
 if (Obio@parameterList$scIntegrationMethod != "RNA"){
-DefaultAssay(OsC) <- Obio@parameterList$scIntegrationMethod
+    DefaultAssay(OsC) <- Obio@parameterList$scIntegrationMethod
     allGenes <- rownames(x = OsC@assays[[Obio@parameterList$scIntegrationMethod]])
     OsC <- ScaleData(OsC, verbose = FALSE, features=allGenes)
 }
@@ -777,10 +776,10 @@ OsC <- ScaleData(OsC, verbose = FALSE, features=allGenes)
 
 ## Save minimal Seurat object ##
 save(OsC,
-    file = paste0(
+     file = paste0(
          Obio@parameterList$localWorkDir,
          Obio@parameterList$project_id,
-        ".Seurat.Robj"
+         ".Seurat.Robj"
      )
 )
 
@@ -882,7 +881,7 @@ if (file.exists(FNsample)){
     pos1 <- grep("sampleID", names(dfSampleAnnotation))
     pos2 <- grep("sampleName", names(dfSampleAnnotation))
     pos3 <- grep("sampleColor", names(dfSampleAnnotation))
-   
+    
     
     if (length(pos1) != 0 & length(pos2) != 0 & length(pos3) != 0){
         tableValid <- TRUE  
@@ -910,7 +909,7 @@ if (!file.exists(FNsample) | !tableValid){
     ## Add sample colors ##
     
     FNsample <- paste0(Obio@parameterList$localWorkDir, "sampleAnnotation.txt")
-
+    
     
     write.table(
         dfSampleAnnotation,
@@ -972,27 +971,27 @@ tag <- paste0("UMAP_sample_level")
 dfPlot <- OsC@meta.data
 pos <- grep("included", names(dfPlot))
 if (length(pos) == 0){
-  dfPlot[["included"]] <- "+"
+    dfPlot[["included"]] <- "+"
 }
 
 pos <- grep("cellID", names(dfPlot))
 if (length(pos) == 0){
-  dfPlot[["cellID"]] <- row.names(dfPlot)
+    dfPlot[["cellID"]] <- row.names(dfPlot)
 }
 
 dfPlot$UMAP_1 <- NULL
 dfPlot$UMAP_2 <- NULL
-            
+
 ## Get UMAP coordinates ##
 coord <- data.frame(OsC@reductions$umap@cell.embeddings)
 coord[["cellID"]] <- row.names(coord)
 coord <-coord[coord$cellID %in% dfPlot$cellID, ]
-            
+
 dfPlot <- merge(dfPlot, coord, by.x = "cellID", by.y="cellID", all=T)
 dfPlot[is.na(dfPlot)] <- 0
 dfPlot <- dfPlot[dfPlot$UMAP_1 != 0 & dfPlot$UMAP_2 != 0,]
-            
-            
+
+
 ## Add cluster colors ##
 dfPlot[["Cluster"]] <- dfPlot$sampleID
 clusterVec <- as.vector(sort(unique(dfPlot$sampleID)))
@@ -1019,109 +1018,109 @@ dfPlot$Cluster <- factor(dfPlot$Cluster, levels = dfPair$sampleID)
 plotList[[tag]] <- ggplot(
     data=dfPlot[dfPlot$included == "+",], 
     aes(UMAP_1, UMAP_2, color=sampleID)
-  ) + geom_point( shape=16, size = as.numeric(dotsize)
-  ) + xlab("UMAP1") + ylab("UMAP2"
-  ) + theme_bw(
-  )  +  theme(
-      axis.text.y   = element_text(size=8),
-      axis.text.x   = element_text(size=8),
-      axis.title.y  = element_text(size=8),
-      axis.title.x  = element_text(size=8),
-      axis.line = element_line(colour = "black"),
-      panel.border = element_rect(colour = "black", fill=NA, size=1),
-      plot.title = element_text(hjust = 0.5, size = 12),
-      legend.title = element_blank()
-  ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
-  ) + ggtitle(paste0("Sample: ", gsub("_", " ", tag))
-  ) + xlim(minX, maxX) + ylim(minY, maxY
-  ) + coord_fixed(ratio=1
-  )  
+) + geom_point( shape=16, size = as.numeric(dotsize)
+) + xlab("UMAP1") + ylab("UMAP2"
+) + theme_bw(
+)  +  theme(
+    axis.text.y   = element_text(size=8),
+    axis.text.x   = element_text(size=8),
+    axis.title.y  = element_text(size=8),
+    axis.title.x  = element_text(size=8),
+    axis.line = element_line(colour = "black"),
+    panel.border = element_rect(colour = "black", fill=NA, size=1),
+    plot.title = element_text(hjust = 0.5, size = 12),
+    legend.title = element_blank()
+) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+) + ggtitle(paste0("Sample: ", gsub("_", " ", tag))
+) + xlim(minX, maxX) + ylim(minY, maxY
+) + coord_fixed(ratio=1
+)  
 
 
 h <- sum(c("sampleName", "sampleColor") %in% names(dfPlot))
 if (h ==2){
-  dfCol <- unique(dfPlot[,c("sampleName", "sampleColor")])
-  colVec <- as.vector(dfCol$sampleColor)
-  names(colVec) <- as.vector(dfCol$sampleName)
-  plotList[[tag]] <- plotList[[tag]] + scale_colour_manual("Samples" ,values = colVec
-      ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
-  )
+    dfCol <- unique(dfPlot[,c("sampleName", "sampleColor")])
+    colVec <- as.vector(dfCol$sampleColor)
+    names(colVec) <- as.vector(dfCol$sampleName)
+    plotList[[tag]] <- plotList[[tag]] + scale_colour_manual("Samples" ,values = colVec
+    ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+    )
 }
 ## Add colors if specified ##
 
-            
+
 if (length(unique(dfPlot$Cluster)) > 15){
-   plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
+    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
 }
-            FNbase <- paste0(tag, VersionPdfExt)
-            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-            FNrel <- paste0("report_figures/", FNbase)
-            
-            pdf(FN)
-                print(plotList[[tag]])
-            dev.off()
-            
-            link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=UMAP_1&y_axis=UMAP_2" target="_blank">here</a>')  
-            
-            figLegend <- paste0(
-                '**Figure ', 
-                figureCount, 
-                ':** ',
-                ' UMAP showing all cells from all samples together. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
-                'An interactive version of this figure can be found ', link, '. '
-            )
-            
-            figureCount <- figureCount + 1
-            
-            NewChnk <- paste0(
-                "#### ", tag,
-                "\n```{r Sample_UMAP_",
-                tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                figLegend,"'}\n",
-                "\n",
-                "\n print(plotList[['",tag,"']])",
-                "\n cat(  '\n')",
-                "\n\n\n```\n"   
-            )
-            
-            chnkVec <- c(
-                chnkVec,
-                NewChnk
-            )
+FNbase <- paste0(tag, VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
+
+pdf(FN)
+print(plotList[[tag]])
+dev.off()
+
+link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=UMAP_1&y_axis=UMAP_2" target="_blank">here</a>')  
+
+figLegend <- paste0(
+    '**Figure ', 
+    figureCount, 
+    ':** ',
+    ' UMAP showing all cells from all samples together. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+    'An interactive version of this figure can be found ', link, '. '
+)
+
+figureCount <- figureCount + 1
+
+NewChnk <- paste0(
+    "#### ", tag,
+    "\n```{r Sample_UMAP_",
+    tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+    figLegend,"'}\n",
+    "\n",
+    "\n print(plotList[['",tag,"']])",
+    "\n cat(  '\n')",
+    "\n\n\n```\n"   
+)
+
+chnkVec <- c(
+    chnkVec,
+    NewChnk
+)
 
 
 ## Done first umap all samples                                               ##
 ###############################################################################
-            
+
 ###############################################################################
 ## First tsne all samples together                                           ##
 tag <- paste0("tSNE_All_Samples")
 dfPlot <- OsC@meta.data
 pos <- grep("included", names(dfPlot))
 if (length(pos) == 0){
-  dfPlot[["included"]] <- "+"
+    dfPlot[["included"]] <- "+"
 }
 
 pos <- grep("cellID", names(dfPlot))
 if (length(pos) == 0){
-  dfPlot[["cellID"]] <- row.names(dfPlot)
+    dfPlot[["cellID"]] <- row.names(dfPlot)
 }
 
 
 
 dfPlot$tSNE_1 <- NULL
 dfPlot$tSNE_2 <- NULL
-            
+
 ## Get tsNE coordinates ##
 coord <- data.frame(OsC@reductions$tsne@cell.embeddings)
 coord[["cellID"]] <- row.names(coord)
 coord <-coord[coord$cellID %in% dfPlot$cellID, ]
-            
+
 dfPlot <- merge(dfPlot, coord, by.x = "cellID", by.y="cellID", all=T)
 dfPlot[is.na(dfPlot)] <- 0
 dfPlot <- dfPlot[dfPlot$tSNE_1 != 0 & dfPlot$tSNE_2 != 0,]
-            
-            
+
+
 ## Add cluster colors ##
 dfPlot[["Cluster"]] <- dfPlot$sampleID
 clusterVec <- as.vector(unique(sort(dfPlot$sampleID)))
@@ -1145,72 +1144,72 @@ dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)
 # }
 
 plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(tSNE_1, tSNE_2, color=sampleID)
-            ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("tSNE1") + ylab("tSNE2"
-            ) + theme_bw(
-            )  +  theme(
-                axis.text.y   = element_text(size=8),
-                axis.text.x   = element_text(size=8),
-                axis.title.y  = element_text(size=8),
-                axis.title.x  = element_text(size=8),
-                axis.line = element_line(colour = "black"),
-                panel.border = element_rect(colour = "black", fill=NA, size=1),
-                plot.title = element_text(hjust = 0.5, size = 12),
-                legend.title = element_blank()
-            ) + ggtitle(paste0("Sample: ", tag)
-            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
-            ) + xlim(minX, maxX) + ylim(minY, maxY
-            ) + coord_fixed(ratio=1
-            ) 
+) + geom_point( shape=16, size = as.numeric(dotsize)
+) + xlab("tSNE1") + ylab("tSNE2"
+) + theme_bw(
+)  +  theme(
+    axis.text.y   = element_text(size=8),
+    axis.text.x   = element_text(size=8),
+    axis.title.y  = element_text(size=8),
+    axis.title.x  = element_text(size=8),
+    axis.line = element_line(colour = "black"),
+    panel.border = element_rect(colour = "black", fill=NA, size=1),
+    plot.title = element_text(hjust = 0.5, size = 12),
+    legend.title = element_blank()
+) + ggtitle(paste0("Sample: ", tag)
+) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+) + xlim(minX, maxX) + ylim(minY, maxY
+) + coord_fixed(ratio=1
+) 
 
 h <- sum(c("sampleName", "sampleColor") %in% names(dfPlot))
 if (h ==2){
-  dfCol <- unique(dfPlot[,c("sampleName", "sampleColor")])
-  colVec <- as.vector(dfCol$sampleColor)
-  names(colVec) <- as.vector(dfCol$sampleName)
-  plotList[[tag]] <- plotList[[tag]] + scale_colour_manual("Samples" ,values = colVec
-      ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
-  )
+    dfCol <- unique(dfPlot[,c("sampleName", "sampleColor")])
+    colVec <- as.vector(dfCol$sampleColor)
+    names(colVec) <- as.vector(dfCol$sampleName)
+    plotList[[tag]] <- plotList[[tag]] + scale_colour_manual("Samples" ,values = colVec
+    ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+    )
 }
-            
+
 if (length(unique(dfPlot$Cluster)) > 15){
-   plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
+    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
 }
-            FNbase <- paste0(tag, VersionPdfExt)
-            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-            FNrel <- paste0("report_figures/", FNbase)
-            
-            pdf(FN)
-                print(plotList[[tag]])
-            dev.off()
-            
-            link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=tSNE_1&y_axis=tSNE_2" target="_blank">here</a>')  
-            
-            figLegend <- paste0(
-                '**Figure ', 
-                figureCount, 
-                ':** ',
-                ' tSNE showing all cells from all samples together. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
-                'An interactive version of this figure can be found ', link, '. '
-            )
-            
-            figureCount <- figureCount + 1
-            
-            NewChnk <- paste0(
-                "#### ", tag,
-                "\n```{r Sample_tSNE_",
-                tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                figLegend,"'}\n",
-                "\n",
-                "\n print(plotList[['",tag,"']])",
-                "\n cat(  '\n')",
-                "\n\n\n```\n"   
-            )
-            
-            chnkVec <- c(
-                chnkVec,
-                NewChnk
-            )
+FNbase <- paste0(tag, VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
+
+pdf(FN)
+print(plotList[[tag]])
+dev.off()
+
+link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=tSNE_1&y_axis=tSNE_2" target="_blank">here</a>')  
+
+figLegend <- paste0(
+    '**Figure ', 
+    figureCount, 
+    ':** ',
+    ' tSNE showing all cells from all samples together. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+    'An interactive version of this figure can be found ', link, '. '
+)
+
+figureCount <- figureCount + 1
+
+NewChnk <- paste0(
+    "#### ", tag,
+    "\n```{r Sample_tSNE_",
+    tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+    figLegend,"'}\n",
+    "\n",
+    "\n print(plotList[['",tag,"']])",
+    "\n cat(  '\n')",
+    "\n\n\n```\n"   
+)
+
+chnkVec <- c(
+    chnkVec,
+    NewChnk
+)
 
 
 ## Done first tsne all samples                                               ##
@@ -1223,12 +1222,12 @@ sampleVec <- sort(unique(OsC@meta.data$sampleID))
 dfPlot <- OsC@meta.data
 pos <- grep("included", names(dfPlot))
 if (length(pos) == 0){
-  dfPlot[["included"]] <- "+"
+    dfPlot[["included"]] <- "+"
 }
 
 pos <- grep("cellID", names(dfPlot))
 if (length(pos) == 0){
-  dfPlot[["cellID"]] <- row.names(dfPlot)
+    dfPlot[["cellID"]] <- row.names(dfPlot)
 }
 
 ## Get UMAP coordinates ##
@@ -1237,101 +1236,101 @@ coord[["cellID"]] <- row.names(coord)
 coord <-coord[coord$cellID %in% dfPlot$cellID, ]
 dfPlot$UMAP_1 <- NULL
 dfPlot$UMAP_2 <- NULL
-            
+
 dfPlot <- merge(dfPlot, coord, by.x = "cellID", by.y="cellID", all=T)
 dfPlot[is.na(dfPlot)] <- 0
 dfPlot <- dfPlot[dfPlot$UMAP_1 != 0 & dfPlot$UMAP_2 != 0,]
-            
-            
+
+
 ## Add cluster colors ##
 dfPlot[["Cluster"]] <- dfPlot$sampleID
 clusterVec <- as.vector(unique(sort(dfPlot$sampleID)))
-            
+
 library(scales)
 clusterCols = hue_pal()(length(clusterVec))
 
 dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)            
-            
+
 maxX <- 1.1*max(dfPlot$UMAP_1, na.rm = T)
 minX <- 1.1*min(dfPlot$UMAP_1, na.rm = T)
 maxY <- 1.1*max(dfPlot$UMAP_2, na.rm = T)
 minY <- 1.1*min(dfPlot$UMAP_2, na.rm = T)               
-                                   
+
 for (i in 1:length(sampleVec)){
     tag <- paste0("UMAP_plot_by_", sampleVec[i])
     
     dfPlotSel <- dfPlot[dfPlot$sampleID == sampleVec[i], ]
     dfPlotSel$sampleID        
-            
-            
-    plotList[[tag]] <- ggplot(data=dfPlotSel[dfPlotSel$included == "+",], aes(UMAP_1, UMAP_2, color=sampleID)
-            ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("UMAP1") + ylab("UMAP2"
-            ) + theme_bw(
-            )  +  theme(
-                axis.text.y   = element_text(size=8),
-                axis.text.x   = element_text(size=8),
-                axis.title.y  = element_text(size=8),
-                axis.title.x  = element_text(size=8),
-                axis.line = element_line(colour = "black"),
-                panel.border = element_rect(colour = "black", fill=NA, size=1),
-                plot.title = element_text(hjust = 0.5, size = 12),
-                legend.title = element_blank()
-            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))    
-            ) + ggtitle(paste0("Sample: ", gsub("_", " ", tag))
-            ) + xlim(minX, maxX) + ylim(minY, maxY
-            ) + coord_fixed(ratio=1)
-            #) + scale_color_manual(values = clusterCols[i]
-             
     
-            h <- sum(c("sampleName", "sampleColor") %in% names(dfPlotSel))
-            if (h ==2){
-              dfCol <- unique(dfPlotSel[,c("sampleName", "sampleColor")])
-              colVec <- as.vector(dfCol$sampleColor)
-              names(colVec) <- as.vector(dfCol$sampleName)
-              plotList[[tag]] <- plotList[[tag]] + scale_colour_manual("Samples" ,values = colVec
-                  ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
-              )
-            }    
+    
+    plotList[[tag]] <- ggplot(data=dfPlotSel[dfPlotSel$included == "+",], aes(UMAP_1, UMAP_2, color=sampleID)
+    ) + geom_point( shape=16, size = as.numeric(dotsize)
+    ) + xlab("UMAP1") + ylab("UMAP2"
+    ) + theme_bw(
+    )  +  theme(
+        axis.text.y   = element_text(size=8),
+        axis.text.x   = element_text(size=8),
+        axis.title.y  = element_text(size=8),
+        axis.title.x  = element_text(size=8),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12),
+        legend.title = element_blank()
+    ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))    
+    ) + ggtitle(paste0("Sample: ", gsub("_", " ", tag))
+    ) + xlim(minX, maxX) + ylim(minY, maxY
+    ) + coord_fixed(ratio=1)
+    #) + scale_color_manual(values = clusterCols[i]
+    
+    
+    h <- sum(c("sampleName", "sampleColor") %in% names(dfPlotSel))
+    if (h ==2){
+        dfCol <- unique(dfPlotSel[,c("sampleName", "sampleColor")])
+        colVec <- as.vector(dfCol$sampleColor)
+        names(colVec) <- as.vector(dfCol$sampleName)
+        plotList[[tag]] <- plotList[[tag]] + scale_colour_manual("Samples" ,values = colVec
+        ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+        )
+    }    
     
     if (length(unique(dfPlot$Cluster)) > 15){
-   plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
-}
-            
-            FNbase <- paste0(tag, VersionPdfExt)
-            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-            FNrel <- paste0("report_figures/", FNbase)
-            
-            pdf(FN)
-                print(plotList[[tag]])
-            dev.off()
-            
-            figLegend <- paste0(
-                '**Figure ', 
-                figureCount, 
-                ':** ',
-                ' Sample-level UMAPs. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
-            )
-            
-            figureCount <- figureCount + 1
-            
-            NewChnk <- paste0(
-                paste("#### ", tag),
-                "\n```{r Sample_UMAP_",
-                tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                figLegend,"'}\n",
-                "\n",
-                "\n print(plotList[['",tag,"']])",
-                "\n cat(  '\n')",
-                "\n\n\n```\n"   
-            )
-            
-            chnkVec <- c(
-                chnkVec,
-                NewChnk
-            )
-            
-            
+        plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
+    }
+    
+    FNbase <- paste0(tag, VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+    print(plotList[[tag]])
+    dev.off()
+    
+    figLegend <- paste0(
+        '**Figure ', 
+        figureCount, 
+        ':** ',
+        ' Sample-level UMAPs. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
+    )
+    
+    figureCount <- figureCount + 1
+    
+    NewChnk <- paste0(
+        paste("#### ", tag),
+        "\n```{r Sample_UMAP_",
+        tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+    
+    
     
     
     
@@ -1346,75 +1345,73 @@ for (i in 1:length(sampleVec)){
 ## Add cluster dendrogram by sample                                          ##
 
 if (length(unique(OsC@meta.data$sampleID)) > 2){
-  library(ggtree)
-  Idents(OsC) <- "sampleName"
-  OsC <- BuildClusterTree(OsC)
-      
-  tag <- paste0("Sample_Dendrogram")
-      
-  OsC@tools$BuildClusterTree$tip.label <- paste0( OsC@tools$BuildClusterTree$tip.label)
-      
-  plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree
-      ) + geom_tree(
-      ) + theme_tree(
-      ) 
-  
-  h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
-  if (h ==2){
-    dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
-    colVec <- as.vector(dfCol$sampleColor)
-    names(colVec) <- as.vector(dfCol$sampleName)
-    plotList[[tag]] <- plotList[[tag]] + geom_tiplab(color=colVec
-      ) 
-  } else {
-    plotList[[tag]] <- plotList[[tag]] + geom_tiplab(
-      )   
-  }
-  
-  plotList[[tag]] <- plotList[[tag]] + geom_tippoint(aes(color=sampleID), size=1.5)
-  
-  plotList[[tag]] <- plotList[[tag]] + labs(title=tag
-      ) + theme(
+    library(ggtree)
+    Idents(OsC) <- "sampleName"
+    OsC <- BuildClusterTree(OsC)
+    
+    tag <- paste0("Sample_Dendrogram")
+    
+    OsC@tools$BuildClusterTree$tip.label <- paste0( OsC@tools$BuildClusterTree$tip.label)
+    
+    plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree
+    ) + geom_tree(
+    ) + theme_tree(
+    ) 
+    
+    h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
+    if (h ==2){
+        dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
+        colVec <- as.vector(dfCol$sampleColor)
+        names(colVec) <- as.vector(dfCol$sampleName)
+        plotList[[tag]] <- plotList[[tag]] + geom_tiplab(color=colVec
+        ) 
+    } else {
+        plotList[[tag]] <- plotList[[tag]] + geom_tiplab(
+        )   
+    }
+    
+    plotList[[tag]] <- plotList[[tag]] + labs(title=tag
+    ) + theme(
         panel.border = element_rect(colour = "black", fill=NA, size=1),
         axis.title.x=element_blank(),
         plot.title = element_text(hjust = 0.5, size = 12)
-      )  + xlim(0,dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
- 
-      
-  ## Save to file ##
-  FNbase <- paste0(tag,".", VersionPdfExt)
-  FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-  FNrel <- paste0("report_figures/", FNbase)
-      
-  pdf(FN)
-      print(plotList[[tag]])
-  dev.off()
-      
-  figLegend <- paste0(
-      '**Figure ', 
-          figureCount, 
-          ':** ',
-          ' Clusterplot dendrogram by sample ID. ','A pdf of this figure can be downloaded <a href="',FNrel,'" target="_blank">here</a>.'
-      )
-      
-      
-      NewChnk <- paste0(
-          "#### SampleID Dendrogram",
-          "\n```{r ", tag, "results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-          figLegend,"'}\n",
-          "\n",
-          "\n print(plotList[['",tag,"']])",
-          "\n cat(  '\n')",
-          "\n\n\n```\n"   
-      )
-      
-      chnkVec <- c(
-          chnkVec,
-          NewChnk
-      )
-      
-      
-      figureCount <- figureCount + 1
+    )  + xlim(0,dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
+    
+    
+    ## Save to file ##
+    FNbase <- paste0(tag,".", VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+    print(plotList[[tag]])
+    dev.off()
+    
+    figLegend <- paste0(
+        '**Figure ', 
+        figureCount, 
+        ':** ',
+        ' Clusterplot dendrogram by sample ID. ','A pdf of this figure can be downloaded <a href="',FNrel,'" target="_blank">here</a>.'
+    )
+    
+    
+    NewChnk <- paste0(
+        "#### SampleID Dendrogram",
+        "\n```{r ", tag, "results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+    
+    
+    figureCount <- figureCount + 1
 }
 
 ## Done by sample                                                            ##
@@ -1489,9 +1486,6 @@ Idents(OsC) <- "sampleID"
 ## Retrieved Scaled data ##
 dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
 dfAvgExpr <- dfAvgExpr[,sort(names(dfAvgExpr))]
-
-
-
 dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
 
 dfAvgScaledData <- data.frame(cluster.averages[["RNA"]]@scale.data)
@@ -1513,28 +1507,6 @@ cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
 
 dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
 dfAvgExpr <- dfAvgExpr[,sort(names(dfAvgExpr))]
-
-###############################################################################
-## Order average expression by cluster similarity (most variable genes)      ##
-assay <- NULL
-assay <- assay %||% DefaultAssay(object = OsC)
-
-features <- features %||% VariableFeatures(object = OsC)
-features <- intersect(x = features, y = rownames(x = OsC))
-data.avg <- AverageExpression(object = OsC, assays = assay, 
-features = features, slot = "data", verbose = T)[[1]]
-data.dist <- dist(x = t(x = data.avg[features, ]))
-dforder <- hclust(d = data.dist)
-orderVec <- dforder$order
-dfAvgExpr <- dfAvgExpr[,orderVec]
-
-Obio@parameterList[["clusterNameOrder"]] <- orderVec
-
-## Done                                                                      ##
-###############################################################################
-
-
-
 dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
 
 dfAvgScaledData <- data.frame(cluster.averages[["RNA"]]@scale.data)
@@ -1558,29 +1530,6 @@ cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
 ## Retrieved Scaled data ##
 dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
 selVec <- names(dfAvgExpr)
-
-
-###############################################################################
-## Order average expression by cluster similarity (most variable genes)      ##
-assay <- NULL
-assay <- assay %||% DefaultAssay(object = OsC)
-
-features <- features %||% VariableFeatures(object = OsC)
-features <- intersect(x = features, y = rownames(x = OsC))
-data.avg <- AverageExpression(object = OsC, assays = assay, 
-features = features, slot = "data", verbose = T)[[1]]
-data.dist <- dist(x = t(x = data.avg[features, ]))
-dforder <- hclust(d = data.dist)
-orderVec <- names(dfAvgExpr)[dforder$order]
-dfAvgExpr <- dfAvgExpr[,orderVec]
-
-Obio@parameterList[["sampleIDOrder"]] <- orderVec
-
-## Reset sample order by clustering ##
-#OsC@meta.data$sampleID
-
-## Done                                                                      ##
-###############################################################################
 
 dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
 selVec <- c("gene", selVec)
@@ -1623,22 +1572,22 @@ tag <- paste0("UMAP_All_Samples")
 dfPlot <- OsC@meta.data
 pos <- grep("included", names(dfPlot))
 if (length(pos) == 0){
-  dfPlot[["included"]] <- "+"
+    dfPlot[["included"]] <- "+"
 }
 dfPlot[["cellID"]] <- row.names(dfPlot)
 dfPlot$UMAP_1 <- NULL
 dfPlot$UMAP_2 <- NULL
-            
+
 ## Get UMAP coordinates ##
 coord <- data.frame(OsC@reductions$umap@cell.embeddings)
 coord[["cellID"]] <- row.names(coord)
 coord <-coord[coord$cellID %in% dfPlot$cellID, ]
-            
+
 dfPlot <- merge(dfPlot, coord, by.x = "cellID", by.y="cellID", all=T)
 dfPlot[is.na(dfPlot)] <- 0
 dfPlot <- dfPlot[dfPlot$UMAP_1 != 0 & dfPlot$UMAP_2 != 0,]
-            
-            
+
+
 ## Add cluster colors ##
 dfPlot[["Cluster"]] <- dfPlot$clusterName
 clusterVec <- as.vector(unique(sort(dfPlot$clusterName)))
@@ -1663,24 +1612,24 @@ clusterCols = hue_pal()(length(clusterVec))
 # }
 
 plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(UMAP_1, UMAP_2, color=Cluster)
-            ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("UMAP1") + ylab("UMAP2"
-            ) + theme_bw(
-            )  +  theme(
-                axis.text.y   = element_text(size=8),
-                axis.text.x   = element_text(size=8),
-                axis.title.y  = element_text(size=8),
-                axis.title.x  = element_text(size=8),
-                axis.line = element_line(colour = "black"),
-                panel.border = element_rect(colour = "black", fill=NA, size=1),
-                plot.title = element_text(hjust = 0.5, size = 12),
-                legend.title = element_blank()
-            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
-
-            ) + ggtitle(paste0("Sample: ", gsub("_", " ", tag))
-            ) + xlim(minX, maxX) + ylim(minY, maxY
-            ) + coord_fixed(ratio=1
-            ) 
+) + geom_point( shape=16, size = as.numeric(dotsize)
+) + xlab("UMAP1") + ylab("UMAP2"
+) + theme_bw(
+)  +  theme(
+    axis.text.y   = element_text(size=8),
+    axis.text.x   = element_text(size=8),
+    axis.title.y  = element_text(size=8),
+    axis.title.x  = element_text(size=8),
+    axis.line = element_line(colour = "black"),
+    panel.border = element_rect(colour = "black", fill=NA, size=1),
+    plot.title = element_text(hjust = 0.5, size = 12),
+    legend.title = element_blank()
+) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+           
+) + ggtitle(paste0("Sample: ", gsub("_", " ", tag))
+) + xlim(minX, maxX) + ylim(minY, maxY
+) + coord_fixed(ratio=1
+) 
 
 h <- sum(c("clusterName", "clusterColor") %in% names(dfPlot))
 if (h ==2){
@@ -1691,72 +1640,72 @@ if (h ==2){
     ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
     )
 }
-            
+
 if (length(unique(dfPlot$Cluster)) > 15){
-   plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
+    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
 }
-            FNbase <- paste0(tag, VersionPdfExt)
-            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-            FNrel <- paste0("report_figures/", FNbase)
-            
-            pdf(FN)
-                print(plotList[[tag]])
-            dev.off()
-            
-            link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=UMAP_1&y_axis=UMAP_2" target="_blank">here</a>')  
-            
-            figLegend <- paste0(
-                '**Figure ', 
-                figureCount, 
-                ':** ',
-                ' UMAP showing all cells from all samples together. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
-                'An interactive version of this figure can be found ', link, '. '
-            )
-            
-            figureCount <- figureCount + 1
-            
-            NewChnk <- paste0(
-                "#### ", tag,
-                "\n```{r SL_UMAP_",
-                tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                figLegend,"'}\n",
-                "\n",
-                "\n print(plotList[['",tag,"']])",
-                "\n cat(  '\n')",
-                "\n\n\n```\n"   
-            )
-            
-            chnkVec <- c(
-                chnkVec,
-                NewChnk
-            )
+FNbase <- paste0(tag, VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
+
+pdf(FN)
+print(plotList[[tag]])
+dev.off()
+
+link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=UMAP_1&y_axis=UMAP_2" target="_blank">here</a>')  
+
+figLegend <- paste0(
+    '**Figure ', 
+    figureCount, 
+    ':** ',
+    ' UMAP showing all cells from all samples together. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+    'An interactive version of this figure can be found ', link, '. '
+)
+
+figureCount <- figureCount + 1
+
+NewChnk <- paste0(
+    "#### ", tag,
+    "\n```{r SL_UMAP_",
+    tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+    figLegend,"'}\n",
+    "\n",
+    "\n print(plotList[['",tag,"']])",
+    "\n cat(  '\n')",
+    "\n\n\n```\n"   
+)
+
+chnkVec <- c(
+    chnkVec,
+    NewChnk
+)
 
 
 ## Done first umap all samples                                               ##
 ###############################################################################
-            
+
 ###############################################################################
 ## First tsne all samples together                                           ##
 tag <- paste0("tSNE_All_Samples")
 dfPlot <- OsC@meta.data
 pos <- grep("included", names(dfPlot))
 if (length(pos) == 0){
-  dfPlot[["included"]] <- "+"
+    dfPlot[["included"]] <- "+"
 }
 dfPlot[["cellID"]] <- row.names(dfPlot)
 dfPlot$tSNE_1 <- NULL
 dfPlot$tSNE_2 <- NULL
-            
+
 ## Get tsNE coordinates ##
 coord <- data.frame(OsC@reductions$tsne@cell.embeddings)
 coord[["cellID"]] <- row.names(coord)
 coord <-coord[coord$cellID %in% dfPlot$cellID, ]
-            
+
 dfPlot <- merge(dfPlot, coord, by.x = "cellID", by.y="cellID", all=T)
 dfPlot[is.na(dfPlot)] <- 0
 dfPlot <- dfPlot[dfPlot$tSNE_1 != 0 & dfPlot$tSNE_2 != 0,]
-            
-            
+
+
 ## Add cluster colors ##
 dfPlot[["Cluster"]] <- dfPlot$clusterName
 clusterVec <- as.vector(unique(sort(dfPlot$clusterName)))
@@ -1783,23 +1732,23 @@ dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)
 
 dfPlot$clusterName <- factor(dfPlot$clusterName)
 plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(tSNE_1, tSNE_2, color=Cluster)
-            ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("tSNE1") + ylab("tSNE2"
-            ) + theme_bw(
-            )  +  theme(
-                axis.text.y   = element_text(size=8),
-                axis.text.x   = element_text(size=8),
-                axis.title.y  = element_text(size=8),
-                axis.title.x  = element_text(size=8),
-                axis.line = element_line(colour = "black"),
-                panel.border = element_rect(colour = "black", fill=NA, size=1),
-                plot.title = element_text(hjust = 0.5, size = 12),
-                legend.title = element_blank()
-            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
-            ) + ggtitle(paste0("Sample: ", tag)
-            ) + xlim(minX, maxX) + ylim(minY, maxY
-            ) + coord_fixed(ratio=1
-            )  
+) + geom_point( shape=16, size = as.numeric(dotsize)
+) + xlab("tSNE1") + ylab("tSNE2"
+) + theme_bw(
+)  +  theme(
+    axis.text.y   = element_text(size=8),
+    axis.text.x   = element_text(size=8),
+    axis.title.y  = element_text(size=8),
+    axis.title.x  = element_text(size=8),
+    axis.line = element_line(colour = "black"),
+    panel.border = element_rect(colour = "black", fill=NA, size=1),
+    plot.title = element_text(hjust = 0.5, size = 12),
+    legend.title = element_blank()
+) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+) + ggtitle(paste0("Sample: ", tag)
+) + xlim(minX, maxX) + ylim(minY, maxY
+) + coord_fixed(ratio=1
+)  
 
 h <- sum(c("clusterName", "clusterColor") %in% names(dfPlot))
 if (h ==2){
@@ -1811,45 +1760,45 @@ if (h ==2){
     ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
     )
 }
-            
+
 if (length(unique(dfPlot$Cluster)) > 15){
-   plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
+    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
 }
-            FNbase <- paste0(tag, VersionPdfExt)
-            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-            FNrel <- paste0("report_figures/", FNbase)
-            
-            pdf(FN)
-                print(plotList[[tag]])
-            dev.off()
-            
-            link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=tSNE_1&y_axis=tSNE_2" target="_blank">here</a>')  
-            
-            figLegend <- paste0(
-                '**Figure ', 
-                figureCount, 
-                ':** ',
-                ' tSNE showing all cells from all samples together. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
-                'An interactive version of this figure can be found ', link, '. '
-            )
-            
-            figureCount <- figureCount + 1
-            
-            NewChnk <- paste0(
-                "#### ", tag,
-                "\n```{r SL_tSNE_",
-                tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                figLegend,"'}\n",
-                "\n",
-                "\n print(plotList[['",tag,"']])",
-                "\n cat(  '\n')",
-                "\n\n\n```\n"   
-            )
-            
-            chnkVec <- c(
-                chnkVec,
-                NewChnk
-            )
+FNbase <- paste0(tag, VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
+
+pdf(FN)
+print(plotList[[tag]])
+dev.off()
+
+link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=tSNE_1&y_axis=tSNE_2" target="_blank">here</a>')  
+
+figLegend <- paste0(
+    '**Figure ', 
+    figureCount, 
+    ':** ',
+    ' tSNE showing all cells from all samples together. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+    'An interactive version of this figure can be found ', link, '. '
+)
+
+figureCount <- figureCount + 1
+
+NewChnk <- paste0(
+    "#### ", tag,
+    "\n```{r SL_tSNE_",
+    tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+    figLegend,"'}\n",
+    "\n",
+    "\n print(plotList[['",tag,"']])",
+    "\n cat(  '\n')",
+    "\n\n\n```\n"   
+)
+
+chnkVec <- c(
+    chnkVec,
+    NewChnk
+)
 
 
 ## Done first tsne all samples                                               ##
@@ -1862,61 +1811,61 @@ sampleVec <- sort(unique(OsC@meta.data$sampleID))
 dfPlot <- OsC@meta.data
 pos <- grep("included", names(dfPlot))
 if (length(pos) == 0){
-  dfPlot[["included"]] <- "+"
+    dfPlot[["included"]] <- "+"
 }
 dfPlot[["cellID"]] <- row.names(dfPlot)
-            
+
 ## Get UMAP coordinates ##
 coord <- data.frame(OsC@reductions$umap@cell.embeddings)
 coord[["cellID"]] <- row.names(coord)
 coord <-coord[coord$cellID %in% dfPlot$cellID, ]
 dfPlot$UMAP_1 <- NULL
 dfPlot$UMAP_2 <- NULL
-            
+
 dfPlot <- merge(dfPlot, coord, by.x = "cellID", by.y="cellID", all=T)
 dfPlot[is.na(dfPlot)] <- 0
 dfPlot <- dfPlot[dfPlot$UMAP_1 != 0 & dfPlot$UMAP_2 != 0,]
-            
-            
+
+
 ## Add cluster colors ##
 dfPlot[["Cluster"]] <- dfPlot$clusterName
 clusterVec <- as.vector(unique(sort(dfPlot$clusterName)))
-            
+
 library(scales)
 clusterCols = hue_pal()(length(clusterVec))
-            
+
 dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)            
-            
+
 maxX <- 1.1*max(dfPlot$UMAP_1, na.rm = T)
 minX <- 1.1*min(dfPlot$UMAP_1, na.rm = T)
 maxY <- 1.1*max(dfPlot$UMAP_2, na.rm = T)
 minY <- 1.1*min(dfPlot$UMAP_2, na.rm = T)               
-                                   
+
 for (i in 1:length(sampleVec)){
     tag <- paste0("UMAP_plot_by_", sampleVec[i])
     
     dfPlotSel <- dfPlot[dfPlot$sampleID == sampleVec[i], ]
-            
-            
-            
+    
+    
+    
     plotList[[tag]] <- ggplot(data=dfPlotSel[dfPlotSel$included == "+",], aes(UMAP_1, UMAP_2, color=Cluster)
-            ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("UMAP1") + ylab("UMAP2"
-            )  + theme_bw(
-            ) + theme(
-                axis.text.y   = element_text(size=8),
-                axis.text.x   = element_text(size=8),
-                axis.title.y  = element_text(size=8),
-                axis.title.x  = element_text(size=8),
-                axis.line = element_line(colour = "black"),
-                panel.border = element_rect(colour = "black", fill=NA, size=1),
-                plot.title = element_text(hjust = 0.5, size = 12),
-                legend.title = element_blank()
-            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
-            ) + ggtitle(paste0("Sample: ", gsub("_", " ", tag))
-            ) + xlim(minX, maxX) + ylim(minY, maxY
-            ) + coord_fixed(ratio=1
-            ) 
+    ) + geom_point( shape=16, size = as.numeric(dotsize)
+    ) + xlab("UMAP1") + ylab("UMAP2"
+    )  + theme_bw(
+    ) + theme(
+        axis.text.y   = element_text(size=8),
+        axis.text.x   = element_text(size=8),
+        axis.title.y  = element_text(size=8),
+        axis.title.x  = element_text(size=8),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12),
+        legend.title = element_blank()
+    ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+    ) + ggtitle(paste0("Sample: ", gsub("_", " ", tag))
+    ) + xlim(minX, maxX) + ylim(minY, maxY
+    ) + coord_fixed(ratio=1
+    ) 
     
     h <- sum(c("clusterName", "clusterColor") %in% names(dfPlotSel))
     if (h ==2){
@@ -1929,43 +1878,43 @@ for (i in 1:length(sampleVec)){
     }
     
     if (length(unique(dfPlot$Cluster)) > 15){
-   plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
-}
-            
-            FNbase <- paste0(tag, VersionPdfExt)
-            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-            FNrel <- paste0("report_figures/", FNbase)
-            
-            pdf(FN)
-                print(plotList[[tag]])
-            dev.off()
-            
-            figLegend <- paste0(
-                '**Figure ', 
-                figureCount, 
-                ':** ',
-                ' Sample-level UMAPs. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
-            )
-            
-            figureCount <- figureCount + 1
-            
-            NewChnk <- paste0(
-                paste("#### ", tag),
-                "\n```{r SL_UMAP_",
-                tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                figLegend,"'}\n",
-                "\n",
-                "\n print(plotList[['",tag,"']])",
-                "\n cat(  '\n')",
-                "\n\n\n```\n"   
-            )
-            
-            chnkVec <- c(
-                chnkVec,
-                NewChnk
-            )
-            
-            
+        plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
+    }
+    
+    FNbase <- paste0(tag, VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+    print(plotList[[tag]])
+    dev.off()
+    
+    figLegend <- paste0(
+        '**Figure ', 
+        figureCount, 
+        ':** ',
+        ' Sample-level UMAPs. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
+    )
+    
+    figureCount <- figureCount + 1
+    
+    NewChnk <- paste0(
+        paste("#### ", tag),
+        "\n```{r SL_UMAP_",
+        tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+    
+    
     
     
     
@@ -1980,92 +1929,92 @@ for (i in 1:length(sampleVec)){
 ## Add cluster dendrogram by sample                                          ##
 
 if (length(unique(OsC@meta.data$sampleID)) > 3){
-  library(ggtree)
-  Idents(OsC) <- "sampleName"
-  OsC <- BuildClusterTree(OsC)
-      
-  tag <- paste0("Sample_Dendrogram")
-      
-  OsC@tools$BuildClusterTree$tip.label <- paste0( OsC@tools$BuildClusterTree$tip.label)
-      
-  plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree
-      ) + geom_tree(
-      ) + theme_tree(
-      ) 
-  
-  h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
-  if (h ==2){
-    dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
-    colVec <- as.vector(dfCol$sampleColor)
-    names(colVec) <- as.vector(dfCol$sampleName)
-    plotList[[tag]] <- plotList[[tag]] + geom_tiplab(color=colVec
+    library(ggtree)
+    Idents(OsC) <- "sampleName"
+    OsC <- BuildClusterTree(OsC)
+    
+    tag <- paste0("Sample_Dendrogram")
+    
+    OsC@tools$BuildClusterTree$tip.label <- paste0( OsC@tools$BuildClusterTree$tip.label)
+    
+    plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree
+    ) + geom_tree(
+    ) + theme_tree(
     ) 
-} else {
-    plotList[[tag]] <- plotList[[tag]] + geom_tiplab(
-    )   
-}
-  
-  plotList[[tag]] <- plotList[[tag]] + labs(title=tag
-      ) + theme(
+    
+    h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
+    if (h ==2){
+        dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
+        colVec <- as.vector(dfCol$sampleColor)
+        names(colVec) <- as.vector(dfCol$sampleName)
+        plotList[[tag]] <- plotList[[tag]] + geom_tiplab(color=colVec
+        ) 
+    } else {
+        plotList[[tag]] <- plotList[[tag]] + geom_tiplab(
+        )   
+    }
+    
+    plotList[[tag]] <- plotList[[tag]] + labs(title=tag
+    ) + theme(
         panel.border = element_rect(colour = "black", fill=NA, size=1),
         axis.title.x=element_blank(),
         plot.title = element_text(hjust = 0.5, size = 12)
-      )  + xlim(0,dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
- 
-      
-  ## Save to file ##
-  FNbase <- paste0(tag,".", VersionPdfExt)
-  FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-  FNrel <- paste0("report_figures/", FNbase)
-      
-  pdf(FN)
-      print(plotList[[tag]])
-  dev.off()
-      
-  figLegend <- paste0(
-      '**Figure ', 
-          figureCount, 
-          ':** ',
-          ' Clusterplot dendrogram by sample ID. ','A pdf of this figure can be downloaded <a href="',FNrel,'" target="_blank">here</a>.'
-      )
-      
-      
-      NewChnk <- paste0(
-          "#### SampleID Dendrogram",
-          "\n```{r ", tag, "results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-          figLegend,"'}\n",
-          "\n",
-          "\n print(plotList[['",tag,"']])",
-          "\n cat(  '\n')",
-          "\n\n\n```\n"   
-      )
-      
-      chnkVec <- c(
-          chnkVec,
-          NewChnk
-      )
-      
-      
-      figureCount <- figureCount + 1
+    )  + xlim(0,dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
+    
+    
+    ## Save to file ##
+    FNbase <- paste0(tag,".", VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+    print(plotList[[tag]])
+    dev.off()
+    
+    figLegend <- paste0(
+        '**Figure ', 
+        figureCount, 
+        ':** ',
+        ' Clusterplot dendrogram by sample ID. ','A pdf of this figure can be downloaded <a href="',FNrel,'" target="_blank">here</a>.'
+    )
+    
+    
+    NewChnk <- paste0(
+        "#### SampleID Dendrogram",
+        "\n```{r ", tag, "results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+    
+    
+    figureCount <- figureCount + 1
 }
 
 ## Done by sample                                                            ##
 ###############################################################################
-            
+
 ###############################################################################
 ## Add cluster dendrogram by cluster                                         ##
 library(ggtree)
 Idents(OsC) <- "clusterName"
 OsC <- BuildClusterTree(OsC)
-    
+
 tag <- paste0("Cluster_Dendrogram")
-    
+
 OsC@tools$BuildClusterTree$tip.label <- paste0( OsC@tools$BuildClusterTree$tip.label)
-    
+
 plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree
-    ) + geom_tree(
-    ) + theme_tree(
-    ) 
+) + geom_tree(
+) + theme_tree(
+) 
 
 h <- sum(c("clusterName", "clusterColor") %in% names(OsC@meta.data))
 if (h ==2){
@@ -2083,51 +2032,53 @@ if (h ==2){
 # https://guangchuangyu.github.io/ggtree-book/chapter-ggtree.html
 # plotList[[tag]] <- plotList[[tag]] + geom_point2(aes(subset=node==5), color='darkgreen', size=5)
 
-
+#plotList[[tag]] + geom_tippoint(aes(color=clusterName), size=3, alpha=.75)
+#plotList[[tag]] + theme_tree2(legend.position='right')
+#plotList[[tag]] + geom_point(aes(color=clusterName))
 plotList[[tag]] <- plotList[[tag]]  + labs(title=tag
-    ) + theme(
-      panel.border = element_rect(colour = "black", fill=NA, size=1),
-      axis.title.x=element_blank(),
-      plot.title = element_text(hjust = 0.5, size = 12)
-    )  + xlim(0, dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
-    
-    #+ xlim(-1,1.2*max(OsC@tools$BuildClusterTree$edge)) 
-    
-    
+) + theme(
+    panel.border = element_rect(colour = "black", fill=NA, size=1),
+    axis.title.x=element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 12)
+)  + xlim(0, dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
+
+#+ xlim(-1,1.2*max(OsC@tools$BuildClusterTree$edge)) 
+
+
 ## Save to file ##
 FNbase <- paste0(tag,".", VersionPdfExt)
 FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
 FNrel <- paste0("report_figures/", FNbase)
-    
+
 pdf(FN)
-    print(plotList[[tag]])
+print(plotList[[tag]])
 dev.off()
-    
+
 figLegend <- paste0(
     '**Figure ', 
-        figureCount, 
-        ':** ',
-        ' Clusterplot dendrogram. ','A pdf of this figure can be downloaded <a href="',FNrel,'" target="_blank">here</a>.'
-    )
-    
-    
-    NewChnk <- paste0(
-        "#### Cluster Dendrogram",
-        "\n```{r ", tag, "results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-        figLegend,"'}\n",
-        "\n",
-        "\n print(plotList[['",tag,"']])",
-        "\n cat(  '\n')",
-        "\n\n\n```\n"   
-    )
-    
-    chnkVec <- c(
-        chnkVec,
-        NewChnk
-    )
-    
-    
-    figureCount <- figureCount + 1
+    figureCount, 
+    ':** ',
+    ' Clusterplot dendrogram. ','A pdf of this figure can be downloaded <a href="',FNrel,'" target="_blank">here</a>.'
+)
+
+
+NewChnk <- paste0(
+    "#### Cluster Dendrogram",
+    "\n```{r ", tag, "results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+    figLegend,"'}\n",
+    "\n",
+    "\n print(plotList[['",tag,"']])",
+    "\n cat(  '\n')",
+    "\n\n\n```\n"   
+)
+
+chnkVec <- c(
+    chnkVec,
+    NewChnk
+)
+
+
+figureCount <- figureCount + 1
 
 ## Done integraed analysis                                                   ##
 ###############################################################################
@@ -2136,7 +2087,7 @@ figLegend <- paste0(
 ###############################################################################
 ## Find all markers                                                          ##
 DefaultAssay(OsC) <- "RNA"
-Idents(OsC) <- "clusterName"
+Idents(OsC) <- "seurat_clusters"
 
 lgFCthreshold <- 0.25
 
@@ -2152,15 +2103,15 @@ dfGeneralMarkers <- FindAllMarkers(
 
 if (nrow(dfGeneralMarkers) == 0){
     lgFCthreshold <- 0.00
-dfGeneralMarkers <- FindAllMarkers(
-    object = OsC, 
-    only.pos = FALSE, 
-    min.pct = 0.01, 
-    logfc.threshold = lgFCthreshold,
-    test.use = "roc",
-    assay =  "RNA",
-    slot = "data"
-)
+    dfGeneralMarkers <- FindAllMarkers(
+        object = OsC, 
+        only.pos = FALSE, 
+        min.pct = 0.01, 
+        logfc.threshold = lgFCthreshold,
+        test.use = "roc",
+        assay =  "RNA",
+        slot = "data"
+    )
 }
 
 if (nrow(dfGeneralMarkers) > 0){
@@ -2220,10 +2171,10 @@ if (Obio@parameterList$geneIDcolumn != "hgnc_symbol" & Obio@parameterList$geneID
 
 library(dplyr)
 dfDat <- dfDat %>%
-       group_by(cluster) %>% 
-       mutate(rn = row_number()) %>%
-       ungroup %>%
-       pivot_wider(names_from = cluster, values_from = gene, values_fill = "") %>% dplyr::select(-rn)
+    group_by(cluster) %>% 
+    mutate(rn = row_number()) %>%
+    ungroup %>%
+    pivot_wider(names_from = cluster, values_from = gene, values_fill = "") %>% dplyr::select(-rn)
 
 orderVec <- sort(names(dfDat))
 dfDat <- dfDat[,orderVec]
@@ -2242,8 +2193,8 @@ descriptionRow[1,] <- t(names(dfDat))
 descriptionRow[1,] <- paste0(descriptionRow[1,], " from Seurat FindAllMarkers.")
 
 dfDat <- rbind(
-  descriptionRow, 
-  dfDat
+    descriptionRow, 
+    dfDat
 )
 # dfCatRef <- names(dfCatRef)
 # names(dfCatRef) <- names(dfDat)
@@ -2257,23 +2208,23 @@ dfDat <- rbind(
 ## Upload/update category by category                                ##
 updatedCatIDs <- as.vector(NULL, mode = "character")
 updatedCatNames <- as.vector(NULL, mode = "character")
-        
+
 for (i in 1:ncol(dfDat)){
     cat.name <- names(dfDat)[i]
     cat_type <- paste0("temp_cluster_marker_", Obio@parameterList$project_id)
-            
+    
     cat.description.text <- as.vector(dfDat[1,i])
-            
+    
     gene.vec <- as.vector(
         dfDat[,i]
     )[2:nrow(dfDat)]
-            
+    
     gene.vec <- gene.vec[gene.vec != ""]
     gene.vec <- sort(na.omit(gene.vec))
-            
+    
     ## Determine if cat exists ##
-            
-            
+    
+    
     catID <- add.category.to.lab.reference.table.hs(
         host = Obio@dbDetailList$host,
         pwd = db.pwd,
@@ -2295,24 +2246,24 @@ for (i in 1:ncol(dfDat)){
         lab.name = Obio@parameterList$labname,
         replaceExistingCatName = TRUE
     ) 
-        
-            
+    
+    
     updatedCatIDs <- c(
         updatedCatIDs, 
         catID
     )    
     
     updatedCatNames <- c(
-      updatedCatNames, 
-      cat.name
+        updatedCatNames, 
+        cat.name
     )
 } ## End dfDat loop
-        
+
 dfFAMplotIDs <- data.frame(
-  cat_id = updatedCatIDs, 
-  cat_name = updatedCatNames
+    cat_id = updatedCatIDs, 
+    cat_name = updatedCatNames
 )        
-        
+
 ## Done uploading general markers                                            ##
 ###############################################################################
 
@@ -2337,23 +2288,23 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 ### Check Accuracy UMAP Distances
 The sleepwalk tool will provide the euclidean distances between individual cells. This will help you to determine clustering accuracy. Find more information <a href="https://anders-biostat.github.io/sleepwalk/" target = "_blank">here</a>. 
 <div align="center">
-```{r Plot_umap_sleepwalk, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
+    ```{r Plot_umap_sleepwalk, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 library(sleepwalk)
 sleepwalk( 
-  OsC@reductions$umap@cell.embeddings, 
-  OsC@reductions$pca@cell.embeddings,
-  saveToFile=paste(Obio@parameterList$outputDir,"sleepwalk.UMAP.html",sep='')
+    OsC@reductions$umap@cell.embeddings, 
+    OsC@reductions$pca@cell.embeddings,
+    saveToFile=paste(Obio@parameterList$outputDir,"sleepwalk.UMAP.html",sep='')
 )
 htmltools::includeHTML(paste(Obio@parameterList$outputDir,"sleepwalk.UMAP.html",sep=''))
-  
-          
+
+
 ```
 </div>
-
-
- 
-
-```{r doublet-data, echo=TRUE, eval=TRUE, warning=FALSE, results=FALSE, message = FALSE}
+    
+    
+    
+    
+    ```{r doublet-data, echo=TRUE, eval=TRUE, warning=FALSE, results=FALSE, message = FALSE}
 
 ## Add UMAP coordinates to Metadata ##
 dfAdd <- data.frame(OsC@reductions$umap@cell.embeddings)
@@ -2379,78 +2330,78 @@ dfTemp <- OsC@meta.data
 pos <- grep("DF_Classification", names(dfTemp))
 
 if (length(pos) > 0){
-
-  ## First make variation plot for integrated samples, than for all individual samples separately
-  tag <- "Doublet_plot"
-  
-  dfTemp$DF_Classification <- factor(dfTemp$DF_Classification, levels = sort(unique(dfTemp$DF_Classification)))
-  
-  
-  #dotsize <- round(7500/nrow(dfTemp),1)
-  # dotsize <- 0.3
-  
-  colVec <- c("black", "red")
-  names(colVec) <- c("Singlet", "Doublet")
-  
-  colVec <- colVec[unique(dfTemp$DF_Classification)]
-  
-  plotList[[tag]] <- ggplot(dfTemp, aes(UMAP_1, UMAP_2, color=DF_Classification)
-          )+ geom_point( 
-              shape = 16,
-              size = as.numeric(dotsize)
-          ) + xlab("UMAP1") + ylab("UMAP2"
-          ) + theme_bw(
-          )  +  theme(
-              axis.text.y   = element_text(size=8),
-              axis.text.x   = element_text(size=8),
-              axis.title.y  = element_text(size=8),
-              axis.title.x  = element_text(size=8),
-              axis.line = element_line(colour = "black"),
-              panel.border = element_rect(colour = "black", fill=NA, size=1),
-              plot.title = element_text(hjust = 0.5, size = 12)
-          ) + ggtitle("Potential Doublets"
-          ) + scale_color_manual(values=colVec
-          ) 
-  
-  #+ xlim(minX, maxX) + ylim(minY, maxY)  
-      
-      
-      
-              ## Save to file ##
-              FNbase <- paste0("DoubletFinderAll", VersionPdfExt)
-              FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-              FNrel <- paste0("report_figures/", FNbase)
-              
-             
-              pdf(FN)
-              print(plotList[[tag]])
-              dev.off()
-              
-              
-              
-              ## Create R markdown chunk ##
-              figLegend <- paste0(
-                  '**Figure ', 
-                  figureCount, 
-                  '**: Figure depicting the location of potential doublets in PCA components 1 and 2. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
-              )
-              
-              figureCount <- figureCount + 1 
-              
-              NewChnk <- paste0(
-                  " #### Doublets All Timepoints", 
-                  "\n```{r ", tag, ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                  figLegend,"'}\n",
-                  "\n",
-                  "\n print(plotList[['",tag,"']])",
-                  "\n cat(  '\n')",
-                  "\n\n\n```\n"   
-              )
-              
-              chnkVec <- c(
-                  chnkVec,
-                  NewChnk
-              )
+    
+    ## First make variation plot for integrated samples, than for all individual samples separately
+    tag <- "Doublet_plot"
+    
+    dfTemp$DF_Classification <- factor(dfTemp$DF_Classification, levels = sort(unique(dfTemp$DF_Classification)))
+    
+    
+    #dotsize <- round(7500/nrow(dfTemp),1)
+    # dotsize <- 0.3
+    
+    colVec <- c("black", "red")
+    names(colVec) <- c("Singlet", "Doublet")
+    
+    colVec <- colVec[unique(dfTemp$DF_Classification)]
+    
+    plotList[[tag]] <- ggplot(dfTemp, aes(UMAP_1, UMAP_2, color=DF_Classification)
+    )+ geom_point( 
+        shape = 16,
+        size = as.numeric(dotsize)
+    ) + xlab("UMAP1") + ylab("UMAP2"
+    ) + theme_bw(
+    )  +  theme(
+        axis.text.y   = element_text(size=8),
+        axis.text.x   = element_text(size=8),
+        axis.title.y  = element_text(size=8),
+        axis.title.x  = element_text(size=8),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12)
+    ) + ggtitle("Potential Doublets"
+    ) + scale_color_manual(values=colVec
+    ) 
+    
+    #+ xlim(minX, maxX) + ylim(minY, maxY)  
+    
+    
+    
+    ## Save to file ##
+    FNbase <- paste0("DoubletFinderAll", VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    
+    pdf(FN)
+    print(plotList[[tag]])
+    dev.off()
+    
+    
+    
+    ## Create R markdown chunk ##
+    figLegend <- paste0(
+        '**Figure ', 
+        figureCount, 
+        '**: Figure depicting the location of potential doublets in PCA components 1 and 2. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
+    )
+    
+    figureCount <- figureCount + 1 
+    
+    NewChnk <- paste0(
+        " #### Doublets All Timepoints", 
+        "\n```{r ", tag, ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
 }
 
 if (length(plotList) > 3){
@@ -2467,7 +2418,7 @@ This analyis gives an indication of which cells MIGHT be doublets. Chris McGinni
 ```{r doublet-plot, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 ## plot list will be integrated in full figure ##
 if (length(pos) > 0){
-  cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+    cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 }
 ```
 
@@ -2506,22 +2457,22 @@ tag <- paste0("CellCyclePhase_All_Samples")
 dfPlot <- OsC@meta.data
 pos <- grep("included", names(dfPlot))
 if (length(pos) == 0){
-  dfPlot[["included"]] <- "+"
+    dfPlot[["included"]] <- "+"
 }
 dfPlot[["cellID"]] <- row.names(dfPlot)
 dfPlot$UMAP_1 <- NULL
 dfPlot$UMAP_2 <- NULL
-            
+
 ## Get UMAP coordinates ##
 coord <- data.frame(OsC@reductions$umap@cell.embeddings)
 coord[["cellID"]] <- row.names(coord)
 coord <-coord[coord$cellID %in% dfPlot$cellID, ]
-            
+
 dfPlot <- merge(dfPlot, coord, by.x = "cellID", by.y="cellID", all=T)
 dfPlot[is.na(dfPlot)] <- 0
 dfPlot <- dfPlot[dfPlot$UMAP_1 != 0 & dfPlot$UMAP_2 != 0,]
-            
-            
+
+
 ## Add cluster colors ##
 #dfPlot[["Cluster"]] <- paste0("C", dfPlot$seurat_clusters)
 #clusterVec <- as.vector(paste0("C", unique(sort(dfPlot$seurat_clusters))))
@@ -2545,86 +2496,86 @@ minY <- 1.1*min(dfPlot$UMAP_2, na.rm = T)
 # }
 
 plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(UMAP_1, UMAP_2, color=Phase)
-            ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("UMAP1") + ylab("UMAP2"
-            ) + theme_bw(
-            )  +  theme(
-                axis.text.y   = element_text(size=8),
-                axis.text.x   = element_text(size=8),
-                axis.title.y  = element_text(size=8),
-                axis.title.x  = element_text(size=8),
-                axis.line = element_line(colour = "black"),
-                panel.border = element_rect(colour = "black", fill=NA, size=1),
-                plot.title = element_text(hjust = 0.5, size = 12),
-                legend.title = element_blank()
-            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
-            ) + ggtitle(paste0("Sample: ", tag)
-            ) + xlim(minX, maxX) + ylim(minY, maxY
-            ) + coord_fixed(ratio=1
-            ) 
-            
+) + geom_point( shape=16, size = as.numeric(dotsize)
+) + xlab("UMAP1") + ylab("UMAP2"
+) + theme_bw(
+)  +  theme(
+    axis.text.y   = element_text(size=8),
+    axis.text.x   = element_text(size=8),
+    axis.title.y  = element_text(size=8),
+    axis.title.x  = element_text(size=8),
+    axis.line = element_line(colour = "black"),
+    panel.border = element_rect(colour = "black", fill=NA, size=1),
+    plot.title = element_text(hjust = 0.5, size = 12),
+    legend.title = element_blank()
+) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+) + ggtitle(paste0("Sample: ", tag)
+) + xlim(minX, maxX) + ylim(minY, maxY
+) + coord_fixed(ratio=1
+) 
+
 if (length(unique(dfPlot$Cluster)) > 15){
-   plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
+    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
 }
-            FNbase <- paste0(tag, VersionPdfExt)
-            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-            FNrel <- paste0("report_figures/", FNbase)
-            
-            pdf(FN)
-                print(plotList[[tag]])
-            dev.off()
-            
-            figLegend <- paste0(
-                '**Figure ', 
-                figureCount, 
-                ':** ',
-                ' UMAP showing all cells from all samples together with the estimated cell-cycle phase color-coded. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
-            )
-            
-            figureCount <- figureCount + 1
-            
-            NewChnk <- paste0(
-                "#### ", tag,
-                "\n```{r CC_UMAP_",
-                tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                figLegend,"'}\n",
-                "\n",
-                "\n print(plotList[['",tag,"']])",
-                "\n cat(  '\n')",
-                "\n\n\n```\n"   
-            )
-            
-            chnkVec <- c(
-                chnkVec,
-                NewChnk
-            )
+FNbase <- paste0(tag, VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
+
+pdf(FN)
+print(plotList[[tag]])
+dev.off()
+
+figLegend <- paste0(
+    '**Figure ', 
+    figureCount, 
+    ':** ',
+    ' UMAP showing all cells from all samples together with the estimated cell-cycle phase color-coded. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
+)
+
+figureCount <- figureCount + 1
+
+NewChnk <- paste0(
+    "#### ", tag,
+    "\n```{r CC_UMAP_",
+    tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+    figLegend,"'}\n",
+    "\n",
+    "\n print(plotList[['",tag,"']])",
+    "\n cat(  '\n')",
+    "\n\n\n```\n"   
+)
+
+chnkVec <- c(
+    chnkVec,
+    NewChnk
+)
 
 
 ## Done first umap all samples                                               ##
 ###############################################################################
-            
+
 ###############################################################################
 ## First tsne all samples together                                           ##
 tag <- paste0("tSNE_All_Samples")
 dfPlot <- OsC@meta.data
 pos <- grep("included", names(dfPlot))
 if (length(pos) == 0){
-  dfPlot[["included"]] <- "+"
+    dfPlot[["included"]] <- "+"
 }
 dfPlot[["cellID"]] <- row.names(dfPlot)
 dfPlot$tSNE_1 <- NULL
 dfPlot$tSNE_2 <- NULL
-            
+
 ## Get tsNE coordinates ##
 coord <- data.frame(OsC@reductions$tsne@cell.embeddings)
 coord[["cellID"]] <- row.names(coord)
 coord <-coord[coord$cellID %in% dfPlot$cellID, ]
-            
+
 dfPlot <- merge(dfPlot, coord, by.x = "cellID", by.y="cellID", all=T)
 dfPlot[is.na(dfPlot)] <- 0
 dfPlot <- dfPlot[dfPlot$tSNE_1 != 0 & dfPlot$tSNE_2 != 0,]
-            
-            
+
+
 ## Add cluster colors ##
 #dfPlot[["Cluster"]] <- paste0("C", dfPlot$seurat_clusters)
 #clusterVec <- as.vector(paste0("C", unique(sort(dfPlot$seurat_clusters))))
@@ -2648,59 +2599,59 @@ minY <- 1.1*min(dfPlot$tSNE_2, na.rm = T)
 # }
 
 plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(tSNE_1, tSNE_2, color=Phase)
-            ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("tSNE1") + ylab("tSNE2"
-            ) + theme_bw(
-            )  +  theme(
-                axis.text.y   = element_text(size=8),
-                axis.text.x   = element_text(size=8),
-                axis.title.y  = element_text(size=8),
-                axis.title.x  = element_text(size=8),
-                axis.line = element_line(colour = "black"),
-                panel.border = element_rect(colour = "black", fill=NA, size=1),
-                plot.title = element_text(hjust = 0.5, size = 12),
-                legend.title = element_blank()
-            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
-            ) + ggtitle(paste0("Sample: ", tag)
-            ) + xlim(minX, maxX) + ylim(minY, maxY
-            ) + coord_fixed(ratio=1
-            ) 
-            
+) + geom_point( shape=16, size = as.numeric(dotsize)
+) + xlab("tSNE1") + ylab("tSNE2"
+) + theme_bw(
+)  +  theme(
+    axis.text.y   = element_text(size=8),
+    axis.text.x   = element_text(size=8),
+    axis.title.y  = element_text(size=8),
+    axis.title.x  = element_text(size=8),
+    axis.line = element_line(colour = "black"),
+    panel.border = element_rect(colour = "black", fill=NA, size=1),
+    plot.title = element_text(hjust = 0.5, size = 12),
+    legend.title = element_blank()
+) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+) + ggtitle(paste0("Sample: ", tag)
+) + xlim(minX, maxX) + ylim(minY, maxY
+) + coord_fixed(ratio=1
+) 
+
 if (length(unique(dfPlot$Cluster)) > 15){
-   plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
+    plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
 }
-            FNbase <- paste0(tag, VersionPdfExt)
-            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-            FNrel <- paste0("report_figures/", FNbase)
-            
-            pdf(FN)
-                print(plotList[[tag]])
-            dev.off()
-            
-            figLegend <- paste0(
-                '**Figure ', 
-                figureCount, 
-                ':** ',
-                ' tSNE showing all cells from all samples together. The esimated cell-cycle phase is color coded. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
-            )
-            
-            figureCount <- figureCount + 1
-            
-            NewChnk <- paste0(
-                "#### ", tag,
-                "\n```{r CC_tSNE_",
-                tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                figLegend,"'}\n",
-                "\n",
-                "\n print(plotList[['",tag,"']])",
-                "\n cat(  '\n')",
-                "\n\n\n```\n"   
-            )
-            
-            chnkVec <- c(
-                chnkVec,
-                NewChnk
-            )
+FNbase <- paste0(tag, VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
+
+pdf(FN)
+print(plotList[[tag]])
+dev.off()
+
+figLegend <- paste0(
+    '**Figure ', 
+    figureCount, 
+    ':** ',
+    ' tSNE showing all cells from all samples together. The esimated cell-cycle phase is color coded. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
+)
+
+figureCount <- figureCount + 1
+
+NewChnk <- paste0(
+    "#### ", tag,
+    "\n```{r CC_tSNE_",
+    tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+    figLegend,"'}\n",
+    "\n",
+    "\n print(plotList[['",tag,"']])",
+    "\n cat(  '\n')",
+    "\n\n\n```\n"   
+)
+
+chnkVec <- c(
+    chnkVec,
+    NewChnk
+)
 
 
 ## Done first tsne all samples                                               ##
@@ -2713,100 +2664,100 @@ sampleVec <- sort(unique(OsC@meta.data$sampleID))
 dfPlot <- OsC@meta.data
 pos <- grep("included", names(dfPlot))
 if (length(pos) == 0){
-  dfPlot[["included"]] <- "+"
+    dfPlot[["included"]] <- "+"
 }
 dfPlot[["cellID"]] <- row.names(dfPlot)
-            
+
 ## Get UMAP coordinates ##
 coord <- data.frame(OsC@reductions$umap@cell.embeddings)
 coord[["cellID"]] <- row.names(coord)
 coord <-coord[coord$cellID %in% dfPlot$cellID, ]
 dfPlot$UMAP_1 <- NULL
 dfPlot$UMAP_2 <- NULL
-            
+
 dfPlot <- merge(dfPlot, coord, by.x = "cellID", by.y="cellID", all=T)
 dfPlot[is.na(dfPlot)] <- 0
 dfPlot <- dfPlot[dfPlot$UMAP_1 != 0 & dfPlot$UMAP_2 != 0,]
-            
-            
+
+
 ## Add cluster colors ##
 #dfPlot[["Cluster"]] <- paste0("C", dfPlot$seurat_clusters)
 #clusterVec <- as.vector(paste0("C", unique(sort(dfPlot$seurat_clusters))))
-            
+
 #library(scales)
 #clusterCols = hue_pal()(length(clusterVec))
-            
+
 #dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)            
-            
+
 maxX <- 1.1*max(dfPlot$UMAP_1, na.rm = T)
 minX <- 1.1*min(dfPlot$UMAP_1, na.rm = T)
 maxY <- 1.1*max(dfPlot$UMAP_2, na.rm = T)
 minY <- 1.1*min(dfPlot$UMAP_2, na.rm = T)               
-                                   
+
 for (i in 1:length(sampleVec)){
     tag <- paste0("UMAP_CC_plot_by_", sampleVec[i])
     
     dfPlotSel <- dfPlot[dfPlot$sampleID == sampleVec[i], ]
-            
-            
-            
+    
+    
+    
     plotList[[tag]] <- ggplot(data=dfPlotSel[dfPlot$included == "+",], aes(UMAP_1, UMAP_2, color=Phase)
-            ) + geom_point( shape=16, size = as.numeric(dotsize)
-            ) + xlab("UMAP1") + ylab("UMAP2"
-            ) + theme_bw(
-            )  +  theme(
-                axis.text.y   = element_text(size=8),
-                axis.text.x   = element_text(size=8),
-                axis.title.y  = element_text(size=8),
-                axis.title.x  = element_text(size=8),
-                axis.line = element_line(colour = "black"),
-                panel.border = element_rect(colour = "black", fill=NA, size=1),
-                plot.title = element_text(hjust = 0.5, size = 12),
-                legend.title = element_blank()
-            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
-            ) + ggtitle(paste0("Sample: ", tag)
-            ) + xlim(minX, maxX) + ylim(minY, maxY
-            ) + coord_fixed(ratio=1
-            ) 
+    ) + geom_point( shape=16, size = as.numeric(dotsize)
+    ) + xlab("UMAP1") + ylab("UMAP2"
+    ) + theme_bw(
+    )  +  theme(
+        axis.text.y   = element_text(size=8),
+        axis.text.x   = element_text(size=8),
+        axis.title.y  = element_text(size=8),
+        axis.title.x  = element_text(size=8),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12),
+        legend.title = element_blank()
+    ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+    ) + ggtitle(paste0("Sample: ", tag)
+    ) + xlim(minX, maxX) + ylim(minY, maxY
+    ) + coord_fixed(ratio=1
+    ) 
     
     if (length(unique(dfPlot$Cluster)) > 15){
-   plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
-}
-            
-            FNbase <- paste0(tag, VersionPdfExt)
-            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-            FNrel <- paste0("report_figures/", FNbase)
-            
-            pdf(FN)
-                print(plotList[[tag]])
-            dev.off()
-            
-            figLegend <- paste0(
-                '**Figure ', 
-                figureCount, 
-                ':** ',
-                ' Sample-level UMAPs. Estimated cell-cylce phase color-coded. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
-            )
-            
-            figureCount <- figureCount + 1
-            
-            NewChnk <- paste0(
-                paste("#### ", tag),
-                "\n```{r CC_UMAP_",
-                tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                figLegend,"'}\n",
-                "\n",
-                "\n print(plotList[['",tag,"']])",
-                "\n cat(  '\n')",
-                "\n\n\n```\n"   
-            )
-            
-            chnkVec <- c(
-                chnkVec,
-                NewChnk
-            )
-            
-            
+        plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
+    }
+    
+    FNbase <- paste0(tag, VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+    print(plotList[[tag]])
+    dev.off()
+    
+    figLegend <- paste0(
+        '**Figure ', 
+        figureCount, 
+        ':** ',
+        ' Sample-level UMAPs. Estimated cell-cylce phase color-coded. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
+    )
+    
+    figureCount <- figureCount + 1
+    
+    NewChnk <- paste0(
+        paste("#### ", tag),
+        "\n```{r CC_UMAP_",
+        tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+    
+    
     
     
     
@@ -2821,92 +2772,92 @@ for (i in 1:length(sampleVec)){
 ## Add cluster dendrogram by sample                                          ##
 
 if (length(unique(OsC@meta.data$sampleID)) > 3){
-  library(ggtree)
-  Idents(OsC) <- "sampleName"
-  OsC <- BuildClusterTree(OsC)
-      
-  tag <- paste0("Sample_Dendrogram")
-      
-  OsC@tools$BuildClusterTree$tip.label <- paste0( OsC@tools$BuildClusterTree$tip.label)
-      
-  plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree
-      ) + geom_tree(
-      ) + theme_tree(
-      ) 
-  h <- sum(c("sampleName", "sampleColor") %in% OsC@meta.data)
-  if (h ==2){
-    dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
-    colVec <- as.vector(dfCol$sampleColor)
-    names(colVec) <- as.vector(dfCol$sampleName)
-    plotList[[tag]] <- plotList[[tag]] + geom_tiplab(color=colVec
-      ) 
-  } else {
-    plotList[[tag]] <- plotList[[tag]] + geom_tiplab(
-      )   
-  }
-  
-  
-  plotList[[tag]] <- plotList[[tag]] + labs(title=tag
-      ) + theme(
+    library(ggtree)
+    Idents(OsC) <- "sampleName"
+    OsC <- BuildClusterTree(OsC)
+    
+    tag <- paste0("Sample_Dendrogram")
+    
+    OsC@tools$BuildClusterTree$tip.label <- paste0( OsC@tools$BuildClusterTree$tip.label)
+    
+    plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree
+    ) + geom_tree(
+    ) + theme_tree(
+    ) 
+    h <- sum(c("sampleName", "sampleColor") %in% OsC@meta.data)
+    if (h ==2){
+        dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
+        colVec <- as.vector(dfCol$sampleColor)
+        names(colVec) <- as.vector(dfCol$sampleName)
+        plotList[[tag]] <- plotList[[tag]] + geom_tiplab(color=colVec
+        ) 
+    } else {
+        plotList[[tag]] <- plotList[[tag]] + geom_tiplab(
+        )   
+    }
+    
+    
+    plotList[[tag]] <- plotList[[tag]] + labs(title=tag
+    ) + theme(
         panel.border = element_rect(colour = "black", fill=NA, size=1),
         axis.title.x=element_blank(),
         plot.title = element_text(hjust = 0.5, size = 12)
-      )  + xlim(0,dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
- 
-      
-  ## Save to file ##
-  FNbase <- paste0(tag,".", VersionPdfExt)
-  FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-  FNrel <- paste0("report_figures/", FNbase)
-      
-  pdf(FN)
-      print(plotList[[tag]])
-  dev.off()
-      
-  figLegend <- paste0(
-      '**Figure ', 
-          figureCount, 
-          ':** ',
-          ' Clusterplot dendrogram by sample ID. ','A pdf of this figure can be downloaded <a href="',FNrel,'", target="_blank>here</a>.'
-      )
-      
-      
-      NewChnk <- paste0(
-          "#### SampleID Dendrogram",
-          "\n```{r ", tag, "results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-          figLegend,"'}\n",
-          "\n",
-          "\n print(plotList[['",tag,"']])",
-          "\n cat(  '\n')",
-          "\n\n\n```\n"   
-      )
-      
-      chnkVec <- c(
-          chnkVec,
-          NewChnk
-      )
-      
-      
-      figureCount <- figureCount + 1
+    )  + xlim(0,dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
+    
+    
+    ## Save to file ##
+    FNbase <- paste0(tag,".", VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+    print(plotList[[tag]])
+    dev.off()
+    
+    figLegend <- paste0(
+        '**Figure ', 
+        figureCount, 
+        ':** ',
+        ' Clusterplot dendrogram by sample ID. ','A pdf of this figure can be downloaded <a href="',FNrel,'", target="_blank>here</a>.'
+    )
+    
+    
+    NewChnk <- paste0(
+        "#### SampleID Dendrogram",
+        "\n```{r ", tag, "results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+    
+    
+    figureCount <- figureCount + 1
 }
 
 ## Done by sample                                                            ##
 ###############################################################################
-            
+
 ###############################################################################
 ## Add cluster dendrogram by cluster                                         ##
 library(ggtree)
 Idents(OsC) <- "clusterName"
 OsC <- BuildClusterTree(OsC)
-    
+
 tag <- paste0("Cluster_Dendrogram")
-    
+
 OsC@tools$BuildClusterTree$tip.label <- paste0("C", OsC@tools$BuildClusterTree$tip.label)
-    
+
 plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree
-    ) + geom_tree(
-    ) + theme_tree(
-    ) 
+) + geom_tree(
+) + theme_tree(
+) 
 
 h <- sum(c("clusterName", "clusterColor") %in% names(OsC@meta.data))
 if (h ==2){
@@ -2923,49 +2874,49 @@ if (h ==2){
 
 
 plotList[[tag]] <- plotList[[tag]] + labs(title=tag
-    ) + theme(
-      panel.border = element_rect(colour = "black", fill=NA, size=1),
-      axis.title.x=element_blank(),
-      plot.title = element_text(hjust = 0.5, size = 12)
-    )  + xlim(0,dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
-    
-    #+ xlim(-1,1.2*max(OsC@tools$BuildClusterTree$edge)) 
-    
-    
+) + theme(
+    panel.border = element_rect(colour = "black", fill=NA, size=1),
+    axis.title.x=element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 12)
+)  + xlim(0,dendrofactor*max(OsC@tools$BuildClusterTree[[2]]))
+
+#+ xlim(-1,1.2*max(OsC@tools$BuildClusterTree$edge)) 
+
+
 ## Save to file ##
 FNbase <- paste0(tag,".", VersionPdfExt)
 FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
 FNrel <- paste0("report_figures/", FNbase)
-    
+
 pdf(FN)
-    print(plotList[[tag]])
+print(plotList[[tag]])
 dev.off()
-    
+
 figLegend <- paste0(
     '**Figure ', 
-        figureCount, 
-        ':** ',
-        ' Clusterplot dendrogram. ','A pdf of this figure can be downloaded <a href="',FNrel,'" target="_blank">here</a>.'
-    )
-    
-    
-    NewChnk <- paste0(
-        "#### Cluster Dendrogram",
-        "\n```{r ", tag, "results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-        figLegend,"'}\n",
-        "\n",
-        "\n print(plotList[['",tag,"']])",
-        "\n cat(  '\n')",
-        "\n\n\n```\n"   
-    )
-    
-    chnkVec <- c(
-        chnkVec,
-        NewChnk
-    )
-    
-    
-    figureCount <- figureCount + 1
+    figureCount, 
+    ':** ',
+    ' Clusterplot dendrogram. ','A pdf of this figure can be downloaded <a href="',FNrel,'" target="_blank">here</a>.'
+)
+
+
+NewChnk <- paste0(
+    "#### Cluster Dendrogram",
+    "\n```{r ", tag, "results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+    figLegend,"'}\n",
+    "\n",
+    "\n print(plotList[['",tag,"']])",
+    "\n cat(  '\n')",
+    "\n\n\n```\n"   
+)
+
+chnkVec <- c(
+    chnkVec,
+    NewChnk
+)
+
+
+figureCount <- figureCount + 1
 
 ## Done integraed analysis                                                   ##
 ###############################################################################
@@ -3022,7 +2973,7 @@ sampleIDs <- unique(OsC@meta.data$sampleID)
 clusterIDs <- unique(OsC@meta.data[,Obio@parameterList$singleCellClusterString])
 
 if (length(grep("cellIdent", names(OsC@meta.data))) == 0){
-  OsC@meta.data[["cellIdent"]] <- "All"
+    OsC@meta.data[["cellIdent"]] <- "All"
 }
 
 cellTypeIDs <- unique(OsC@meta.data[,"cellIdent"])
@@ -3030,7 +2981,7 @@ cellTypeIDs <- unique(OsC@meta.data[,"cellIdent"])
 dfTemp <- OsC@meta.data
 
 if (length(grep("^cellIdent$", names(dfTemp))) == 0){
-  dfTemp[["cellIdent"]] <- "All"
+    dfTemp[["cellIdent"]] <- "All"
 }
 
 dfTemp <- dfTemp[dfTemp$percent.mt <= max(Obio@parameterList$singleCellSeuratMtCutoff), ]
@@ -3038,8 +2989,8 @@ dfTemp[["cellID"]] <- row.names(dfTemp)
 dfTemp <- unique(dfTemp[,c("cellID", "sampleID",  Obio@parameterList$singleCellClusterString, "clusterName", "cellIdent")])
 names(dfTemp) <- gsub(Obio@parameterList$singleCellClusterString, "Cluster", names(dfTemp) )
 
- dfTemp <- unique(dfTemp[,c("cellID", "sampleID", "Cluster", "clusterName","cellIdent")])
- 
+dfTemp <- unique(dfTemp[,c("cellID", "sampleID", "Cluster", "clusterName","cellIdent")])
+
 dfRes <- dfTemp
 dfRes$cellID <- NULL
 row.names(dfRes) <- NULL
@@ -3048,7 +2999,7 @@ dfRes[["N_cells"]] <- 0
 
 
 for (i in 1:nrow(dfRes)){
-  dfRes[i, "N_cells"] <- nrow(dfTemp[dfTemp$sampleID == dfRes[i,"sampleID"] & dfTemp$Cluster == dfRes[i,"Cluster"] & dfTemp$cellIdent == dfRes[i,"cellIdent"], ])
+    dfRes[i, "N_cells"] <- nrow(dfTemp[dfTemp$sampleID == dfRes[i,"sampleID"] & dfTemp$Cluster == dfRes[i,"Cluster"] & dfTemp$cellIdent == dfRes[i,"cellIdent"], ])
 }
 
 
@@ -3057,178 +3008,178 @@ for (i in 1:nrow(dfRes)){
 ## Calculate cluster percentages per celltypeID ##
 dfRes[["Perc_cells"]] <- 0
 for (i in 1:length(cellTypeIDs)){
-  dfResTemp2 <- dfRes[dfRes$cellIdent == cellTypeIDs[i], ]
-  tempCluster <- as.vector(unique(dfResTemp2$Cluster))
-  
-  for (j in 1:length(tempCluster)){
-    dfResTemp3 <- dfResTemp2[dfResTemp2$Cluster == tempCluster[j],]
-    NclusterTotal <- sum(dfResTemp3[, "N_cells"])
-    dfResTemp3[,"Perc_cells"] <- round(dfResTemp3[,"N_cells"]/NclusterTotal, 4)*100
+    dfResTemp2 <- dfRes[dfRes$cellIdent == cellTypeIDs[i], ]
+    tempCluster <- as.vector(unique(dfResTemp2$Cluster))
     
-    
-    if (j ==1){
-      dfRes3 <- dfResTemp3
-    } else {
-      dfRes3 <- rbind(dfResTemp3, dfRes3)
+    for (j in 1:length(tempCluster)){
+        dfResTemp3 <- dfResTemp2[dfResTemp2$Cluster == tempCluster[j],]
+        NclusterTotal <- sum(dfResTemp3[, "N_cells"])
+        dfResTemp3[,"Perc_cells"] <- round(dfResTemp3[,"N_cells"]/NclusterTotal, 4)*100
+        
+        
+        if (j ==1){
+            dfRes3 <- dfResTemp3
+        } else {
+            dfRes3 <- rbind(dfResTemp3, dfRes3)
+        }
     }
-  }
-  
-  if (i ==1){
-    dfRes4 <- dfRes3
-  } else {
-    dfRes4 <- rbind(dfRes3, dfRes4)
-  }
-  
+    
+    if (i ==1){
+        dfRes4 <- dfRes3
+    } else {
+        dfRes4 <- rbind(dfRes3, dfRes4)
+    }
+    
 }
- 
+
 dfRes <- dfRes4
 
 plotList <- list()
 chnkVec <- as.vector(NULL, mode = "character")
 
 for (i in 1:length(cellTypeIDs)){
-  #############################################################################
-  ## Create cell number plot                                                 ##
-  tag <- paste0(cellTypeIDs[i], "_Number")
-  dfResTemp <- dfRes[dfRes$cellIdent == cellTypeIDs[i], ]
-  
-  ## Set cluster order large to small ##
-  library(tidyverse)
-
-  df <- dfResTemp[,c("clusterName", "N_cells")]
-  
-  df <- df %>% 
-    group_by(clusterName) %>% 
-    summarise(N_cells = sum(N_cells)) %>% arrange(desc(N_cells))
-  
-  levels <- df$clusterName
-  dfResTemp$clusterName <- factor(dfResTemp$clusterName, levels = levels)
-  
-  ## Order ##
-   
-   plotList[[tag]] <- ggplot(
+    #############################################################################
+    ## Create cell number plot                                                 ##
+    tag <- paste0(cellTypeIDs[i], "_Number")
+    dfResTemp <- dfRes[dfRes$cellIdent == cellTypeIDs[i], ]
+    
+    ## Set cluster order large to small ##
+    library(tidyverse)
+    
+    df <- dfResTemp[,c("clusterName", "N_cells")]
+    
+    df <- df %>% 
+        group_by(clusterName) %>% 
+        summarise(N_cells = sum(N_cells)) %>% arrange(desc(N_cells))
+    
+    levels <- df$clusterName
+    dfResTemp$clusterName <- factor(dfResTemp$clusterName, levels = levels)
+    
+    ## Order ##
+    
+    plotList[[tag]] <- ggplot(
     ) + geom_bar(aes(y = N_cells, x = clusterName, fill = sampleID), data = dfResTemp, stat="identity"
     ) + labs(title=tag, x="Cluster", y = "Cell Count"
     ) + theme_bw(
     ) +  theme(
-      panel.border = element_rect(colour = "black", fill=NA, size=1),
-      plot.title = element_text(hjust = 0.5, size = 12)
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12)
     ) + coord_flip() 
-  
-  h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
-  if (h ==2){
-      dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
-      dfCol <- dfCol[dfCol$sampleName %in% unique(dfResTemp$sampleID), ]
-      colVec <- as.vector(dfCol$sampleColor)
-      names(colVec) <- as.vector(dfCol$sampleName)
-      plotList[[tag]] <- plotList[[tag]] + scale_fill_manual("Samples" ,values = colVec
-      ) 
-  }
-  
-  ## Calculate percentages for this subset ##
-  
- 
-  
-  ###########################################################################
-  ## Save plot to file                                                     ##
-  FNbase <- paste0(tag,".Ncells", VersionPdfExt)
-  FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-  FNrel <- paste0("report_figures/", FNbase)
     
-  pdf(FN)
-      print(plotList[[tag]])
-  dev.off()
-  ##                                                                       ##
-  ###########################################################################
+    h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
+    if (h ==2){
+        dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
+        dfCol <- dfCol[dfCol$sampleName %in% unique(dfResTemp$sampleID), ]
+        colVec <- as.vector(dfCol$sampleColor)
+        names(colVec) <- as.vector(dfCol$sampleName)
+        plotList[[tag]] <- plotList[[tag]] + scale_fill_manual("Samples" ,values = colVec
+        ) 
+    }
     
-  ###########################################################################
-  ## Add to chunk                                                          ##
-  figCap <- paste0(
-      '**Figure ',
-      figureCount,
-      'A:** Cell Count in each cluster for ', 
-      tag,
-      'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
-  )
-  
-  NewChnk <- paste0(
-    paste0("#### Barchart_ ", tag),
+    ## Calculate percentages for this subset ##
+    
+    
+    
+    ###########################################################################
+    ## Save plot to file                                                     ##
+    FNbase <- paste0(tag,".Ncells", VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+    print(plotList[[tag]])
+    dev.off()
+    ##                                                                       ##
+    ###########################################################################
+    
+    ###########################################################################
+    ## Add to chunk                                                          ##
+    figCap <- paste0(
+        '**Figure ',
+        figureCount,
+        'A:** Cell Count in each cluster for ', 
+        tag,
+        'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
+    )
+    
+    NewChnk <- paste0(
+        paste0("#### Barchart_ ", tag),
         "\n```{r Barchart-",tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",figCap,"'}\n",
         "\n",
         "\n print(plotList[['",tag,"']])",
         "\n cat(  '\n')",
         "\n\n\n```\n"   
-  )
+    )
     
-  chnkVec <- c(
-      chnkVec,
-      NewChnk
-  )
-  ## Done adding                                                             ##
-  #############################################################################
-  
-  #############################################################################
-  ## Add percentage plot                                                     ##
-  tag <- paste0(cellTypeIDs[i], "_Percent")
-  plotList[[tag]] <- ggplot(
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+    ## Done adding                                                             ##
+    #############################################################################
+    
+    #############################################################################
+    ## Add percentage plot                                                     ##
+    tag <- paste0(cellTypeIDs[i], "_Percent")
+    plotList[[tag]] <- ggplot(
     ) + geom_bar(aes(x = clusterName, y = Perc_cells, fill = sampleID), data = dfResTemp, stat="identity"
     ) + labs(title=tag, x="Cluster", y = "Percent Cells"
     ) + theme_bw(
     ) +  theme(
-      panel.border = element_rect(colour = "black", fill=NA, size=1),
-      plot.title = element_text(hjust = 0.5, size = 12)
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12)
     ) +  coord_flip() 
-  
-   h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
-  if (h ==2){
-      dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
-      dfCol <- dfCol[dfCol$sampleName %in% unique(dfResTemp$sampleID), ]
-      colVec <- as.vector(dfCol$sampleColor)
-      names(colVec) <- as.vector(dfCol$sampleName)
-      plotList[[tag]] <- plotList[[tag]] + scale_fill_manual("Samples" ,values = colVec
-      ) 
-  }
-  
-  ###########################################################################
-  ## Save plot to file                                                     ##
-  FNbase <- paste0(tag, ".percent.cells",VersionPdfExt)
-  FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-  FNrel <- paste0("report_figures/", FNbase)
     
-  pdf(FN)
-      print(plotList[[tag]])
-  dev.off()
-  ##                                                                       ##
-  ###########################################################################
+    h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
+    if (h ==2){
+        dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
+        dfCol <- dfCol[dfCol$sampleName %in% unique(dfResTemp$sampleID), ]
+        colVec <- as.vector(dfCol$sampleColor)
+        names(colVec) <- as.vector(dfCol$sampleName)
+        plotList[[tag]] <- plotList[[tag]] + scale_fill_manual("Samples" ,values = colVec
+        ) 
+    }
     
-  ###########################################################################
-  ## Add to chunk                                                          ##
-  figCap <- paste0(
-      '**Figure ',
-      figureCount,
-      'B:** Cell percentages in each cluster for ', 
-      tag,
-      'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
-  )
-  
-  NewChnk <- paste0(
-    paste0("#### Barchart_ ", tag),
+    ###########################################################################
+    ## Save plot to file                                                     ##
+    FNbase <- paste0(tag, ".percent.cells",VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+    print(plotList[[tag]])
+    dev.off()
+    ##                                                                       ##
+    ###########################################################################
+    
+    ###########################################################################
+    ## Add to chunk                                                          ##
+    figCap <- paste0(
+        '**Figure ',
+        figureCount,
+        'B:** Cell percentages in each cluster for ', 
+        tag,
+        'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
+    )
+    
+    NewChnk <- paste0(
+        paste0("#### Barchart_ ", tag),
         "\n```{r Barchart-percent_",tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",figCap,"'}\n",
         "\n",
         "\n print(plotList[['",tag,"']])",
         "\n cat(  '\n')",
         "\n\n\n```\n"   
-  )
+    )
     
-  chnkVec <- c(
-      chnkVec,
-      NewChnk
-  )
-  ## Done adding percentage plot                                             ##
-  #############################################################################
-  
-  
-  figureCount <- figureCount + 1
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+    ## Done adding percentage plot                                             ##
+    #############################################################################
+    
+    
+    figureCount <- figureCount + 1
 }
 
 ## Done creating data table                                                  ##
@@ -3292,11 +3243,11 @@ if (length(grep(".gmt$", FNcat)) > 0){
     stop()
 } else {
     dfHeatmapGenes <- read.delim(
-      FNcat,
-      header = T,
-      sep = "\t",
-      stringsAsFactors = F
-      
+        FNcat,
+        header = T,
+        sep = "\t",
+        stringsAsFactors = F
+        
     )
     
     if (is.null(Obio@parameterList[["cat2DotplotList"]])){
@@ -3309,18 +3260,18 @@ if (length(grep(".gmt$", FNcat)) > 0){
     
     
     
-
-for (i in 1:ncol(dfHeatmapGenes)){
-    genes <- as.vector(dfHeatmapGenes[2:nrow(dfHeatmapGenes),i])
-    genes <- genes[genes %in% rownames(x = OsC@assays$RNA)]
-    if (length(unique(genes)) < 61 |  (length(unique(genes)) > 0)){
-        Obio@parameterList[["cat2DotplotList"]][[names(dfHeatmapGenes)[i]]] <- genes
-    }
     
-    if ((length(unique(genes)) < 501) |  (length(unique(genes)) > 2) ){
-        Obio@parameterList[["cat2HMplotList"]] [[names(dfHeatmapGenes)[i]]] <- genes
+    for (i in 1:ncol(dfHeatmapGenes)){
+        genes <- as.vector(dfHeatmapGenes[2:nrow(dfHeatmapGenes),i])
+        genes <- genes[genes %in% rownames(x = OsC@assays$RNA)]
+        if (length(unique(genes)) < 61 |  (length(unique(genes)) > 0)){
+            Obio@parameterList[["cat2DotplotList"]][[names(dfHeatmapGenes)[i]]] <- genes
+        }
+        
+        if ((length(unique(genes)) < 501) |  (length(unique(genes)) > 2) ){
+            Obio@parameterList[["cat2HMplotList"]] [[names(dfHeatmapGenes)[i]]] <- genes
+        }
     }
-}
 }
 
 
@@ -3376,10 +3327,10 @@ cellsTsne <- data.frame(OsC@reductions$umap@cell.embeddings)
 FNbase <- paste0("CatScatter_Rankings", VersionPdfExt)
 FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
 FNrel <- paste0("report_figures/", FNbase)
-    
+
 
 pdf(FN)
-    cells_rankings <- AUCell_buildRankings(exprMatrix)
+cells_rankings <- AUCell_buildRankings(exprMatrix)
 dev.off()
 
 geneSets <- Obio@parameterList$cat2DotplotList
@@ -3392,15 +3343,15 @@ cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=nrow(cells_rank
 FNbase <- paste0("CatScatterHist", VersionPdfExt)
 FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
 FNrel <- paste0("report_figures/", FNbase)
-            
+
 pdf(FN)
-    set.seed(123)
-    cells_assignment <- AUCell_exploreThresholds(
-        cells_AUC, 
-        plotHist=TRUE, 
-        nCores=1, 
-        assign=TRUE
-    )
+set.seed(123)
+cells_assignment <- AUCell_exploreThresholds(
+    cells_AUC, 
+    plotHist=TRUE, 
+    nCores=1, 
+    assign=TRUE
+)
 dev.off()
 
 
@@ -3445,12 +3396,12 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
     dfDocAUC <- unique(dfAUC[,c("cellID", "mAUC")])
     dfDocAUC[["cat"]] <- paste0("Cat_",tag) 
     if (i == 1){
-      dfResAUC <- dfDocAUC
+        dfResAUC <- dfDocAUC
     } else {
-      dfResAUC <- rbind(
-        dfResAUC, 
-        dfDocAUC
-      )
+        dfResAUC <- rbind(
+            dfResAUC, 
+            dfDocAUC
+        )
     }
     
     input <- list(
@@ -3461,36 +3412,36 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
     #dotsize <- cex
     
     legendNote <- paste0(
-            " The following genes of this dataset are represented in this figure: ",
-            paste0(sort(Obio@parameterList$cat2DotplotList[[i]]), collapse = ", ")
-        )
+        " The following genes of this dataset are represented in this figure: ",
+        paste0(sort(Obio@parameterList$cat2DotplotList[[i]]), collapse = ", ")
+    )
     
-     plotList[[tag]] <- ggplot(data = dfAUC, aes(x=UMAP_1, y=UMAP_2, color = mAUC)
-            )+ geom_point( shape=16, size = dotsize
-            ) + scale_color_gradient("AUC", low="grey", high="darkblue"
-            ) + xlab(input$x_axis) + ylab(input$y_axis
-            ) + theme_bw(
-            )  +  theme(
-                axis.text.y   = element_text(size=8),
-                axis.text.x   = element_text(size=8),
-                axis.title.y  = element_text(size=8),
-                axis.title.x  = element_text(size=8),
-                axis.line = element_line(colour = "black"),
-                panel.border = element_rect(colour = "black", fill=NA, size=1),
-                plot.title = element_text(hjust = 0.5, size = 12)
-            )+ ggtitle(paste0("Category: ", input$gene)
-            ) + coord_fixed(ratio = 1
-            ) 
-     
-     
-     #+ theme(legend.position="none") 
-     
+    plotList[[tag]] <- ggplot(data = dfAUC, aes(x=UMAP_1, y=UMAP_2, color = mAUC)
+    )+ geom_point( shape=16, size = dotsize
+    ) + scale_color_gradient("AUC", low="grey", high="darkblue"
+    ) + xlab(input$x_axis) + ylab(input$y_axis
+    ) + theme_bw(
+    )  +  theme(
+        axis.text.y   = element_text(size=8),
+        axis.text.x   = element_text(size=8),
+        axis.title.y  = element_text(size=8),
+        axis.title.x  = element_text(size=8),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12)
+    )+ ggtitle(paste0("Category: ", input$gene)
+    ) + coord_fixed(ratio = 1
+    ) 
+    
+    
+    #+ theme(legend.position="none") 
+    
     FNbase <- paste0("CatScatter", HMname, VersionPdfExt)
     FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
     FNrel <- paste0("report_figures/", FNbase)
     
     pdf(FN)
-        print(plotList[[tag]])
+    print(plotList[[tag]])
     dev.off()
     ## Create R markdown chunk ##
     figLegend <- paste0(
@@ -3500,22 +3451,22 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
         HMname, '. ', legendNote, 
         '. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
     )
-            
-            
-   
-            
+    
+    
+    
+    
     NewChnk <- paste0(
         "#### Category Feature Plot ",HMname,
-                "\n```{r CatFeatPlot1_",
-                i,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                figLegend,"'}\n",
-                "\n",
-                "\n print(plotList[['",tag,"']])",
-                "\n cat(  '\n')",
-                "\n\n\n```\n"   
-            )
-          
-        
+        "\n```{r CatFeatPlot1_",
+        i,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    
+    
     
     chnkVec <- c(
         chnkVec,
@@ -3525,13 +3476,13 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
     ###########################################################################
     ## Add part B - dotplot                                                  ##
     DefaultAssay(OsC) <- "RNA"
-
+    
     OsC@meta.data[["hmIdent2"]] <- paste0("C", OsC@meta.data[,"seurat_clusters"])
     
     levels <- paste0(
-      "C",
-      sort(unique(OsC@meta.data[,"seurat_clusters"]))
-      )
+        "C",
+        sort(unique(OsC@meta.data[,"seurat_clusters"]))
+    )
     
     OsC@meta.data$hmIdent2 <- factor(OsC@meta.data$hmIdent2, levels=levels)
     
@@ -3540,60 +3491,60 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
     
     
     
-   
-        HMname <- paste0("Dotplot_", names(Obio@parameterList$cat2DotplotList)[i])
-        tag <- gsub("[.]", "_", HMname)
-        
-        dpGenes <- unique(Obio@parameterList$cat2DotplotList[[i]])
-        legendNote <- paste0("The following genes were found in this category and the single-cell dataset: ", paste0(dpGenes, collapse=", "))
-        
-        plotList[[tag]] <- DotPlotSB(
-            object = OsC,
-            features = dpGenes,
-            #cols = cols,
-            group.by = NULL,
-            split.by = NULL,
-            dot.scale = 4,
-            col.min = 0,
-            col.max = 5,
-            #assay = "RNA"
-        ) + ggtitle(gsub("_", "", tag)) + coord_fixed() + coord_flip()
-        
-        FNbase <- paste0(HMname, VersionPdfExt)
-        FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-        FNrel <- paste0("report_figures/", FNbase)
-        
-        pdf(FN)
-            print(plotList[[tag]])
-        dev.off()
-        ## Create R markdown chunk ##
-        figLegend <- paste0(
-            '**Figure ', 
-            figureCount, 
-            'B:** Dotplot showing gene category ', 
-            HMname, '. ', legendNote, 
-            '. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
-        )
-                
-                
-        figureCount <- figureCount + 1 
-                
-        NewChnk <- paste0(
-                    "\n```{r ",tag,
-                    ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                    figLegend,"'}\n",
-                    "\n",
-                    "\n print(plotList[['",tag,"']])",
-                    "\n cat(  '\n')",
-                    "\n\n\n```\n"   
-                )
-              
-            
-        
-        chnkVec <- c(
-            chnkVec,
-            NewChnk
-        )
+    
+    HMname <- paste0("Dotplot_", names(Obio@parameterList$cat2DotplotList)[i])
+    tag <- gsub("[.]", "_", HMname)
+    
+    dpGenes <- unique(Obio@parameterList$cat2DotplotList[[i]])
+    legendNote <- paste0("The following genes were found in this category and the single-cell dataset: ", paste0(dpGenes, collapse=", "))
+    
+    plotList[[tag]] <- DotPlotSB(
+        object = OsC,
+        features = dpGenes,
+        #cols = cols,
+        group.by = NULL,
+        split.by = NULL,
+        dot.scale = 4,
+        col.min = 0,
+        col.max = 5,
+        #assay = "RNA"
+    ) + ggtitle(gsub("_", "", tag)) + coord_fixed() + coord_flip()
+    
+    FNbase <- paste0(HMname, VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+    print(plotList[[tag]])
+    dev.off()
+    ## Create R markdown chunk ##
+    figLegend <- paste0(
+        '**Figure ', 
+        figureCount, 
+        'B:** Dotplot showing gene category ', 
+        HMname, '. ', legendNote, 
+        '. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
+    )
+    
+    
+    figureCount <- figureCount + 1 
+    
+    NewChnk <- paste0(
+        "\n```{r ",tag,
+        ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    
+    
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
     
     
     ## Done adding dotplot                                                   ##
@@ -3629,11 +3580,11 @@ dfAvgExprByCluster <- Obio@dataTableList$dfAvglg10ExprPerCluster
 
 ## Merge
 dfDataTable <- merge(
-  dfAvgExprAllCells, 
-  dfAvgExprByCluster,
-  by.x = "gene",
-  by.y = "gene",
-  all =T
+    dfAvgExprAllCells, 
+    dfAvgExprByCluster,
+    by.x = "gene",
+    by.y = "gene",
+    all =T
 )
 
 dfDataTable[is.na(dfDataTable)] <- 0
@@ -3645,38 +3596,38 @@ slopeVec <- as.vector(NULL, mode = "numeric")
 intersectVec <- as.vector(NULL, mode = "numeric")
 
 for (i in 1:length(clusterVec)){
-  LMformula <- as.formula(paste0(clusterVec[i]," ~ all"))
-  clusterFit <- lm(data=dfDataTable, formula = LMformula)
-  slopeVec <- c(
-    slopeVec, 
-     coef(clusterFit)[[2]]
-    
-  )
-  
-  intersectVec <- c(
-    intersectVec,
-    coef(clusterFit)[[1]]
-  )
-  
-  
-  residuals <- round(clusterFit$residuals, 3)
-  dfTempResiduals <- data.frame(dfDataTable$gene, residuals)
-  names(dfTempResiduals) <- c("gene", paste0(clusterVec[i], "_Residuals"))
-  
-  if (i ==1){
-    dfClusterResiduals <- dfTempResiduals
-  } else {
-    dfClusterResiduals <- merge(
-      dfClusterResiduals, 
-      dfTempResiduals, 
-      by.x = "gene",
-      by.y = "gene",
-      all =T
+    LMformula <- as.formula(paste0(clusterVec[i]," ~ all"))
+    clusterFit <- lm(data=dfDataTable, formula = LMformula)
+    slopeVec <- c(
+        slopeVec, 
+        coef(clusterFit)[[2]]
+        
     )
-  }
-  
-  dfClusterResiduals[is.na(dfClusterResiduals)] <- 0
-  
+    
+    intersectVec <- c(
+        intersectVec,
+        coef(clusterFit)[[1]]
+    )
+    
+    
+    residuals <- round(clusterFit$residuals, 3)
+    dfTempResiduals <- data.frame(dfDataTable$gene, residuals)
+    names(dfTempResiduals) <- c("gene", paste0(clusterVec[i], "_Residuals"))
+    
+    if (i ==1){
+        dfClusterResiduals <- dfTempResiduals
+    } else {
+        dfClusterResiduals <- merge(
+            dfClusterResiduals, 
+            dfTempResiduals, 
+            by.x = "gene",
+            by.y = "gene",
+            all =T
+        )
+    }
+    
+    dfClusterResiduals[is.na(dfClusterResiduals)] <- 0
+    
 }
 
 Obio@dataTableList[["dfClusterResiduals"]] <- dfClusterResiduals
@@ -3729,23 +3680,23 @@ for (i in 1:length(clusterVec)){
 ## Upload/update category by category                                ##
 updatedCatIDs <- as.vector(NULL, mode = "character")
 updatedCatNames <- as.vector(NULL, mode = "character")
-        
+
 for (i in 1:length(residualClusterMarkers)){
     cat.name <- names(residualClusterMarkers)[i]
     cat_type <- paste0("temp_cluster_marker_", Obio@parameterList$project_id)
-            
+    
     cat.description.text <- as.vector(residualClusterMarkers[[i]][1]) 
-            
+    
     gene.vec <- as.vector(
-       residualClusterMarkers[[i]]
+        residualClusterMarkers[[i]]
     )[2:length(residualClusterMarkers[[i]])]
-            
+    
     gene.vec <- gene.vec[gene.vec != ""]
     gene.vec <- sort(na.omit(gene.vec))
-            
+    
     ## Determine if cat exists ##
-            
-            
+    
+    
     catID <- add.category.to.lab.reference.table.hs(
         host = Obio@dbDetailList$host,
         pwd = db.pwd,
@@ -3767,8 +3718,8 @@ for (i in 1:length(residualClusterMarkers)){
         lab.name = Obio@parameterList$labname,
         replaceExistingCatName = TRUE
     ) 
-        
-            
+    
+    
     updatedCatIDs <- c(
         updatedCatIDs, 
         catID
@@ -3801,21 +3752,19 @@ clusterVec <- clusterVec[!(clusterVec %in% c("gene", "all"))]
 h <- sum(c("seurat_clusters","clusterName", "clusterColor") %in% names(OsC@meta.data))
 
 
-    ## Determine cluster colors ##
-    dfClustCol <- data.frame(cluster=clusterVec, clusterCol=clusterVec)
-    dfClustCol$clusterCol <- as.numeric(gsub("C_", "", dfClustCol$clusterCol))
-    dfClustCol <- dfClustCol[order(dfClustCol$clusterCol, decreasing = F),]
-    
-    dfClustCol <- unique(OsC@meta.data[,c("clusterName", "clusterColor", "seurat_clusters")])
-    dfClustCol <- dfClustCol[order(dfClustCol$seurat_clusters, decreasing = F),]
+## Determine cluster colors ##
+dfClustCol <- data.frame(cluster=clusterVec, clusterCol=clusterVec)
+dfClustCol$clusterCol <- as.numeric(gsub("C_", "", dfClustCol$clusterCol))
+dfClustCol <- dfClustCol[order(dfClustCol$clusterCol, decreasing = F),]
 
 
-# library(scales)
-# clusterCols = hue_pal()(nrow(dfClustCol))
-# dfClustCol[["clusterCol"]] <- clusterCols
 
-clusterVec <- as.vector(dfClustCol$clusterName)
-clusterCol <- as.vector(dfClustCol$clusterColor)
+library(scales)
+clusterCols = hue_pal()(nrow(dfClustCol))
+dfClustCol[["clusterCol"]] <- clusterCols
+
+clusterVec <- as.vector(dfClustCol$cluster)
+clusterCol <- as.vector(dfClustCol$clusterCol)
 
 for (i in 1:length(clusterVec)){
     ## Determine top10 markers ##
@@ -3823,7 +3772,7 @@ for (i in 1:length(clusterVec)){
     dfClusterResiduals <- dfClusterResiduals[order(dfClusterResiduals[,clustCol], decreasing = T), ]
     
     markerVec <- as.vector(dfClusterResiduals[1:10,"gene"])
-  
+    
     dfTempResiduals <- dfClusterResiduals[dfClusterResiduals[,clustCol] > DefaultcutOff, ]
     highlightGenes <- as.vector(dfTempResiduals[,"gene"])
     
@@ -3843,35 +3792,34 @@ for (i in 1:length(clusterVec)){
     lineFit <- lm(data=dfPlot, formula = y ~ x)
     
     library(ggrepel)
-
+    
     plotList[[tag]] <- ggplot(
         data = dfPlot, 
         aes(
             x=x, 
             y=y, label = label, color = ClusterMarker)
-    #) + geom_abline(intercept = intersectVec[i], slope = slopeVec[i], linetype="dashed", color = "grey"
+        #) + geom_abline(intercept = intersectVec[i], slope = slopeVec[i], linetype="dashed", color = "grey"
     ) + geom_smooth(method='lm', formula= y ~ x, linetype="dashed", se = T, colour = "grey"
     ) + geom_point( shape=16, size = dotsize
-            )  + xlab("Average Expression All Cells") + ylab(paste0("Average Expression ", clusterVec[[i]])
-            ) + theme_bw(
-            )  +  theme(
-                axis.text.y   = element_text(size=8),
-                axis.text.x   = element_text(size=8),
-                axis.title.y  = element_text(size=8),
-                axis.title.x  = element_text(size=8),
-                axis.line = element_line(colour = "black"),
-                panel.border = element_rect(colour = "black", fill=NA, size=1),
-                plot.title = element_text(hjust = 0.5, size = 12)
-            ) + ggtitle(paste0("Cluster Markers  ", clusterVec[[i]])
-            ) + scale_color_manual(values=c("#000000", clusterCol[i])
-            ) + geom_text_repel(
-            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
-            )
+    )  + xlab("Average Expression All Cells") + ylab(paste0("Average Expression ", clusterVec[[i]])
+    ) + theme_bw(
+    )  +  theme(
+        axis.text.y   = element_text(size=8),
+        axis.text.x   = element_text(size=8),
+        axis.title.y  = element_text(size=8),
+        axis.title.x  = element_text(size=8),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12)
+    ) + ggtitle(paste0("Cluster Markers  ", clusterVec[[i]])
+    ) + scale_color_manual(values=c("#000000", clusterCol[i])
+    ) + geom_text_repel(
+    ) 
     
     
-            # +  xlim(0, xmax) + ylim(0, ymax)
-
-
+    # +  xlim(0, xmax) + ylim(0, ymax)
+    
+    
     
     ###########################################################################
     ## Save plot to file                                                     ##
@@ -3880,7 +3828,7 @@ for (i in 1:length(clusterVec)){
     FNrel <- paste0("report_figures/", FNbase)
     
     pdf(FN)
-        print(plotList[[tag]])
+    print(plotList[[tag]])
     dev.off()
     ##                                                                       ##
     ###########################################################################
@@ -3889,7 +3837,7 @@ for (i in 1:length(clusterVec)){
     
     LRcatID <- ""
     if (length(pos) == 1){
-      LRcatID <- as.vector(dfCatNameLR[pos, "catID"])
+        LRcatID <- as.vector(dfCatNameLR[pos, "catID"])
     }
     
     
@@ -3899,7 +3847,7 @@ for (i in 1:length(clusterVec)){
     
     DGEcatID <- ""
     if (length(pos) == 1){
-      DGEcatID <- as.vector(dfFAMplotIDs[pos, "cat_id"])
+        DGEcatID <- as.vector(dfFAMplotIDs[pos, "cat_id"])
     }
     
     link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=add_counts_Avg_log10_Expr_all&y_axis=add_counts_Avg_log10_Expr_',clusterVec[i], '&cat_id=', LRcatID,'" target="_blank">here</a>')
@@ -3911,8 +3859,8 @@ for (i in 1:length(clusterVec)){
     heatmaplinkDGE <- paste0('In order to identify cluster specific marker genes a <a href="https://biologic.crick.ac.uk/',Obio@parameterList$project_id,'/category-view/', DGEcatID,'" target="_blank">cluster-maker gene heatmap for the differential-gene expression derrived marker gene set</a> might be interesting.')
     
     
-
-
+    
+    
     figCap <- paste0(
         '**Figure ',
         figureCount,
@@ -3931,11 +3879,11 @@ for (i in 1:length(clusterVec)){
         "\n cat(  '\n')",
         "\n\n\n```\n"   
     )
-     
+    
     ## Histogram Part C done                                                 ##
     ###########################################################################
     
-       
+    
     chnkVec <- c(
         chnkVec,
         NewChnk
@@ -3972,13 +3920,16 @@ chnkVec <- as.vector(NULL, mode = "character")
 ###############################################################################
 ## Make Heatmap                                                              ##
 
-#OsC@meta.data[["hmIdent2"]] <- paste0("C", OsC@meta.data[,"seurat_clusters"])
+OsC@meta.data[["hmIdent2"]] <- paste0("C", OsC@meta.data[,"seurat_clusters"])
 
-Idents(OsC) <- "clusterNames"
+Idents(OsC) <- "hmIdent2"
 
-# levels <- Obio@parameterList$clusterNameOrder
-# 
-# levels(OsC) <- levels
+levels <- paste0(
+    "C",
+    sort(unique(OsC@meta.data[,"seurat_clusters"]))
+)
+
+levels(OsC) <- levels
 
 ## Deal with more than 5000 cells ##
 if (nrow(OsC@meta.data) > 5000){
@@ -4000,8 +3951,6 @@ if (nrow(OsC@meta.data) > 5000){
 ## Scale Data ##
 allGenes <- rownames(x = OsC_HM@assays$RNA)
 OsC_HM <- ScaleData(OsC_HM, verbose = FALSE, features=allGenes)
-
-## Order Heatmap Genes by cluster similarity
 
 ## For the moment: resetting heatmap list to keep it short ##
 Obio@parameterList[["cat2HMplotList"]] <- list()
@@ -4041,7 +3990,7 @@ dfHMGsel <- data.frame(dfHMG %>% group_by(cluster) %>% top_n(5, avg_diff))
 Obio@parameterList[["cat2HMplotList"]][["Top5_TF_Cluster_Markers"]] <- as.vector(unique(dfHMGsel$gene))
 
 ## Done with translation
-  
+
 
 
 
@@ -4051,119 +4000,119 @@ for (i in 1:length(Obio@parameterList[["cat2HMplotList"]])){
     HMname <- names(Obio@parameterList[["cat2HMplotList"]])[i]
     
     plotList[[tag]] <- DoHeatmap(
-                object = OsC_HM,
-                features = Obio@parameterList[["cat2HMplotList"]][[i]],
-                #group.by = "hmIdent",
-                draw.lines =T,
-                label = T,
-                group.bar = TRUE,
-                slot = "scale.data",
-                lines.width = 2 #With of separation lines in 'cells'
-                #slim.col.label = TRUE,
-                #remove.key = removeKey
-            # ) + theme(legend.position = "none"
-            ) + theme(text = element_text(size=textSize)
-            ) + scale_fill_gradientn(colors = c("blue", "white", "red"))
+        object = OsC_HM,
+        features = Obio@parameterList[["cat2HMplotList"]][[i]],
+        #group.by = "hmIdent",
+        draw.lines =T,
+        label = T,
+        group.bar = TRUE,
+        slot = "scale.data",
+        lines.width = 2 #With of separation lines in 'cells'
+        #slim.col.label = TRUE,
+        #remove.key = removeKey
+        # ) + theme(legend.position = "none"
+    ) + theme(text = element_text(size=textSize)
+    ) + scale_fill_gradientn(colors = c("blue", "white", "red"))
     
     
     ## Save to file ##
-            FNbase <- paste0(tag, VersionPdfExt)
-            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-            FNrel <- paste0("report_figures/", FNbase)
-
-            pdf(FN)
-                print(plotList[[tag]])
-            dev.off()
-
-            
-            
-            ###################
-            ## Add link to interactive heatmap for this project
-                    
-            #for (i in 1:length(residualClusterMarkers)){
-            
-            ## Create default ##
-            link <- ""
-            if (Obio@projectDetailList$species %in% c("mus_musculus", "homo_sapiens")){
-                cat.name <- tag
-                cat_type <- paste0("temp_", Obio@parameterList$project_id)
-                        
-                cat.description.text <- tag 
-                        
-                gene.vec <- Obio@parameterList[["cat2HMplotList"]][[i]]
-                        
-                gene.vec <- gene.vec[gene.vec != ""]
-                gene.vec <- sort(na.omit(gene.vec))
-                        
-                ## Determine if cat exists ##
-                        
-                        
-                catID <- add.category.to.lab.reference.table.hs(
-                    host = Obio@dbDetailList$host,
-                    pwd = db.pwd,
-                    user = Obio@dbDetailList$db.user,
-                    cat.ref.db = Obio@dbDetailList$ref.cat.db,
-                    cat.ref.db.table = Obio@parameterList$lab.categories.table,
-                    gene.vector = gene.vec,
-                    gene.id = Obio@parameterList$geneIDcolumn, #options hgnc_symbol, mgi_symbol
-                    mm.hs.conversion.file =  paste0(hpc.mount, "Projects/reference_data/20160303.homologene.data.txt"),
-                    cat_name = cat.name,
-                    cat_type = cat_type,
-                    data_source = paste0(Obio@parameterList$labname, " Lab"),
-                    comments_1 = "",
-                    comments_2 = "",
-                    new.lab.category.table = FALSE,
-                    cat.description.db  = "internal_categories",
-                    cat.description.db.table = "category_description",
-                    cat.description.text = cat.description.text,
-                    lab.name = Obio@parameterList$labname,
-                    replaceExistingCatName = TRUE
-                ) 
-                    
-            link <- paste0('Link to an interactive version of <a href="https://',urlString,'/',Obio@parameterList$project_id,'/category-view/',catID,'" target="_blank">this heatmap</a>. ')            
-               
-            }    
-            #} ## End dfDat loop
-            
-            
-            ## Done adding link
-            ##############################
-            
-            
-            
-            ## Create R markdown chunk ##
-            figLegend <- paste0(
-                '**Figure ',
-                figureCount,
-                ':** ',HMname ,' Heatmap showing the most distinct marker genes in each cluster. ' , subsetString,
-                'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. ',
-                link
-            )
-
-
-            
-
-
-
-            figureCount <- figureCount + 1
-
-            NewChnk <- paste0(
-                "#### Heatmap ", HMname,
-                "\n```{r Heatmap_", tag,
-                ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                figLegend,"'}\n",
-                "\n",
-                "\n print(plotList[['",tag,"']])",
-                "\n cat(  '\n')",
-                "\n\n\n```\n"
-            )
-
+    FNbase <- paste0(tag, VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+    print(plotList[[tag]])
+    dev.off()
+    
+    
+    
+    ###################
+    ## Add link to interactive heatmap for this project
+    
+    #for (i in 1:length(residualClusterMarkers)){
+    
+    ## Create default ##
+    link <- ""
+    if (Obio@projectDetailList$species %in% c("mus_musculus", "homo_sapiens")){
+        cat.name <- tag
+        cat_type <- paste0("temp_", Obio@parameterList$project_id)
         
+        cat.description.text <- tag 
+        
+        gene.vec <- Obio@parameterList[["cat2HMplotList"]][[i]]
+        
+        gene.vec <- gene.vec[gene.vec != ""]
+        gene.vec <- sort(na.omit(gene.vec))
+        
+        ## Determine if cat exists ##
+        
+        
+        catID <- add.category.to.lab.reference.table.hs(
+            host = Obio@dbDetailList$host,
+            pwd = db.pwd,
+            user = Obio@dbDetailList$db.user,
+            cat.ref.db = Obio@dbDetailList$ref.cat.db,
+            cat.ref.db.table = Obio@parameterList$lab.categories.table,
+            gene.vector = gene.vec,
+            gene.id = Obio@parameterList$geneIDcolumn, #options hgnc_symbol, mgi_symbol
+            mm.hs.conversion.file =  paste0(hpc.mount, "Projects/reference_data/20160303.homologene.data.txt"),
+            cat_name = cat.name,
+            cat_type = cat_type,
+            data_source = paste0(Obio@parameterList$labname, " Lab"),
+            comments_1 = "",
+            comments_2 = "",
+            new.lab.category.table = FALSE,
+            cat.description.db  = "internal_categories",
+            cat.description.db.table = "category_description",
+            cat.description.text = cat.description.text,
+            lab.name = Obio@parameterList$labname,
+            replaceExistingCatName = TRUE
+        ) 
+        
+        link <- paste0('Link to an interactive version of <a href="https://',urlString,'/',Obio@parameterList$project_id,'/category-view/',catID,'" target="_blank">this heatmap</a>. ')            
+        
+    }    
+    #} ## End dfDat loop
+    
+    
+    ## Done adding link
+    ##############################
+    
+    
+    
+    ## Create R markdown chunk ##
+    figLegend <- paste0(
+        '**Figure ',
+        figureCount,
+        ':** ',HMname ,' Heatmap showing the most distinct marker genes in each cluster. ' , subsetString,
+        'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. ',
+        link
+    )
+    
+    
+    
+    
+    
+    
+    figureCount <- figureCount + 1
+    
+    NewChnk <- paste0(
+        "#### Heatmap ", HMname,
+        "\n```{r Heatmap_", tag,
+        ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"
+    )
+    
+    
     
     chnkVec <- c(
         chnkVec,
         NewChnk
-)
+    )
     
 }
 
@@ -4183,7 +4132,7 @@ Idents(OsC) <- "hmIdent2"
 levels <- paste0(
     "C",
     sort(unique(OsC@meta.data[,"seurat_clusters"]))
- )
+)
 
 levels(OsC) <- levels
 
@@ -4191,7 +4140,7 @@ levels(OsC) <- levels
 dpGenes <- as.vector(unique(dfTop5$gene))
 
 if (length(dpGenes) >= 50){
-  dpGenes <- as.vector(unique(dfTop1$gene))  
+    dpGenes <- as.vector(unique(dfTop1$gene))  
 }
 
 
@@ -4201,60 +4150,60 @@ tag <- paste0("Dotplot_", "Var_Genes")
 textSize <- 5
 
 plotList[[tag]] <- DotPlotSB(
-        object = OsC,
-        features = dpGenes,
-        #cols = cols,
-        group.by = NULL,
-        split.by = NULL,
-        dot.scale = 4,
-        col.min = 0,
-        col.max = 5
-    ) + ggtitle(gsub("_", "", tag)) + coord_fixed() + coord_flip() + theme_bw()
-    
+    object = OsC,
+    features = dpGenes,
+    #cols = cols,
+    group.by = NULL,
+    split.by = NULL,
+    dot.scale = 4,
+    col.min = 0,
+    col.max = 5
+) + ggtitle(gsub("_", "", tag)) + coord_fixed() + coord_flip() + theme_bw()
+
 
 ## Save to file ##
-            FNbase <- paste0(tag, VersionPdfExt)
-            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-            FNrel <- paste0("report_figures/", FNbase)
+FNbase <- paste0(tag, VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
 
-            pdf(FN)
-                print(plotList[[tag]])
-            dev.off()
-
-
-            ## Create R markdown chunk ##
-            figLegend <- paste0(
-                '**Figure ',
-                figureCount,
-                ':** Dotplot showing showing selected marker genes. ',
-                'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
-            )
+pdf(FN)
+print(plotList[[tag]])
+dev.off()
 
 
+## Create R markdown chunk ##
+figLegend <- paste0(
+    '**Figure ',
+    figureCount,
+    ':** Dotplot showing showing selected marker genes. ',
+    'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
+)
 
 
 
 
-            figureCount <- figureCount + 1
 
-            NewChnk <- paste0(
-                "#### Dotplot Markers",
-                "\n```{r Dotplot_var_",
-                ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                figLegend,"'}\n",
-                "\n",
-                "\n print(plotList[['",tag,"']])",
-                "\n cat(  '\n')",
-                "\n\n\n```\n"
-            )
 
-        
-    
-    chnkVec <- c(
-        chnkVec,
-        NewChnk
+figureCount <- figureCount + 1
+
+NewChnk <- paste0(
+    "#### Dotplot Markers",
+    "\n```{r Dotplot_var_",
+    ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+    figLegend,"'}\n",
+    "\n",
+    "\n print(plotList[['",tag,"']])",
+    "\n cat(  '\n')",
+    "\n\n\n```\n"
+)
+
+
+
+chnkVec <- c(
+    chnkVec,
+    NewChnk
 )    
-    
+
 ## Done making dotplot                                                       ##
 ###############################################################################
 
@@ -4269,7 +4218,7 @@ if (length(plotList) > 3){
 } else {
     tabVar <- ".tabset .tabset-fade .tabset-pills"
 }    
-    
+
 ```
 
 
@@ -4343,31 +4292,31 @@ dfLongResiduals <- dfLongResiduals[abs(dfLongResiduals$residuals) > 1, ]
 dfLongResiduals$cluster <- gsub("_Residuals", "", dfLongResiduals$cluster)
 
 dfLongResiduals[["join_col"]] <- paste0(
-  dfLongResiduals$gene, 
-  "_", 
-  dfLongResiduals$cluster
+    dfLongResiduals$gene, 
+    "_", 
+    dfLongResiduals$cluster
 )
 
 dfLongResiduals$gene <- NULL
 dfLongResiduals$cluster <- NULL
 
 dfDat <- merge(
-  dfDat, 
-  dfLongResiduals, 
-  by.x = "join_col",
-  by.y = "join_col",
-  all =TRUE
+    dfDat, 
+    dfLongResiduals, 
+    by.x = "join_col",
+    by.y = "join_col",
+    all =TRUE
 )
 
 dfDat[is.na(dfDat)] <- 0
 names(dfDat) <- gsub("residuals", "LinearReg_Residuals", names(dfDat))
 dfDat <- dfDat[order(dfDat$LinearReg_Residuals, decreasing = T),]
 dfDat[["gene"]] <- sapply(
-  dfDat$join_col, function(x) unlist(strsplit(x, "_"))[1]
+    dfDat$join_col, function(x) unlist(strsplit(x, "_"))[1]
 )
 
 dfDat[["Cluster"]] <- sapply(
-  dfDat$join_col, function(x) unlist(strsplit(x, "_C_"))[2]
+    dfDat$join_col, function(x) unlist(strsplit(x, "_C_"))[2]
 )
 
 dfDat$join_col <- NULL
@@ -4383,7 +4332,7 @@ dfDat$uniqueMarker <- substr(dfDat$uniqueMarker, 1,1)
 h <- sum(c("clusterName", "clusterColor") %in% names(OsC@meta.data))
 if (sum(h) == 2){
     dfClust <- unique(OsC@meta.data[,c("seurat_clusters", "clusterName", "clusterColor")])
-
+    
     dfDat <- merge(
         dfDat,
         dfClust,
@@ -4400,62 +4349,62 @@ dtList <- list()
 
 tabClusters <- sort(unique(dfDat$clusterName))
 chnkVec <- as.vector(NULL, mode="character")
-    
+
 linkGeneView <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/gene-view" target = "_blank">GeneView</a>')
 linkFeatureView <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameterList$project_id,'/html/FeatureView.html" target="_blank">FeatureView</a>')
 
 #for (i in 1:length(tabClusters)){
-    #tabLegend = paste0("**Table: ** Positive and negative marker genes for ", tabClusters[i])
-    tabLegend = paste0("**Table: ** Positive and negative cluster-defining marker genes. Perc_Cells_Expr: Percentage of total cells expressing gene X. Enr in Cluster: Enrichment of gene X in cluster Y. To collapse the table to one particular cluster, type the name of the cluster in the search box.",
-    "Use the ",linkGeneView," or ",linkFeatureView," functionalities to examine individual genes in more detail. "                   
-    )
-    #dfTempDat <- dfDat[dfDat$cluster == tabClusters[i],]
-    dfTempDat <- dfDat
-    
-    ## Percent expressed genes 
-    dfTempDat <- merge(
-        dfTempDat, 
-        Obio@dataTableList$dfPercCellsExpr,
-        by.x = "gene",
-        by.y = "gene"
-    )
-    
-    names(dfTempDat) <- gsub("count_cut_off", "Perc_Cells_Expr",names(dfTempDat))
-    names(dfTempDat) <- gsub("myAUC", "AUC", names(dfTempDat))
-    names(dfTempDat) <- gsub("[.]", "", names(dfTempDat))
-    
-    #dtList[[paste0("Table",i)]] <- datatable(dfDat,rownames = FALSE) 
-    if (Obio@parameterList$host == "10.27.241.234"){
-      urlString <- "biologic.thecrick.org"
-    } else {
-      urlString <- "biologic.crick.ac.uk"
-    }
-    
-    dfTempDat[["ClusterName"]] <- paste0(
-        '<p style="color:',dfTempDat$clusterColor,';text-align:center">',dfTempDat$clusterName,'</p>'
-    ) 
-    
-    orderVec <- c('gene','ClusterName','DGE_avg_diff','DGE_power','LinearReg_Residuals','uniqueMarker','Cluster','Perc_Cells_Expr')
-    orderVec <- orderVec[orderVec %in% names(dfTempDat)]
-    dfTempDat <- dfTempDat[,orderVec]
-    
-    dfTempDat$gene <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/gene-view?query=',dfTempDat$gene,'&exact=TRUE" target="_blank">', dfTempDat$gene, '</a>')
-    
-    NewChnk <- paste0(
-        "#### ", names(dtList),
-        "\n```{r datatable_",
-        i,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-        tabLegend,"'}\n",
-        "\n",
-        "\n datatable(dfTempDat,rownames = FALSE,  escape = FALSE)",
-        "\n cat(  '\n')",
-        "\n\n\n```\n"   
-    )
-    
-    chnkVec <- c(
-            chnkVec,
-            NewChnk
-        )
+#tabLegend = paste0("**Table: ** Positive and negative marker genes for ", tabClusters[i])
+tabLegend = paste0("**Table: ** Positive and negative cluster-defining marker genes. Perc_Cells_Expr: Percentage of total cells expressing gene X. Enr in Cluster: Enrichment of gene X in cluster Y. To collapse the table to one particular cluster, type the name of the cluster in the search box.",
+                   "Use the ",linkGeneView," or ",linkFeatureView," functionalities to examine individual genes in more detail. "                   
+)
+#dfTempDat <- dfDat[dfDat$cluster == tabClusters[i],]
+dfTempDat <- dfDat
+
+## Percent expressed genes 
+dfTempDat <- merge(
+    dfTempDat, 
+    Obio@dataTableList$dfPercCellsExpr,
+    by.x = "gene",
+    by.y = "gene"
+)
+
+names(dfTempDat) <- gsub("count_cut_off", "Perc_Cells_Expr",names(dfTempDat))
+names(dfTempDat) <- gsub("myAUC", "AUC", names(dfTempDat))
+names(dfTempDat) <- gsub("[.]", "", names(dfTempDat))
+
+#dtList[[paste0("Table",i)]] <- datatable(dfDat,rownames = FALSE) 
+if (Obio@parameterList$host == "10.27.241.234"){
+    urlString <- "biologic.thecrick.org"
+} else {
+    urlString <- "biologic.crick.ac.uk"
+}
+
+dfTempDat[["ClusterName"]] <- paste0(
+    '<p style="color:',dfTempDat$clusterColor,';text-align:center">',dfTempDat$clusterName,'</p>'
+) 
+
+orderVec <- c('gene','ClusterName','DGE_avg_diff','DGE_power','LinearReg_Residuals','uniqueMarker','Cluster','Perc_Cells_Expr')
+orderVec <- orderVec[orderVec %in% names(dfTempDat)]
+dfTempDat <- dfTempDat[,orderVec]
+
+dfTempDat$gene <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/gene-view?query=',dfTempDat$gene,'&exact=TRUE" target="_blank">', dfTempDat$gene, '</a>')
+
+NewChnk <- paste0(
+    "#### ", names(dtList),
+    "\n```{r datatable_",
+    i,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+    tabLegend,"'}\n",
+    "\n",
+    "\n datatable(dfTempDat,rownames = FALSE,  escape = FALSE)",
+    "\n cat(  '\n')",
+    "\n\n\n```\n"   
+)
+
+chnkVec <- c(
+    chnkVec,
+    NewChnk
+)
 #}
 
 ## Done creating one table per cluster                                      ##
@@ -4485,25 +4434,25 @@ gmtList <- list()
 pos <- grep("clusterSigEnrichmentList", slotNames(Obio))
 
 if (length(pos) > 0){
-if (is.null(Obio@clusterSigEnrichmentList)){
-  dbtableList <- list(
-      "Cell Type Signatures" = "mysigdb_sc_sig",
-      "Cell Type Signatures" = "cibersort_L22",
-      "GO-MF" = "mysigdb_c5_MF",
-      "Pathways" = "mysigdb_c2_1329_canonical_pathways",
-      "Allen_Brain_Atlas" = "Allen_Brain_Atlas"
-  )
+    if (is.null(Obio@clusterSigEnrichmentList)){
+        dbtableList <- list(
+            "Cell Type Signatures" = "mysigdb_sc_sig",
+            "Cell Type Signatures" = "cibersort_L22",
+            "GO-MF" = "mysigdb_c5_MF",
+            "Pathways" = "mysigdb_c2_1329_canonical_pathways",
+            "Allen_Brain_Atlas" = "Allen_Brain_Atlas"
+        )
+    } else {
+        dbtableList <- Obio@clusterSigEnrichmentList
+    }
 } else {
-    dbtableList <- Obio@clusterSigEnrichmentList
-}
-} else {
-  dbtableList <- list(
-      "Cell Type Signatures" = "mysigdb_sc_sig",
-      "Cell Type Signatures" = "cibersort_L22",
-      "GO-MF" = "mysigdb_c5_MF",
-      "Pathways" = "mysigdb_c2_1329_canonical_pathways",
-      "Allen_Brain_Atlas" = "Allen_Brain_Atlas"
-  )
+    dbtableList <- list(
+        "Cell Type Signatures" = "mysigdb_sc_sig",
+        "Cell Type Signatures" = "cibersort_L22",
+        "GO-MF" = "mysigdb_c5_MF",
+        "Pathways" = "mysigdb_c2_1329_canonical_pathways",
+        "Allen_Brain_Atlas" = "Allen_Brain_Atlas"
+    )
 }
 
 for (i in 1:length(dbtableList)){
@@ -4622,15 +4571,15 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 # ## Add heatmap identities to meta.data ##
 # 
 OsC@meta.data[["hmIdent"]] <- paste0(
-     OsC@meta.data[,"seurat_clusters"],
-     "_",
-     substr(OsC@meta.data$sampleID,1,10)
-     
+    OsC@meta.data[,"seurat_clusters"],
+    "_",
+    substr(OsC@meta.data$sampleID,1,10)
+    
 )
 # 
 if (length(unique(OsC@meta.data$hmIdent)) > 25){
-     OsC@meta.data[["hmIdent"]] <- OsC@meta.data[,"seurat_clusters"]
-     
+    OsC@meta.data[["hmIdent"]] <- OsC@meta.data[,"seurat_clusters"]
+    
 }
 # 
 # Idents(OsC) <- "hmIdent"
@@ -4924,17 +4873,17 @@ for (i in 1:plotParts){
     
     ## Save to file ##
     FNbase <- paste0("Featureplot.", plotGenes[((2*i)-1)], ".", plotGenes[((2*i))],".", VersionPdfExt)
-        FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
     FNrel <- paste0("report_figures/", FNbase)
     
     pdf(FN)
-        print(plotListF[[tag1]])
+    print(plotListF[[tag1]])
     dev.off()
     
     linkFeatureView <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameterList$project_id,'/html/FeatureView.html" target="_blank">FeatureView</a>')
     
     
-
+    
     figLegend <-  paste0(
         "**Figure ", 
         figureCount, 
@@ -4944,7 +4893,7 @@ for (i in 1:plotParts){
         plotGenes[((2*i))],".",
         " Results for any other gene may be plotted in ",linkFeatureView,"."
     )
-      
+    
     NewChnk <- paste0(
         "#### Featureplot ", plotGenes[((2*i)-1)], " and ",plotGenes[((2*i))],
         "\n```{r FeaturePlot_", i,
@@ -4960,7 +4909,7 @@ for (i in 1:plotParts){
         chnkVec,
         NewChnk
     )
-
+    
 }
 
 ```
@@ -5063,11 +5012,11 @@ for (i in 1:length(xVec)){
     
     ## Save to file ##
     FNbase <- paste0("PCA.cell.level.", xVec[i],".", yVec[i], ".", VersionPdfExt)
-        FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
     FNrel <- paste0("report_figures/", FNbase)
     
     pdf(FN)
-        print(plotListCell[[tag]])
+    print(plotListCell[[tag]])
     dev.off()
     
     link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=',gsub('_', '', xVec[i]),'&y_axis=',gsub('_', '', yVec[i]),'" target = "_blank">here</a>')
@@ -5101,7 +5050,7 @@ for (i in 1:length(xVec)){
     ###########################################################################
     ## Start with genes                                                      ##
     dfPCADat <- data.frame(Loadings(OsC, reduction = "pca"))
-        dfPCADat[["gene"]] <- row.names(dfPCADat)
+    dfPCADat[["gene"]] <- row.names(dfPCADat)
     
     dfPCADat <- gather(
         dfPCADat, 
@@ -5109,9 +5058,9 @@ for (i in 1:length(xVec)){
         measurement, 1:(ncol(dfPCADat)-1), 
         factor_key=TRUE
     )
-
+    
     Obio@dataTableList[["dfPCAloadings"]] <- dfPCADat
-
+    
     ## Make Gene Level PCA ##
     dfPCADat <- data.frame(Loadings(OsC, reduction = "pca"))
     dfPCADat[["gene"]] <- row.names(dfPCADat)
@@ -5165,11 +5114,11 @@ for (i in 1:length(xVec)){
     
     ## Save to file ##
     FNbase <- paste0("PCA.cell.level.", xVec[i],".", yVec[i],".", VersionPdfExt)
-        FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
     FNrel <- paste0("report_figures/", FNbase)
     
     pdf(FN)
-        print(plotListGene[[tag]])
+    print(plotListGene[[tag]])
     dev.off()
     
     dim1 <- gsub("PC_", "", xVec[i])
@@ -5188,7 +5137,7 @@ for (i in 1:length(xVec)){
     figCap <- paste0(
         "**Figure, " ,figureCount,"B:**Gene-level PCA plot for dimensions ", xVec[i], " and ", yVec[i], ". An interactive version of this figure can be found ", link, ". "
     )
-   
+    
     
     NewChnk <- paste0(
         "\n```{r PCA_gene_level_", i,
@@ -5246,48 +5195,48 @@ plotList <- list()
 for (i in 1:length(clusterVec)){
     dfTemp <- dfPCdat[dfPCdat[,"seurat_clusters"] == clusterVec[i],]
     dfTemp[,"seurat_clusters"] <- NULL
-  
-  
-  
+    
+    
+    
     library(tidyr)
     dfTemp <- gather(dfTemp, PC)
-  
+    
     orderVec <- sort(as.numeric(gsub("PC_", "",unique(dfTemp$PC))))
     orderVec <- paste0("PC_", orderVec)
-  
+    
     dfTemp$PC <- factor(dfTemp$PC, levels = orderVec)
     Ncolumns <- length(unique(dfTemp$PC))
-  
+    
     a <- paste0("Cluster_", clusterVec[i])
-
+    
     tag <- paste0("PCA_Distributions_", a)
-
+    
     plotList[[tag]] <-ggplot(
         dfTemp, 
         aes(x=PC, y=value, fill = PC)
-        ) + geom_hline(yintercept = 0, color = "black", size=0.5
-        )  + geom_jitter(width=0.1,alpha=0.2
-        ) + geom_boxplot(
-        )  + theme_bw(
-        ) +    theme(
-            legend.position = "none",
-            axis.text.y   = element_text(size=8),
-            axis.text.x   = element_text(size=8, angle = 45,vjust = 1, hjust=1),
-            axis.title.y  = element_text(size=8),
-            axis.title.x  = element_text(size=8),
-            axis.line = element_line(colour = "black"),
-            panel.border = element_rect(colour = "black", fill=NA, size=1),
-            plot.title = element_text(hjust = 0.5, size = 12)
-        ) + ggtitle(paste0("PCA Distribution: ", a)
-        ) + ylim(ymin, ymax) + scale_fill_manual(values=rep(clusterColVec[i], Ncolumns))  
+    ) + geom_hline(yintercept = 0, color = "black", size=0.5
+    )  + geom_jitter(width=0.1,alpha=0.2
+    ) + geom_boxplot(
+    )  + theme_bw(
+    ) +    theme(
+        legend.position = "none",
+        axis.text.y   = element_text(size=8),
+        axis.text.x   = element_text(size=8, angle = 45,vjust = 1, hjust=1),
+        axis.title.y  = element_text(size=8),
+        axis.title.x  = element_text(size=8),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12)
+    ) + ggtitle(paste0("PCA Distribution: ", a)
+    ) + ylim(ymin, ymax) + scale_fill_manual(values=rep(clusterColVec[i], Ncolumns))  
     
     ## Save to file ##
     FNbase <- paste0(tag, VersionPdfExt)
-        FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
     FNrel <- paste0("report_figures/", FNbase)
     
     pdf(FN)
-        print(plotList[[tag]])
+    print(plotList[[tag]])
     dev.off()
     
     
@@ -5484,7 +5433,7 @@ for (j in 1:length(PCAdimensions)){
             FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
             FNrel <- paste0("report_figures/", FNbase)
             
-           
+            
             pdf(FN)
             print(plotList[[paste0("PCA_ENR_", j)]])
             dev.off()
@@ -5500,7 +5449,7 @@ for (j in 1:length(PCAdimensions)){
                 '**Figure ', 
                 figureCount, 
                 '**: GO-BP category enrichment analysis for the 15 genes that have  <font color = "yellow"> the most positive </font> and <font color = "blue">the most negative</font> PCA loading values in dimension ', 
-               PCAdimensions[j],
+                PCAdimensions[j],
                 ' associated with them. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. To view these gene sets in the context of your data, go to ',link,' and find these categories using the search box.'
             )
             figureCount <- figureCount + 1 
@@ -5577,10 +5526,10 @@ if (Obio@parameterList$addDmaps){
     # Plot DC1 vs DC2 and color the cells by their inferred diffusion pseudotime.
     # We can accesss diffusion pseudotime via dpt$dpt.
     df <- data.frame(
-      DC1 = eigenvectors(dmPCA)[, 1], 
-      DC2 = eigenvectors(dmPCA)[, 2], 
-      DC3 = eigenvectors(dmPCA)[, 3], 
-      "DM_Pseudotime" = dpt$dpt
+        DC1 = eigenvectors(dmPCA)[, 1], 
+        DC2 = eigenvectors(dmPCA)[, 2], 
+        DC3 = eigenvectors(dmPCA)[, 3], 
+        "DM_Pseudotime" = dpt$dpt
     )
     
     df$cellID <- row.names(dfPCA)
@@ -5613,10 +5562,10 @@ if (Obio@parameterList$addDmaps){
     dfdbTable[["cellID"]] <- row.names(dfdbTable)
     
     dfdbTable <- merge(
-      dfdbTable, 
-      df, 
-      by.x = "cellID",
-      by.y = "cellID"
+        dfdbTable, 
+        df, 
+        by.x = "cellID",
+        by.y = "cellID"
     )
     
     #dim(dfdbTable)
@@ -5631,61 +5580,61 @@ if (Obio@parameterList$addDmaps){
     tag <- "PC1PC2all"
     
     plotList[[tag]] <- ggplot(dfTemp, aes(PC_1, PC_2, color=DM_Pseudotime)
-        )+ geom_point( 
-            shape = 16,
-            size = as.numeric(dotsize)
-        ) + xlab("PC1") + ylab("PC2") + scale_color_gradient2(
-            low="#ff6600", 
-            high=dotcolor #, 
-            #limits=c(0,maxExpr)
-        ) + theme_bw(
-        ) +  theme(
-            axis.text.y   = element_text(size=8),
-            axis.text.x   = element_text(size=8),
-            axis.title.y  = element_text(size=8),
-            axis.title.x  = element_text(size=8),
-            axis.line = element_line(colour = "black"),
-            panel.border = element_rect(colour = "black", fill=NA, size=1),
-            plot.title = element_text(hjust = 0.5, size = 12)
-        ) + ggtitle("PC1, PC2 and DM Pseudotime"
-        )  #+ xlim(minX, maxX) + ylim(minY, maxY)  
+    )+ geom_point( 
+        shape = 16,
+        size = as.numeric(dotsize)
+    ) + xlab("PC1") + ylab("PC2") + scale_color_gradient2(
+        low="#ff6600", 
+        high=dotcolor #, 
+        #limits=c(0,maxExpr)
+    ) + theme_bw(
+    ) +  theme(
+        axis.text.y   = element_text(size=8),
+        axis.text.x   = element_text(size=8),
+        axis.title.y  = element_text(size=8),
+        axis.title.x  = element_text(size=8),
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12)
+    ) + ggtitle("PC1, PC2 and DM Pseudotime"
+    )  #+ xlim(minX, maxX) + ylim(minY, maxY)  
     
     
     
-            ## Save to file ##
-            FNbase <- paste0("Pseudotime_overview", VersionPdfExt)
-            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
-            FNrel <- paste0("report_figures/", FNbase)
-            
-           
-            pdf(FN)
-            print(plotList[[tag]])
-            dev.off()
-            
-            
-            
-            ## Create R markdown chunk ##
-            figLegend <- paste0(
-                '**Figure ', 
-                figureCount, 
-                '**: Figure depicting PCA components 1 and 2 with the diffusion map pseudotime highlighted in color. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
-            )
-            figureCount <- figureCount + 1 
-            
-            NewChnk <- paste0(
-                "\n#### Pseudotime All Timepoints", 
-                "\n```{r ", tag, ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
-                figLegend,"'}\n",
-                "\n",
-                "\n print(plotList[['",tag,"']])",
-                "\n cat(  '\n')",
-                "\n\n\n```\n"   
-            )
-            
-            chnkVec <- c(
-                chnkVec,
-                NewChnk
-            )
+    ## Save to file ##
+    FNbase <- paste0("Pseudotime_overview", VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    
+    pdf(FN)
+    print(plotList[[tag]])
+    dev.off()
+    
+    
+    
+    ## Create R markdown chunk ##
+    figLegend <- paste0(
+        '**Figure ', 
+        figureCount, 
+        '**: Figure depicting PCA components 1 and 2 with the diffusion map pseudotime highlighted in color. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
+    )
+    figureCount <- figureCount + 1 
+    
+    NewChnk <- paste0(
+        "\n#### Pseudotime All Timepoints", 
+        "\n```{r ", tag, ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+        figLegend,"'}\n",
+        "\n",
+        "\n print(plotList[['",tag,"']])",
+        "\n cat(  '\n')",
+        "\n\n\n```\n"   
+    )
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
 } # end dmap
 
 
@@ -5750,10 +5699,10 @@ save(Obio,
 print("Obio Object saved.")
 
 save(OsC,
-    file = paste0(
+     file = paste0(
          Obio@parameterList$localWorkDir,
          Obio@parameterList$project_id,
-        ".Seurat.Robj"
+         ".Seurat.Robj"
      )
 )
 
@@ -5772,44 +5721,44 @@ projectParams <- Obio@documentationParams
 
 tryCatch({
     dbDB = dbConnect(drv = RMySQL::MySQL(), user = db.user2, password = db.pwd2, host = host2, dbname = "asf");
-dfProposal =  dbGetQuery(dbDB, paste0("SELECT * FROM asf_proposals WHERE project_name ='",Obio@parameterList$lims.id,"'"));
-dbDisconnect(dbDB)
-  }, error = function(x) {
+    dfProposal =  dbGetQuery(dbDB, paste0("SELECT * FROM asf_proposals WHERE project_name ='",Obio@parameterList$lims.id,"'"));
+    dbDisconnect(dbDB)
+}, error = function(x) {
     message("Project Database could not be reached or has no entry in Obio@parameterList$lims.id for this analysis.")
-   
+    
 })
 
 if (exists("dfProposal")){
-  if (nrow(dfProposal) == 1){
-      if (!is.na(dfProposal[1,"ProjectAlias"]) & dfProposal[1,"ProjectAlias"] != ""){
-          projectParams[["title"]] = paste0(dfProposal[1,"ProjectAlias"], " - ", dfProposal[1,"project_name"])
-      }
-      
-      if (!is.na(dfProposal[1,"project_user"]) & dfProposal[1,"project_user"] != ""){
-          projectParams[["subtitle"]] = paste0(dfProposal[1,"user_lab"], " Lab - ", dfProposal[1,"project_user"])
-          projectParams[["subtitle"]] <- gsub("^ Lab - ", "", projectParams[["subtitle"]])
-          
-      }
-      
-      if (!is.na(dfProposal[1,"proposal_text"]) & dfProposal[1,"proposal_text"] != ""){
-          projectParams[["abstract"]] = dfProposal[1,"proposal_text"]
-         
-          
-      }
-  }
+    if (nrow(dfProposal) == 1){
+        if (!is.na(dfProposal[1,"ProjectAlias"]) & dfProposal[1,"ProjectAlias"] != ""){
+            projectParams[["title"]] = paste0(dfProposal[1,"ProjectAlias"], " - ", dfProposal[1,"project_name"])
+        }
+        
+        if (!is.na(dfProposal[1,"project_user"]) & dfProposal[1,"project_user"] != ""){
+            projectParams[["subtitle"]] = paste0(dfProposal[1,"user_lab"], " Lab - ", dfProposal[1,"project_user"])
+            projectParams[["subtitle"]] <- gsub("^ Lab - ", "", projectParams[["subtitle"]])
+            
+        }
+        
+        if (!is.na(dfProposal[1,"proposal_text"]) & dfProposal[1,"proposal_text"] != ""){
+            projectParams[["abstract"]] = dfProposal[1,"proposal_text"]
+            
+            
+        }
+    }
 }
-   
+
 ## Escape all special characters
 projectParams <- lapply(
-  projectParams, function(x) 
-  #gsub("([.|()\\^{}+$*?]|\\[|\\])", "\\\\\1", x)
-  gsub("([.|()/\\^{}+$*?]|\\[|\\])", " ", x)
+    projectParams, function(x) 
+        #gsub("([.|()\\^{}+$*?]|\\[|\\])", "\\\\\1", x)
+        gsub("([.|()/\\^{}+$*?]|\\[|\\])", " ", x)
 ) 
 
 projectParams <- lapply(
-  projectParams, function(x) 
-  #gsub("([.|()\\^{}+$*?]|\\[|\\])", "\\\\\1", x)
-  gsub("\\\n", " ", x)
+    projectParams, function(x) 
+        #gsub("([.|()\\^{}+$*?]|\\[|\\])", "\\\\\1", x)
+        gsub("\\\n", " ", x)
 ) 
 
 
@@ -5827,7 +5776,7 @@ sessionInfo()
 ```
 
 ---
-title: "`r projectParams$title`"
+    title: "`r projectParams$title`"
 subtitle:  "`r projectParams$subtitle`"
 author:
     - Bioinformatics: Stefan Boeing^[The Francis Crick Institute, stefan.boeing@crick.ac.uk]
@@ -5838,12 +5787,12 @@ abstract: |
 
 output: 
     html_document:
-        code_folding: hide
-        df_print: tibble
-        toc: true
-        toc_depth: 5
-        toc_float: true
-        css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
+    code_folding: hide
+df_print: tibble
+toc: true
+toc_depth: 5
+toc_float: true
+css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
 
 always_allow_html: yes
 
