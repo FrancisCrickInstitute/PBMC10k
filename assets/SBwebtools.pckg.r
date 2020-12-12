@@ -10423,7 +10423,7 @@ DotPlotSB <- function (
     }
     
     avg.exp.scaled <- sapply(
-        X = orderVec,#unique(x = data.plot$features.plot), 
+        X = unique(x = data.plot$features.plot), 
         FUN = function(x) {
             data.use <- data.plot[data.plot$features.plot == x, "avg.exp"]
             data.use <- scale(x = data.use)
@@ -10509,13 +10509,12 @@ DotPlotSB <- function (
    
     if (!is.null(x = split.by)) {
         plot <- plot + scale_color_identity()
-    }
-    else if (length(x = cols) == 1) {
+    } else if (length(x = cols) == 1) {
         plot <- plot + scale_color_distiller(palette = cols)
-    }
-    else {
+    } else {
         plot <- plot + scale_color_gradient(low = cols[1], high = cols[2])
     }
+    
     if (is.null(x = split.by)) {
         plot <- plot + guides(color = guide_colorbar(title = "Avg Expr"))
     }
