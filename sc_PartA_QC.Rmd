@@ -52,6 +52,7 @@ singleCellSeuratMtCutoff <- c(10)
 singleCellSeuratNpcs4PCA <- 30
 SeuratNrnaMaxFeatures <- 10000
 SeuratNrnaMinFeatures <- 1000
+
 ## Done                                                                      ##
 ###############################################################################
 
@@ -117,6 +118,7 @@ library(DT)
 # type must be in c("TenX", "matrixFiles", "loomFiles", "hdf5Files")
 
 sampleDetailList <- list(
+
     "mliGlia" = list(
         "type" = "TenX",
         "gene.column" = 1, # default 2
@@ -127,10 +129,12 @@ sampleDetailList <- list(
         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
         "limsId"= "SCP1038",
+
         "singleCellChemistry" = NULL,
 	    "singleCellCellrangerVersion" = NULL, 
         "machine" = NULL
     ),
+
     "mliNeuron" = list(
         "type" = "TenX",
         "gene.column" = 1,
@@ -141,6 +145,7 @@ sampleDetailList <- list(
         "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
         "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
         "limsId"= "SCP1038",
+
         "singleCellChemistry" = NULL,
 	    "singleCellCellrangerVersion" = NULL, 
         "machine" = NULL
@@ -164,7 +169,9 @@ dbDetailList <- list(
 ###############################################################################
 ## Project detail list                                                       ##
 projectDetailList <- list(
+
     "folder" = "pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/",
+
     "lab.categories.table" = "vp_lab_categories", # default NULL
     "sra.id.vector" = "",
     "gse.id.vector" = "",
@@ -172,8 +179,10 @@ projectDetailList <- list(
     "experiment.type" = "sc_rna_seq",   
     "species" = "mus_musculus", 
     "release" = "release-89", 
+
     "project_id" = "vpl409",
     "labname" = "Regev",
+
     "timecourse.units" = "",
     "count.table.headline" = "lg10 Expr for all Samples",
     "count.table.sidelabel" = "lg10 Expr",
@@ -185,9 +194,11 @@ projectDetailList <- list(
 ###############################################################################
 ## Project Parameters                                                        ##
 documentationParams <- list(
+
     "title" = "The human and mouse enteric nervous system at single cell resolution",
     "subtitle" = "Regev Lab - Cell 2020",
     "abstract" = "The enteric nervous system (ENS) coordinates diverse functions in the intestine, but has eluded comprehensive molecular characterization due to the rarity and diversity of cells. Here, we develop two methods to profile the ENS of adult mice and humans at single cell resolution: RAISIN RNA-Seq, for profiling intact nuclei with ribosome-bound mRNA, and MIRACL-Seq, for label-free enrichment of rare cell types by droplet-based profiling. The 1,187,535 nuclei in our mouse atlas include 5,068 neurons from the ileum and colon, revealing extraordinary neuron diversity. We highlight circadian expression changes in enteric neurons, show that disease-related genes are dysregulated with aging, and identify differences between the ileum and proximal/distal colon. In human, we profile 436,202 nuclei recovering 1,445 neurons and identify conserved and species-specific transcriptional programs, and putative neuro-epithelial, neuro-stromal, and neuro-immune interactions. The human ENS expresses risk genes for neuropathic, inflammatory, and extra-intestinal diseases, suggesting neuronal contributions to disease. In this analysis the mouse mli Neuron and mli Glia subset is re-analysed."
+
 )
 
 
@@ -234,6 +245,7 @@ clusterSigEnrichmentList = list(
     "GO-MF" = "mysigdb_c5_MF",
     "Pathways" = "mysigdb_c2_1329_canonical_pathways",
     "Allen_Brain_Atlas" = "Allen_Brain_Atlas"
+
 )
 
     # mysigdb_sc_sig
@@ -343,14 +355,18 @@ Obio = new(
     sampleDetailList = sampleDetailList, 
     referenceTableList = referenceTableList,
     parameterList = list(
-        "debugReduce" = 0.2, # Default NULL
+
+        "debugReduce" = NULL, # Default NULL
+
         "lab.categories.table" = projectDetailList$lab.categories.table, # default NULL
         "folder" = projectDetailList$folder,
         "sra.id.vector" = "",
         "gse.id.vector" = "",
         "addDmaps" = TRUE,
+
        "lims.id"= "",
         "asf.id" = "",
+
         "machine" = NULL,
         "experiment.type" = "sc_rna_seq",   
         "species" = projectDetailList$species, 
