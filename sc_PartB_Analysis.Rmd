@@ -3000,27 +3000,14 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 ## This plotting procedure requires three sets: the sets cellTypeIDs, clusterIDs, cellTypeIDs
 ## level1ID, level2ID, level3ID
+dfSample <- unique(OsC@meta.data[,c("sampleName", "sampleColor", "sampleID")])
+row.names(dfSample) <- dfSample$sampleID
+dfSample <- dfSample[names(Obio@sampleDetailList),]
 
-sampleIDs <- unique(OsC@meta.data$sampleID)
-#Obio@parameterList$singleCellSeuratMtCutoff <- 20
+sampleIDs <- dfSample$sampleName
+colVec <- dfSample$sampleColor
 
-## Commented out 2020-12-08-
-# if (is.null(Obio@parameterList$singleCellSeuratMtCutoff)){
-#     Obio@parameterList$singleCellSeuratMtCutoff <- rep(10, length(sampleIDs))    
-# } else if (length(Obio@parameterList$singleCellSeuratMtCutoff) == 1){
-#     Obio@parameterList$singleCellSeuratMtCutoff <- rep(
-#         Obio@parameterList$singleCellSeuratMtCutoff, 
-#         length(sampleIDs)
-#     )
-# } else if (length(Obio@parameterList$singleCellSeuratMtCutoff) == length(sampleIDs)){
-#     Obio@parameterList$singleCellSeuratMtCutoff <- Obio@parameterList$singleCellSeuratMtCutoff
-# } else {
-#     print("Can't determine mitochondrial cut off. ")
-#     stop()
-# }
-
-sampleIDs <- unique(OsC@meta.data$sampleID)
-clusterIDs <- unique(OsC@meta.data[,Obio@parameterList$singleCellClusterString])
+clusterIDs <- unique(OsC@meta.data[,"clusterName"])
 
 if (length(grep("cellIdent", names(OsC@meta.data))) == 0){
   OsC@meta.data[["cellIdent"]] <- "All"
@@ -3036,10 +3023,10 @@ if (length(grep("^cellIdent$", names(dfTemp))) == 0){
 
 dfTemp <- dfTemp[dfTemp$percent.mt <= max(Obio@parameterList$singleCellSeuratMtCutoff), ]
 dfTemp[["cellID"]] <- row.names(dfTemp)
-dfTemp <- unique(dfTemp[,c("cellID", "sampleID",  Obio@parameterList$singleCellClusterString, "clusterName", "cellIdent")])
-names(dfTemp) <- gsub(Obio@parameterList$singleCellClusterString, "Cluster", names(dfTemp) )
+dfTemp <- unique(dfTemp[,c("cellID", "sampleName", "clusterName", "cellIdent")])
+names(dfTemp) <- gsub("clusterName", "Cluster", names(dfTemp) )
 
- dfTemp <- unique(dfTemp[,c("cellID", "sampleID", "Cluster", "clusterName","cellIdent")])
+ dfTemp <- unique(dfTemp[,c("cellID", "sampleName", "Cluster","cellIdent")])
  
 dfRes <- dfTemp
 dfRes$cellID <- NULL
@@ -3049,7 +3036,7 @@ dfRes[["N_cells"]] <- 0
 
 
 for (i in 1:nrow(dfRes)){
-  dfRes[i, "N_cells"] <- nrow(dfTemp[dfTemp$sampleID == dfRes[i,"sampleID"] & dfTemp$Cluster == dfRes[i,"Cluster"] & dfTemp$cellIdent == dfRes[i,"cellIdent"], ])
+  dfRes[i, "N_cells"] <- nrow(dfTemp[dfTemp$sampleName == dfRes[i,"sampleName"] & dfTemp$Cluster == dfRes[i,"Cluster"] & dfTemp$cellIdent == dfRes[i,"cellIdent"], ])
 }
 
 
@@ -3096,30 +3083,30 @@ for (i in 1:length(cellTypeIDs)){
   ## Set cluster order large to small ##
   library(tidyverse)
 
-  df <- dfResTemp[,c("clusterName", "N_cells")]
+  df <- dfResTemp[,c("Cluster", "N_cells")]
   
   df <- df %>% 
-    group_by(clusterName) %>% 
+    group_by(Cluster) %>% 
     summarise(N_cells = sum(N_cells)) %>% arrange(desc(N_cells))
   
-  levels <- df$clusterName
-  dfResTemp$clusterName <- factor(dfResTemp$clusterName, levels = levels)
+  levels <- df$Cluster
+  dfResTemp$Cluster <- factor(dfResTemp$Cluster, levels = levels)
   
   ## Order ##
    
    plotList[[tag]] <- ggplot(
-    ) + geom_bar(aes(y = N_cells, x = clusterName, fill = sampleID), data = dfResTemp, stat="identity"
-    ) + labs(title=tag, x="Cluster", y = "Cell Count"
+    ) + geom_bar(aes(y = N_cells, x = Cluster, fill = sampleName), data = dfResTemp, stat="identity"
+    ) + labs(title="Cell Numbers Per Cluster", x="", y = "Cell Count"
     ) + theme_bw(
     ) +  theme(
       panel.border = element_rect(colour = "black", fill=NA, size=1),
       plot.title = element_text(hjust = 0.5, size = 12)
-    ) + coord_flip() 
+    ) + coord_flip() + guides(fill=guide_legend(title="Samples"))
   
   h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
   if (h ==2){
       dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
-      dfCol <- dfCol[dfCol$sampleName %in% unique(dfResTemp$sampleID), ]
+      dfCol <- dfCol[dfCol$sampleName %in% unique(dfResTemp$sampleName), ]
       colVec <- as.vector(dfCol$sampleColor)
       names(colVec) <- as.vector(dfCol$sampleName)
       plotList[[tag]] <- plotList[[tag]] + scale_fill_manual("Samples" ,values = colVec
@@ -3172,8 +3159,8 @@ for (i in 1:length(cellTypeIDs)){
   ## Add percentage plot                                                     ##
   tag <- paste0(cellTypeIDs[i], "_Percent")
   plotList[[tag]] <- ggplot(
-    ) + geom_bar(aes(x = clusterName, y = Perc_cells, fill = sampleID), data = dfResTemp, stat="identity"
-    ) + labs(title=tag, x="Cluster", y = "Percent Cells"
+    ) + geom_bar(aes(x = Cluster, y = Perc_cells, fill = sampleName), data = dfResTemp, stat="identity"
+    ) + labs(title="Percent Cells Per Cluster", x="", y = "Percent Cells"
     ) + theme_bw(
     ) +  theme(
       panel.border = element_rect(colour = "black", fill=NA, size=1),
@@ -3183,7 +3170,7 @@ for (i in 1:length(cellTypeIDs)){
    h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
   if (h ==2){
       dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
-      dfCol <- dfCol[dfCol$sampleName %in% unique(dfResTemp$sampleID), ]
+      dfCol <- dfCol[dfCol$sampleName %in% unique(dfResTemp$sampleName), ]
       colVec <- as.vector(dfCol$sampleColor)
       names(colVec) <- as.vector(dfCol$sampleName)
       plotList[[tag]] <- plotList[[tag]] + scale_fill_manual("Samples" ,values = colVec
@@ -3230,6 +3217,85 @@ for (i in 1:length(cellTypeIDs)){
   
   
   figureCount <- figureCount + 1
+  
+  #############################################################################
+  ## Order Percent Cells by Similarity
+  if (!is.null(Obio@parameterList$clusterNameOrder)){
+        #############################################################################
+        ## Add percentage plot                                                     ##
+        if (sum(unique(dfResTemp$Cluster) %in% Obio@parameterList$clusterNameOrder) == length(Obio@parameterList$clusterNameOrder)){
+            dfResTemp$Cluster <- factor(dfResTemp$Cluster, levels = Obio@parameterList$clusterNameOrder)
+        }
+        
+        
+        
+        tag <- paste0(cellTypeIDs[i], "_Percent_clustered")
+        plotList[[tag]] <- ggplot(
+          ) + geom_bar(aes(x = Cluster, y = Perc_cells, fill = sampleName), data = dfResTemp, stat="identity"
+          ) + labs(title="Percent Cells Per Cluster Clustered", x="", y = "Percent Cells"
+          ) + theme_bw(
+          ) +  theme(
+            panel.border = element_rect(colour = "black", fill=NA, size=1),
+            plot.title = element_text(hjust = 0.5, size = 12)
+          ) +  coord_flip() 
+        
+         h <- sum(c("sampleName", "sampleColor") %in% names(OsC@meta.data))
+        if (h ==2){
+            dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
+            dfCol <- dfCol[dfCol$sampleName %in% unique(dfResTemp$sampleName), ]
+            colVec <- as.vector(dfCol$sampleColor)
+            names(colVec) <- as.vector(dfCol$sampleName)
+            plotList[[tag]] <- plotList[[tag]] + scale_fill_manual("Samples" ,values = colVec
+            ) 
+        }
+        
+        ###########################################################################
+        ## Save plot to file                                                     ##
+        FNbase <- paste0(tag, ".percent.cells.clustered",VersionPdfExt)
+        FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+        FNrel <- paste0("report_figures/", FNbase)
+          
+        pdf(FN)
+            print(plotList[[tag]])
+        dev.off()
+        ##                                                                       ##
+        ###########################################################################
+          
+        ###########################################################################
+        ## Add to chunk                                                          ##
+        figCap <- paste0(
+            '**Figure ',
+            figureCount,
+            'C:** Cell percentages in each cluster for ', 
+            tag,'. Clustered by cluster similarity.',
+            'Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. '
+        )
+        
+        NewChnk <- paste0(
+          paste0("#### Barchart_ ", tag),
+              "\n```{r Barchart-percent_",tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",figCap,"'}\n",
+              "\n",
+              "\n print(plotList[['",tag,"']])",
+              "\n cat(  '\n')",
+              "\n\n\n```\n"   
+        )
+          
+        chnkVec <- c(
+            chnkVec,
+            NewChnk
+        )
+        ## Done adding percentage plot                                             ##
+        #############################################################################
+        
+        
+        figureCount <- figureCount + 1
+      
+  }
+  
+  
+  ##
+  #############################################################################
+  
 }
 
 ## Done creating data table                                                  ##
@@ -4058,6 +4124,8 @@ for (i in 1:length(Obio@parameterList[["cat2HMplotList"]])){
     textSize <- 5
     HMname <- names(Obio@parameterList[["cat2HMplotList"]])[i]
     
+    colors <- unique(OsC_HM@meta.data$clusterColor)
+    
     plotList[[tag]] <- DoHeatmap(
                 object = OsC_HM,
                 features = Obio@parameterList[["cat2HMplotList"]][[i]],
@@ -4066,12 +4134,23 @@ for (i in 1:length(Obio@parameterList[["cat2HMplotList"]])){
                 label = T,
                 group.bar = TRUE,
                 slot = "scale.data",
-                lines.width = 2 #With of separation lines in 'cells'
+                lines.width = 2, #With of separation lines in 'cells',
+                size = 2,
+                hjust = 0,
+                angle = 90,
+                group.colors = colors,
                 #slim.col.label = TRUE,
                 #remove.key = removeKey
             # ) + theme(legend.position = "none"
-            ) + theme(text = element_text(size=textSize)
-            ) + scale_fill_gradientn(colors = c("blue", "white", "red"))
+            ) + theme(
+                  text = element_text(size=textSize),
+                  legend.position="bottom" #,
+                  #axis.text.x = element_text(angle = 90, hjust=1)
+                
+            ) + scale_fill_gradientn(colors = c("blue", "white", "red")
+            ) 
+    
+    
     
     
     ## Save to file ##
