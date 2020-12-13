@@ -5455,26 +5455,33 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 
 ```{r pca_boxplot_dataprep, echo=T, eval=TRUE, warning=FALSE, results=F}
-selVec <- c("seurat_clusters", names(OsC@meta.data)[grep("^PC", names(OsC@meta.data))])
+selVec <- c("clusterName", names(OsC@meta.data)[grep("^PC", names(OsC@meta.data))])
 
 dfPCdat <- OsC@meta.data[, selVec]
 
 ymin <- 1.1*min(dfPCdat$PC_1)
 ymax <- 1.1*max(dfPCdat$PC_1)
 
-clusterVec <- sort(unique(OsC@meta.data[,"seurat_clusters"]))
+h <- sum(c("clusterName", "clusterColor") %in% names(OsC@meta))
+if (h ==2){
+    dfCol <- unique(OsC@meta.data[,c("clusterName", "clusterColor")])
+    clusterVec <- dfCol$clusterName
+    clusterColVec <- as.vector(dfCol$clusterColor)
+    names(clusterColVec) <- as.vector(dfCol$clusterName)
+} else{
+    clusterVec <- sort(unique(OsC@meta.data[,"clusterName"]))
+    colVec <- hue_pal()(length(clusterVec))
+    names(colVec) <- clusterVec
+}
 
-library(scales)
-clusterColVec <- hue_pal()(length(clusterVec))
 
-i=1
 
 chnkVec <- as.vector(NULL, mode="character")
 plotList <- list()
 
 for (i in 1:length(clusterVec)){
-    dfTemp <- dfPCdat[dfPCdat[,"seurat_clusters"] == clusterVec[i],]
-    dfTemp[,"seurat_clusters"] <- NULL
+    dfTemp <- dfPCdat[dfPCdat[,"clusterName"] == clusterVec[i],]
+    dfTemp[,"clusterName"] <- NULL
   
   
   
@@ -5489,7 +5496,7 @@ for (i in 1:length(clusterVec)){
   
     a <- paste0("Cluster_", clusterVec[i])
 
-    tag <- paste0("PCA_Distributions_", a)
+    tag <- paste0("PCA_Cell_Distributions_", a)
 
     plotList[[tag]] <-ggplot(
         dfTemp, 
@@ -5507,8 +5514,8 @@ for (i in 1:length(clusterVec)){
             axis.line = element_line(colour = "black"),
             panel.border = element_rect(colour = "black", fill=NA, size=1),
             plot.title = element_text(hjust = 0.5, size = 12)
-        ) + ggtitle(paste0("PCA Distribution: ", a)
-        ) + ylim(ymin, ymax) + scale_fill_manual(values=rep(clusterColVec[i], Ncolumns))  
+        ) + ggtitle(paste0("PCA Distribution: ", gsub("_", " ", a))
+        ) + ylim(ymin, ymax) + scale_fill_manual(values=rep(as.vector(clusterColVec[i]), Ncolumns))  
     
     ## Save to file ##
     FNbase <- paste0(tag, VersionPdfExt)
