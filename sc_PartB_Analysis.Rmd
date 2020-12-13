@@ -994,18 +994,21 @@ dfPlot <- dfPlot[dfPlot$UMAP_1 != 0 & dfPlot$UMAP_2 != 0,]
             
             
 ## Add cluster colors ##
-dfPlot[["Cluster"]] <- dfPlot$sampleID
-clusterVec <- as.vector(sort(unique(dfPlot$sampleID)))
+dfPlot[["Cluster"]] <- dfPlot$sampleName
+clusterVec <- as.vector(sort(unique(dfPlot$sampleName)))
 
 maxX <- 1.1*max(dfPlot$UMAP_1, na.rm = T)
 minX <- 1.1*min(dfPlot$UMAP_1, na.rm = T)
 maxY <- 1.1*max(dfPlot$UMAP_2, na.rm = T)
 minY <- 1.1*min(dfPlot$UMAP_2, na.rm = T)            
 
-dfPair <- unique(OsC@meta.data[,c("sampleID", "sampleColor")])
+dfPair <- unique(OsC@meta.data[,c("sampleName","sampleID", "sampleColor")])
 row.names(dfPair) <- dfPair$sampleID
 
-dfPlot$Cluster <- factor(dfPlot$Cluster, levels = dfPair$sampleID)
+#colVec <- dfPair$sampleColor
+#names(colVec) <- dfPair$sampleName
+
+dfPlot$Cluster <- factor(dfPlot$Cluster, levels = dfPair$sampleName)
 
 # dotsize  = 1
 # if (nrow(dfPlot) > 10000){
@@ -1018,7 +1021,7 @@ dfPlot$Cluster <- factor(dfPlot$Cluster, levels = dfPair$sampleID)
 
 plotList[[tag]] <- ggplot(
     data=dfPlot[dfPlot$included == "+",], 
-    aes(UMAP_1, UMAP_2, color=sampleID)
+    aes(UMAP_1, UMAP_2, color=sampleName)
   ) + geom_point( shape=16, size = as.numeric(dotsize)
   ) + xlab("UMAP1") + ylab("UMAP2"
   ) + theme_bw(
@@ -1123,17 +1126,17 @@ dfPlot <- dfPlot[dfPlot$tSNE_1 != 0 & dfPlot$tSNE_2 != 0,]
             
             
 ## Add cluster colors ##
-dfPlot[["Cluster"]] <- dfPlot$sampleID
-clusterVec <- as.vector(unique(sort(dfPlot$sampleID)))
+dfPlot[["Cluster"]] <- dfPlot$sampleName
+clusterVec <- as.vector(unique(sort(dfPlot$sampleName)))
 
 maxX <- 1.1*max(dfPlot$tSNE_1, na.rm = T)
 minX <- 1.1*min(dfPlot$tSNE_1, na.rm = T)
 maxY <- 1.1*max(dfPlot$tSNE_2, na.rm = T)
 minY <- 1.1*min(dfPlot$tSNE_2, na.rm = T)            
 
-library(scales)
-clusterCols = hue_pal()(length(clusterVec))
-dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)
+# library(scales)
+# clusterCols = hue_pal()(length(clusterVec))
+# dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)
 
 # dotsize  = 1.5
 # if (nrow(dfPlot) > 10000){
@@ -1144,7 +1147,7 @@ dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)
 #   dotsize = 0.25
 # }
 
-plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(tSNE_1, tSNE_2, color=sampleID)
+plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(tSNE_1, tSNE_2, color=sampleName)
             ) + geom_point( shape=16, size = as.numeric(dotsize)
             ) + xlab("tSNE1") + ylab("tSNE2"
             ) + theme_bw(
@@ -1218,7 +1221,7 @@ if (length(unique(dfPlot$Cluster)) > 15){
 ###############################################################################
 ## Make one UMAP plot per sample                                             ##
 
-sampleVec <- sort(unique(OsC@meta.data$sampleID))
+sampleVec <- sort(unique(OsC@meta.data$sampleName))
 
 dfPlot <- OsC@meta.data
 pos <- grep("included", names(dfPlot))
@@ -1245,12 +1248,12 @@ dfPlot <- dfPlot[dfPlot$UMAP_1 != 0 & dfPlot$UMAP_2 != 0,]
             
 ## Add cluster colors ##
 dfPlot[["Cluster"]] <- dfPlot$sampleID
-clusterVec <- as.vector(unique(sort(dfPlot$sampleID)))
+clusterVec <- as.vector(unique(sort(dfPlot$sampleName)))
             
-library(scales)
-clusterCols = hue_pal()(length(clusterVec))
-
-dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)            
+# library(scales)
+# clusterCols = hue_pal()(length(clusterVec))
+# 
+# dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)            
             
 maxX <- 1.1*max(dfPlot$UMAP_1, na.rm = T)
 minX <- 1.1*min(dfPlot$UMAP_1, na.rm = T)
@@ -1260,11 +1263,11 @@ minY <- 1.1*min(dfPlot$UMAP_2, na.rm = T)
 for (i in 1:length(sampleVec)){
     tag <- paste0("UMAP_plot_by_", sampleVec[i])
     
-    dfPlotSel <- dfPlot[dfPlot$sampleID == sampleVec[i], ]
-    dfPlotSel$sampleID        
+    dfPlotSel <- dfPlot[dfPlot$sampleName == sampleVec[i], ]
+    dfPlotSel$sampleName       
             
             
-    plotList[[tag]] <- ggplot(data=dfPlotSel[dfPlotSel$included == "+",], aes(UMAP_1, UMAP_2, color=sampleID)
+    plotList[[tag]] <- ggplot(data=dfPlotSel[dfPlotSel$included == "+",], aes(UMAP_1, UMAP_2, color=sampleName)
             ) + geom_point( shape=16, size = as.numeric(dotsize)
             ) + xlab("UMAP1") + ylab("UMAP2"
             ) + theme_bw(
@@ -1371,7 +1374,7 @@ if (length(unique(OsC@meta.data$sampleID)) > 2){
       )   
   }
   
-  plotList[[tag]] <- plotList[[tag]] + geom_tippoint(aes(color=sampleID), size=1.5)
+  plotList[[tag]] <- plotList[[tag]] + geom_tippoint(aes(color=sampleName), size=1.5)
   
   plotList[[tag]] <- plotList[[tag]] + labs(title=tag
       ) + theme(
@@ -1475,7 +1478,7 @@ OsC@meta.data$clusterName <- factor(OsC@meta.data$clusterName , levels = c(uniqu
 Idents(OsC) <- "clusterName"
 Idents(OsC) <- factor(Idents(OsC), levels = unique(levels(OsC)))
 
-if (length(grep("sampleID", names(OsC@meta.data))) > 0){
+if (length(grep("sampleName", names(OsC@meta.data))) > 0){
     cluster.averages <- AverageExpression(OsC, return.seurat = TRUE, add.ident = "sampleName")
     
     
@@ -1483,7 +1486,7 @@ if (length(grep("sampleID", names(OsC@meta.data))) > 0){
     cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
 }
 
-Idents(OsC) <- "sampleID"
+Idents(OsC) <- "sampleName"
 
 
 ## Retrieved Scaled data ##
@@ -1553,7 +1556,7 @@ Obio@dataTableList[["dfAvglg10ExprPerClusterScaled"]] <- dfAvgScaledData
 ## Average gene expression by sample                                         ##
 
 
-Idents(OsC) <- "sampleID"
+Idents(OsC) <- "sampleName"
 cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
 
 ## Retrieved Scaled data ##
@@ -5117,6 +5120,11 @@ chnkVec <- as.vector(NULL, mode = "character")
 plotListCell <- list()
 plotListGene <- list()
 
+dfDat <- Obio@dataTableList$meta.data
+xMax <- ceiling(max(dfDat[,"PC_1"]))
+xMin <- floor(min(dfDat[,"PC_1"]))
+aLimit <- max(abs(c(xMax, xMin)))
+
 ###############################################################################
 ## Collect top-enriched genes                                                ##
 EnrichedGenesList <- list()
@@ -5127,13 +5135,13 @@ for (i in 1:length(xVec)){
     dfDat <- Obio@dataTableList$meta.data
     dfSel <- dfDat
     selXY <- c(xVec[i], yVec[i])
-    colCol <- "seurat_clusters"
+    colCol <- "clusterName"
     
     tag <- paste0(xVec[i], "and", yVec[i])
     tag <- gsub("_", "", tag)
     
     ## Make Cell level PCA
-    plotListCell[[tag]] <- ggplot(data=dfDat, aes_string(selXY[1] , selXY[2], col=colCol, shape="sampleID")
+    plotListCell[[tag]] <- ggplot(data=dfDat, aes_string(selXY[1] , selXY[2], col=colCol, shape="sampleName")
     ) + geom_vline(xintercept = 0, color = "grey", size=0.5
     ) + geom_hline(yintercept = 0, color = "grey", size=0.5
     ) + geom_point()+ ggtitle(paste0("PCA - Cell Level")
@@ -5146,7 +5154,19 @@ for (i in 1:length(xVec)){
         axis.line = element_line(colour = "black"),
         panel.border = element_rect(colour = "black", fill=NA, size=1),
         plot.title = element_text(hjust = 0.5, size = 12)
-    )     
+    ) + xlim(-1*aLimit, aLimit)  + ylim(-1*aLimit, aLimit) 
+    
+    h <- sum(c("clusterName", "sampleColor") %in% names(dfDat))
+    if (h ==2){
+        dfCol <- unique(dfDat[,c("clusterName", "clusterColor")])
+        colVec <- as.vector(dfCol$clusterColor)
+        names(colVec) <- as.vector(dfCol$clusterName)
+        plotListCell[[tag]] <- plotListCell[[tag]] + scale_colour_manual("clusterName" ,values = colVec
+            ) 
+    }
+    
+    plotListCell[[tag]] <- plotListCell[[tag]] + guides(color=guide_legend(title="Clusters"), shape=guide_legend(title="Samples")
+    )
     
     ## Save to file ##
     FNbase <- paste0("PCA.cell.level.", xVec[i],".", yVec[i], ".", VersionPdfExt)
@@ -5217,46 +5237,168 @@ for (i in 1:length(xVec)){
     dfSel <- dfSel %>% spread(key=condition, value=measurement)
     row.names(dfSel) <- dfSel$gene
     dfSel[["highlight"]] <- ""
+    dfSel[["cat"]] <- ""
+    dfSel[["selX"]] <- ""
+    dfSel[["selY"]] <- ""
     dfSel <- dfSel[order(dfSel[,selXY[1]], decreasing = FALSE), ]
     dfSel[1:15, "highlight"] <- "+"
-    EnrichedGenesList[[paste0(selXY[1], "_neg")]]<- as.vector(dfSel$gene[1:15])
+    
+    ## Use two standard deviations for enrichment ##
+    twoSD <- 2*sd(dfSel[,selXY[1]])
+    twoSDxLine <- 2*sd(dfSel[,selXY[1]])
+    gSvec <- dfSel[dfSel[,selXY[1]] < -1* twoSD, "gene"]
+    
+    if (length(gSvec) > 3){
+      EnrichedGenesList[[paste0(selXY[1], "_neg")]]<- as.vector(gSvec)  
+      dfSel[dfSel$gene %in% gSvec, "cat"] <- "Selected"
+      dfSel[dfSel$gene %in% gSvec, "selX"] <- "+"
+    } else {
+      EnrichedGenesList[[paste0(selXY[1], "_neg")]]<- as.vector(dfSel$gene[1:15])
+      dfSel[dfSel$gene %in% as.vector(dfSel$gene[1:15]), "cat"] <- "Selected"
+      dfSel[dfSel$gene %in% as.vector(dfSel$gene[1:15]), "selX"] <- "+"
+    }
+    
     
     dfSel <- dfSel[order(dfSel[,selXY[1]], decreasing = TRUE), ]
     dfSel[1:15, "highlight"] <- "+"
-    EnrichedGenesList[[paste0(selXY[1], "_pos")]]<- as.vector(dfSel$gene[1:15])
+    gSvec <- dfSel[dfSel[,selXY[1]] >  twoSD, "gene"]
     
+    if (length(gSvec) > 3){
+      EnrichedGenesList[[paste0(selXY[1], "_pos")]]<- as.vector(gSvec)  
+      dfSel[dfSel$gene %in% gSvec, "cat"] <- "Selected"
+      dfSel[dfSel$gene %in% gSvec, "selX"] <- "+"
+    } else {
+      EnrichedGenesList[[paste0(selXY[1], "_pos")]]<- as.vector(dfSel$gene[1:15])
+      dfSel[dfSel$gene %in% as.vector(dfSel$gene[1:15]), "cat"] <- "Selected"
+       dfSel[dfSel$gene %in% as.vector(dfSel$gene[1:15]), "selX"] <- "+"
+    }
+    
+    ## Now dim 2
     dfSel <- dfSel[order(dfSel[,selXY[2]], decreasing = FALSE), ]
     dfSel[1:15, "highlight"] <- "+"
-    EnrichedGenesList[[paste0(selXY[2], "_neg")]]<- as.vector(dfSel$gene[1:15])
+    
+    twoSD <- 2*sd(dfSel[,selXY[2]])
+    twoSDyLine <- 2*sd(dfSel[,selXY[2]])
+    gSvec <- dfSel[dfSel[,selXY[2]] < -1* twoSD, "gene"]
+    
+    if (length(gSvec) > 15){
+      EnrichedGenesList[[paste0(selXY[2], "_neg")]]<- as.vector(gSvec)
+      dfSel[dfSel$gene %in% gSvec, "cat"] <- "Selected"
+      dfSel[dfSel$gene %in% gSvec, "selY"] <- "+"
+    } else {
+      EnrichedGenesList[[paste0(selXY[2], "_neg")]]<- as.vector(dfSel$gene[1:15])
+      dfSel[dfSel$gene %in% as.vector(dfSel$gene[1:15]), "cat"] <- "Selected"
+      dfSel[dfSel$gene %in% as.vector(dfSel$gene[1:15]), "selY"] <- "+"
+    }
+    
     
     dfSel <- dfSel[order(dfSel[,selXY[2]], decreasing = TRUE), ]
     dfSel[1:15, "highlight"] <- "+"
-    EnrichedGenesList[[paste0(selXY[2], "_pos")]]<- as.vector(dfSel$gene[1:15])
+    gSvec <- dfSel[dfSel[,selXY[2]] >  twoSD, "gene"]
     
-    plotListGene[[tag]] <- ggplot(data=dfSel, aes_string(x=selXY[1],y=selXY[2], col="highlight")
+    if (length(gSvec) > 3){
+      EnrichedGenesList[[paste0(selXY[2], "_pos")]]<- as.vector(gSvec)  
+      dfSel[dfSel$gene %in% gSvec, "cat"] <- "Selected"
+      dfSel[dfSel$gene %in% gSvec, "selY"] <- "+"
+    } else {
+      EnrichedGenesList[[paste0(selXY[2], "_pos")]]<- as.vector(dfSel$gene[1:15])
+      dfSel[dfSel$gene %in% as.vector(dfSel$gene[1:15]), "cat"] <- "Selected"
+      dfSel[dfSel$gene %in% as.vector(dfSel$gene[1:15]), "selY"] <- "+"
+    }
+    
+    ## Done
+    
+    colVec <- c("grey", "black")
+    names(colVec) <- c("", "Selected")
+    
+    plotListGene[[tag]] <- ggplot(data=dfSel, aes_string(x=selXY[1],y=selXY[2], col="cat")
     ) + geom_vline(xintercept = 0, color = "grey", size=0.5
-    ) + geom_hline(yintercept = 0, color = "grey", size=0.5) + geom_point() + scale_color_manual(values=c("black", "red")) + ggtitle(paste0("PCA - Cell Level"
-    )) + theme_bw(
+    ) + geom_hline(yintercept = 0, color = "grey", size=0.5
+    ) + geom_vline(xintercept = c(twoSDxLine, -1* twoSDxLine), color = "red", lty=2,size=0.5
+    ) + geom_hline(yintercept = c(twoSDyLine, -1* twoSDyLine), color = "red", lty=2,size=0.5
+    ) + geom_hline(yintercept = 0, color = "grey", size=0.5
+    ) + geom_point() + scale_color_manual(values=colVec
+    #) + ggtitle(paste0("PCA - Cell Level")
+    ) + theme_bw(
     ) +  theme(
-        axis.text.y   = element_text(size=8),
-        axis.text.x   = element_text(size=8),
-        axis.title.y  = element_text(size=8),
-        axis.title.x  = element_text(size=8),
+        axis.text.y   = element_blank(), # element_text(size=8),
+        axis.text.x   = element_blank(), #element_text(size=8),
+        axis.title.y  = element_blank(), #element_text(size=8),
+        axis.title.x  = element_blank(), #element_text(size=8),
         axis.line = element_line(colour = "black"),
+        legend.position = "none",
         panel.border = element_rect(colour = "black", fill=NA, size=1),
-        plot.title = element_text(hjust = 0.5, size = 12)
-    )  
+        #plot.title = element_text(hjust = 0.5, size = 12)
+    )  #+ guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize)))
     
     points <-  as.vector(unique(dfSel[dfSel$highlight=="+", "gene"]))
     plotListGene[[tag]] <- LabelPoints(plot = plotListGene[[tag]], points =points, repel = TRUE, xnudge = 0, ynudge = 0)
     
+    ## Make historgrams
+    library(ggpubr)
+    library(gridExtra)
+    
+    colVec <- c("grey", "black")
+    names(colVec) <- c("", "+")
+    
+    
+    hist_top <- ggplot(data=dfSel)+ geom_histogram(aes_string(x= selXY[1],fill="selX", color="selX"), binwidth=0.001) +  theme(
+        axis.text.y   = element_blank(),
+        axis.text.x   = element_blank(),
+        axis.title.y  = element_blank(),
+        axis.title.x  = element_blank(),
+        legend.position = "none",
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12)
+    ) + geom_vline(xintercept = c(twoSDxLine, -1* twoSDxLine), color = "red", lty=2,size=0.5
+    ) + scale_color_manual(values=colVec
+    ) + scale_fill_manual(values=colVec
+    )
+    
+    empty <- ggplot()+  geom_blank() + theme(panel.border = element_rect(colour = "white", fill=NA, size=1),)
+    
+    #scatter <- plotListGene[[tag]] 
+    
+    hist_right <- ggplot(data=dfSel)+ geom_histogram(aes_string(x= selXY[2],fill="selY", color="selY"), binwidth=0.001) +  theme(
+        axis.text.y   = element_blank(),
+        axis.text.x   = element_blank(),
+        axis.title.y  = element_blank(),
+        axis.title.x  = element_blank(),
+        legend.position = "none",
+        axis.line = element_line(colour = "black"),
+        panel.border = element_rect(colour = "black", fill=NA, size=1),
+        plot.title = element_text(hjust = 0.5, size = 12)
+    ) + geom_vline(xintercept = c(twoSDxLine, -1* twoSDxLine), color = "red", lty=2,size=0.5
+    ) + scale_color_manual(values=colVec
+    ) + scale_fill_manual(values=colVec
+    ) + coord_flip()
+    
+    ## End histograms
+    
+    ## Arrange Figure ##
+    plotListGene[[tag]]  <- grid.arrange(hist_top, empty, plotListGene[[tag]] , hist_right, ncol=2, nrow=2, widths=c(4, 1), heights=c(1, 4))
+ 
+    plotListGene[[tag]]  <- annotate_figure(
+        plotListGene[[tag]],
+        top = text_grob("PCA Loadings Gene Level", face = "bold", size = 12),
+        bottom = text_grob(paste0("PCA Dim ",gsub("PC_", "", selXY[1])," Loadings"), size = 12),
+        left = text_grob(paste0("PCA Dim ",gsub("PC_", "", selXY[2])," Loadings"), rot = 90, size = 12) #,
+                     #right = text_grob(bquote("Superscript: ("*kg~NH[3]~ha^-1~yr^-1*")"), rot = 90),
+                     #fig.lab = "Figure 1", fig.lab.face = "bold"
+     )
+    
+    
+    ## Done arranging figure ##
+    
+    
     ## Save to file ##
-    FNbase <- paste0("PCA.cell.level.", xVec[i],".", yVec[i],".", VersionPdfExt)
-        FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNbase <- paste0("PCA.cell.level.", xVec[i],".", yVec[i], VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
     FNrel <- paste0("report_figures/", FNbase)
     
     pdf(FN)
-        print(plotListGene[[tag]])
+        plot(plotListGene[[tag]])
     dev.off()
     
     dim1 <- gsub("PC_", "", xVec[i])
