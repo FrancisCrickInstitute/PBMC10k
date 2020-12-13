@@ -10610,6 +10610,11 @@ setGeneric(
         
         ## markerList is derrived from a gmt file and has in the one position a category description.
         
+        ## Determine colors ##
+        library(scales)
+        enrCols <- hue_pal()(length(gmtList))
+        names(enrCols) <- names(gmtList)
+        
         for (i in 1:length(markerList)){
             geneVec <- markerList[[i]][2:length(markerList)]
             geneVec <- geneVec[geneVec != ""]
@@ -10695,7 +10700,7 @@ setGeneric(
                 data=dfEnr, aes(x= ID, y=lg10p, fill=Collection)
             ) + geom_hline(yintercept = c(-1*log10(0.05)), color = "black", size=0.5, lty=2    
             ) + geom_bar(stat="identity", colour="black"
-            ) + coord_flip()   + scale_fill_manual("CatType",values = tempPlotCols) +  theme(
+            ) + coord_flip()   + scale_fill_manual("CatType",values = enrCols) +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),

@@ -244,8 +244,8 @@ clusterSigEnrichmentList = list(
     "Cell Type Signatures" = "cibersort_L22",
     "GO-MF" = "mysigdb_c5_MF",
     "Pathways" = "mysigdb_c2_1329_canonical_pathways",
+    "Hallmarks" = "mysigdb_h_hallmarks",
     "Allen_Brain_Atlas" = "Allen_Brain_Atlas"
-
 )
 
     # mysigdb_sc_sig
