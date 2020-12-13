@@ -5455,26 +5455,33 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 
 ```{r pca_boxplot_dataprep, echo=T, eval=TRUE, warning=FALSE, results=F}
-selVec <- c("seurat_clusters", names(OsC@meta.data)[grep("^PC", names(OsC@meta.data))])
+selVec <- c("clusterName", names(OsC@meta.data)[grep("^PC", names(OsC@meta.data))])
 
 dfPCdat <- OsC@meta.data[, selVec]
 
 ymin <- 1.1*min(dfPCdat$PC_1)
 ymax <- 1.1*max(dfPCdat$PC_1)
 
-clusterVec <- sort(unique(OsC@meta.data[,"seurat_clusters"]))
+h <- sum(c("clusterName", "clusterColor") %in% names(OsC@meta.data))
+if (h ==2){
+    dfCol <- unique(OsC@meta.data[,c("clusterName", "clusterColor")])
+    clusterVec <- dfCol$clusterName
+    clusterColVec <- as.vector(dfCol$clusterColor)
+    names(clusterColVec) <- as.vector(dfCol$clusterName)
+} else{
+    clusterVec <- sort(unique(OsC@meta.data[,"clusterName"]))
+    colVec <- hue_pal()(length(clusterVec))
+    names(colVec) <- clusterVec
+}
 
-library(scales)
-clusterColVec <- hue_pal()(length(clusterVec))
 
-i=1
 
 chnkVec <- as.vector(NULL, mode="character")
 plotList <- list()
 
 for (i in 1:length(clusterVec)){
-    dfTemp <- dfPCdat[dfPCdat[,"seurat_clusters"] == clusterVec[i],]
-    dfTemp[,"seurat_clusters"] <- NULL
+    dfTemp <- dfPCdat[dfPCdat[,"clusterName"] == clusterVec[i],]
+    dfTemp[,"clusterName"] <- NULL
   
   
   
@@ -5489,7 +5496,7 @@ for (i in 1:length(clusterVec)){
   
     a <- paste0("Cluster_", clusterVec[i])
 
-    tag <- paste0("PCA_Distributions_", a)
+    tag <- paste0("PCA_Cell_Distributions_", a)
 
     plotList[[tag]] <-ggplot(
         dfTemp, 
@@ -5507,8 +5514,8 @@ for (i in 1:length(clusterVec)){
             axis.line = element_line(colour = "black"),
             panel.border = element_rect(colour = "black", fill=NA, size=1),
             plot.title = element_text(hjust = 0.5, size = 12)
-        ) + ggtitle(paste0("PCA Distribution: ", a)
-        ) + ylim(ymin, ymax) + scale_fill_manual(values=rep(clusterColVec[i], Ncolumns))  
+        ) + ggtitle(paste0("PCA Distribution: ", gsub("_", " ", a))
+        ) + ylim(ymin, ymax) + scale_fill_manual(values=rep(as.vector(clusterColVec[i]), Ncolumns))  
     
     ## Save to file ##
     FNbase <- paste0(tag, VersionPdfExt)
@@ -5568,10 +5575,93 @@ library(ggplot2)
 #save.image("temp.RData")
 
 
+
+library(clusterProfiler)
+    library(ggplot2)
+    
+    gmtList <- list()
+    pos <- grep("clusterSigEnrichmentList", slotNames(Obio))
+    
+    if (length(pos) > 0){
+    if (is.null(Obio@clusterSigEnrichmentList)){
+      dbtableList <- list(
+          "Cell Type Signatures" = "mysigdb_sc_sig",
+          "Cell Type Signatures" = "cibersort_L22",
+          "GO-MF" = "mysigdb_c5_MF",
+          "Pathways" = "mysigdb_c2_1329_canonical_pathways",
+          "Allen_Brain_Atlas" = "Allen_Brain_Atlas"
+      )
+    } else {
+        dbtableList <- Obio@clusterSigEnrichmentList
+    }
+    } else {
+      dbtableList <- list(
+          "Cell Type Signatures" = "mysigdb_sc_sig",
+          "Cell Type Signatures" = "cibersort_L22",
+          "GO-MF" = "mysigdb_c5_MF",
+          "Pathways" = "mysigdb_c2_1329_canonical_pathways",
+          "Allen_Brain_Atlas" = "Allen_Brain_Atlas"
+      )
+    }
+    
+    for (i in 1:length(dbtableList)){
+        
+        dfTemp <- unique(import.db.table.from.db(
+            host = Obio@dbDetailList$host,
+            dbname = Obio@dbDetailList$ref.cat.db,
+            dbtable = dbtableList [[i]],
+            password = db.pwd,
+            user = Obio@dbDetailList$db.user
+        ))
+        
+        rmVec <- grep("temp_", dfTemp$cat_type)
+        if (length(rmVec) > 0){
+            dfTemp <- dfTemp[-rmVec, ]
+        }
+        
+        dfTemp <- unique(dbcat2gmt(
+            dfTemp, # As downloaded from reference_categories_db_new database
+            gene.id.column = queryGS
+        ))
+        
+        dfTemp <- dfTemp[!duplicated(dfTemp[,1]), ]
+        
+        write.table(
+            dfTemp,
+            "temp.gmt.txt",
+            row.names = F, 
+            sep = "\t",
+            col.names = F,
+            quote = F
+        )
+        
+        CPgmt <- read.gmt("temp.gmt.txt")
+        unlink("temp.gmt.txt")
+        CPgmt <- unique(CPgmt[CPgmt$gene != "", ])
+        
+        gmtList[[dbtableList[[i]]]] <- CPgmt
+    }
+    
+    ## Edit collection names for plot
+    names(gmtList) <- gsub("mysigdb_", "",names(gmtList))
+    names(gmtList) <- gsub("c2_1329_canonical_p", "P",names(gmtList))
+    names(gmtList) <- gsub("sc_sig", "CellSig",names(gmtList))
+    names(gmtList) <- gsub("cibersort_L22", "CellSig",names(gmtList))
+    names(gmtList) <- gsub("c5_", "GO_",names(gmtList))
+    ## Done creating gmt list
+    ###########################
+    
+    ## Select colors ##
+    library(scales)
+    enrCols <- hue_pal()(length(gmtList))
+    names(enrCols) <- names(gmtList)
+
 PCAdimensions <- paste0("PC_", 1:20)
 
 plotList <- list()
 chnkVec <- as.vector(NULL, mode = "character")
+
+
 
 for (j in 1:length(PCAdimensions)){
     posTestGeneSet <- as.vector(
@@ -5586,77 +5676,135 @@ for (j in 1:length(PCAdimensions)){
             EnrichedGenesList[[paste0(PCAdimensions[j], "_neg")]]
         )
     )
+   
+    
+    ###########################################################################
+    ## Create GMT file for category enrichment                               ##
+    
+    ###########################
+    ## Create gmt list
+    ## Retrieve gmt files from database
+    ## Add custom gmt files
+    
+    
+    
+    
+    ## Done                                                                  ##
+    ###########################################################################
+     
+    library(clusterProfiler)
+    library(ggplot2)
+    library(tidyr)
+        
+        if (Obio@parameterList$geneIDcolumn != "mgi_symbol" & Obio@parameterList$geneIDcolumn != "hgnc_symbol") {
+            queryGS <- "hgnc_symbol" 
+        } else {
+            queryGS <- Obio@parameterList$geneIDcolumn
+        }
+        
+        if (Obio@parameterList$host == "10.27.241.234"){
+            urlString <- "biologic.thecrick.org"
+        } else {
+            urlString <- "biologic.crick.ac.uk"
+        }
+    
+    pvalueCutoff <- 0.5
+    topMaxCat <- 10
     
     ## Get background gene set ##
     #backgroundGeneVec <- row.names(OsC[["RNA"]]@counts)
-    if ((length(posTestGeneSet) >= 3) |(length(negTestGeneSet) >= 3)){
-        library(enrichR)
-        topMaxCat <- 10
-        dbs <- listEnrichrDbs()
-        
-        dbs <- c("GO_Biological_Process_2017")
-        
-        
-        PosEnriched <- enrichr(posTestGeneSet, dbs)
-        
-        for (i in 1:length(dbs)){
-            dfTemp <- PosEnriched[[dbs[i]]]
-            
-            if (i ==1){
-                dfPosEnriched <- dfTemp
-            } else {
-                dfPosEnriched <- rbind(
-                    dfPosEnriched,
-                    dfTemp
-                )
+    if ((length(posTestGeneSet) >= 3) | (length(negTestGeneSet) >= 3)){
+        ## Do enrichment ##
+        first <- TRUE
+        if (length(posTestGeneSet) >= 3){
+            for (k in 1:length(gmtList)){
+                    egmt <- data.frame(
+                        enricher(
+                            negTestGeneSet, 
+                            TERM2GENE=gmtList[[k]],
+                            pvalueCutoff = pvalueCutoff
+                        )
+                    )
+                    if (!is.null(egmt)){
+                        if (nrow(egmt) > 0){
+                            egmt[["Collection"]] <- substr(names(gmtList)[k], 1,10)
+                        }
+                        if (first){
+                            dfTempEnriched <- egmt    
+                            first <- FALSE
+                        } else {
+                            dfTempEnriched <- rbind(
+                                dfTempEnriched, 
+                                egmt
+                            )    
+                        }
+                        
+                    }
             }
-            
-        }
-        
-        dfPosEnriched[["log10FDR"]] <- -1*log10(dfPosEnriched$Adjusted.P.value)
-        dfPosEnriched <- dfPosEnriched[order(-dfPosEnriched$log10FDR),]
-        dfPosEnriched <- na.omit(dfPosEnriched)
-        
-        ## Negative Side ##
-        NegEnriched <- enrichr(negTestGeneSet, dbs)
-        
-        for (i in 1:length(dbs)){
-            dfTemp <- NegEnriched[[dbs[i]]]
-            
-            if (i ==1){
-                dfNegEnriched <- dfTemp
-            } else {
-                dfNegEnriched <- rbind(
-                    dfNegEnriched,
-                    dfTemp
-                )
+            if (nrow(dfTempEnriched) > 0){
+                dfTempEnriched[["direction"]] <- "positive"
+                dfTempEnriched[["log10FDR"]] <- -1*log10(dfTempEnriched$p.adjust)
+                dfTempEnriched <- dfTempEnriched[order(dfTempEnriched$log10FDR, decreasing = T),]
+                dfTempEnriched <- na.omit(dfTempEnriched)
+                
+                if (nrow(dfTempEnriched) > topMaxCat){
+                    dfTempEnriched <- dfTempEnriched[1:topMaxCat, ]
+                }
             }
+          
             
-        }
+        } # end positive
+            
+            ## Now the negative side ##
+            if (length(negTestGeneSet) >= 3){
+            first <- TRUE
+            for (k in 1:length(gmtList)){
+                    egmt <- data.frame(
+                        enricher(
+                            posTestGeneSet, 
+                            TERM2GENE=gmtList[[k]],
+                            pvalueCutoff = pvalueCutoff
+                        )
+                    )
+                    if (!is.null(egmt)){
+                        if (nrow(egmt) > 0){
+                            egmt[["Collection"]] <- substr(names(gmtList)[k], 1,10)
+                        }
+                        if (first){
+                            dfTempEnrichedNeg <- egmt    
+                            first <- FALSE
+                        } else {
+                            dfTempEnrichedNeg <- rbind(
+                                dfTempEnrichedNeg, 
+                                egmt
+                            )    
+                        }
+                        
+                    } 
+            }
+            if (nrow(dfTempEnrichedNeg) > 0){
+                dfTempEnrichedNeg[["direction"]] <- "negative"
+                dfTempEnrichedNeg[["log10FDR"]] <- log10(dfTempEnrichedNeg$p.adjust)
+                dfTempEnrichedNeg <- dfTempEnrichedNeg[order(dfTempEnrichedNeg$log10FDR, decreasing = F),]
+                dfTempEnrichedNeg <- na.omit(dfTempEnrichedNeg)
+                
+                if (nrow(dfTempEnrichedNeg) > topMaxCat){
+                    dfTempEnrichedNeg <- dfTempEnrichedNeg[1:topMaxCat, ]
+                }
+            }
+            } # end negative
         
-        
-        dfNegEnriched[["log10FDR"]] <- -1*log10(dfNegEnriched$Adjusted.P.value)
-        dfNegEnriched <- dfNegEnriched[order(-dfPosEnriched$log10FDR),]
-        dfNegEnriched <- na.omit(dfNegEnriched)
-        
-        dfNegSel <- dfNegEnriched
-        if (nrow(dfNegSel) > topMaxCat){
-            dfNegSel <- dfNegSel[1:topMaxCat,]
-        }
-        
-        dfPosSel <- dfPosEnriched
-        if (nrow(dfPosSel) > topMaxCat){
-            dfPosSel <- dfPosSel[1:topMaxCat,]
-        }
-        
-        if ((nrow(dfNegEnriched) > 0) | (nrow(dfPosEnriched) > 0)){
             
             
-            dfNegSel$log10FDR <- -1* dfNegSel$log10FDR
+            ## Make plot 
+            if ((nrow(dfTempEnriched) > 0) | (nrow(dfTempEnrichedNeg) > 0)){
+            
+            
+            
             
             dfSel <- rbind(
-                dfNegSel,
-                dfPosSel
+                dfTempEnriched,
+                dfTempEnrichedNeg
             )
             
             dfSel <- na.omit(dfSel)
@@ -5667,30 +5815,26 @@ for (j in 1:length(PCAdimensions)){
             dfSel[dfSel$log10FDR >= 0, "Category"] <- "Enr."
             dfSel[dfSel$log10FDR < 0, "Category"] <- "Depl."
             
-            for (k in 1:nrow(dfSel)){
-                if (nchar(dfSel[k, "Term"]) > 50 & length(grep("\\(GO", as.vector(dfSel[k, "Term"]))) > 0){
-                    part1 <- unlist(strsplit(as.vector(dfSel[k, "Term"]), "\\(GO"))[1]
-                    part1 <- substr(part1, 1, 45)
-                    part2 <- unlist(strsplit(as.vector(dfSel[k, "Term"]), "\\(GO"))[2]
-                    part2 <- paste0("\\(GO", part2)
-                    
-                    if (nchar(part1) > 40 ){
-                        dfSel[k, "Term"] <- paste0(part1, " \\n", part2)
-                    } else { 
-                        dfSel[k, "Term"] <- paste0(part1, " ", part2)
-                    }
+            for (l in 1:nrow(dfSel)){
+                if (nchar(dfSel[l, "ID"]) > 30){
+                    part1 <- substr(dfSel[l, "ID"], 1, 30)
+                    part2 <- substr(dfSel[l, "ID"], 31, 60)
+                    dfSel[l, "ID"] <- paste0(part1, " \\n", part2)
+                  
                 }
             }
             
             
             #dfSel$Term <- gsub("\\(GO", "\\\n\\(GO", dfSel$Term)
             
-            dfSel$Term <- factor(dfSel$Term, levels = unique(dfSel$Term))
+            dfSel$ID <- factor(dfSel$ID, levels = unique(dfSel$ID))
+            
+            
             
             plotList[[paste0("PCA_ENR_", j)]] <- ggplot(
-                data=dfSel, aes(x= Term, y=log10FDR, fill=Category, order=log10FDR)
+                data=dfSel, aes(x= ID, y=log10FDR, fill=Collection, order=log10FDR)
             ) + geom_bar(stat="identity", colour="black"
-            ) + coord_flip() +scale_fill_manual(values=c("yellow", "blue")
+            ) + coord_flip() +scale_fill_manual(values=enrCols
             ) + theme_bw(
             )  +  theme(
                 axis.text.y   = element_text(size=8),
@@ -5701,7 +5845,7 @@ for (j in 1:length(PCAdimensions)){
                 panel.border = element_rect(colour = "black", fill=NA, size=1),
                 plot.title = element_text(hjust = 0.5, size = 12)
             )  + labs(title = paste0("Cluster ", PCAdimensions[j]," enriched genes") ,y = "-log10(FDR)", x = ""
-            ) + geom_hline(yintercept = c(-log10(0.05), log10(0.05)), color = "red", size=0.5, lty=2
+            ) + geom_hline(yintercept = c(-log10(0.05), log10(0.05)), color = "grey", size=0.5, lty=2
             ) + geom_hline(yintercept = 0, color = "black", size=0.5
             ) 
             cat("  \n")
@@ -5721,14 +5865,14 @@ for (j in 1:length(PCAdimensions)){
             link <- paste0(
                 '<a href="https://', urlString, '/',
                 Obio@parameterList$project_id,
-                '/category-view?category_type=GO-BP" target="_blank">CategoryView > GO-BP</a>'
+                '/category-view?category_type=GO-BP" target="_blank">CategoryView</a>'
             )
             
             ## Create R markdown chunk ##
             figLegend <- paste0(
                 '**Figure ', 
                 figureCount, 
-                '**: GO-BP category enrichment analysis for the 15 genes that have  <font color = "yellow"> the most positive </font> and <font color = "blue">the most negative</font> PCA loading values in dimension ', 
+                '**: GO-BP category enrichment analysis for the top genes that have  <font color = "',colVec[2],'"> the most positive </font> and <font color = "',colVec[1],'">the most negative</font> PCA loading values in dimension ', 
                PCAdimensions[j],
                 ' associated with them. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. To view these gene sets in the context of your data, go to ',link,' and find these categories using the search box.'
             )
@@ -5744,13 +5888,20 @@ for (j in 1:length(PCAdimensions)){
                 "\n cat(  '\n')",
                 "\n\n\n```\n"   
             )
+            
+            chnkVec <- c(
+                chnkVec,
+                NewChnk
+            )
         }
-    }
-    chnkVec <- c(
-        chnkVec,
-        NewChnk
-    )
-}
+            
+            
+            ## done with plot 
+            
+    } ## Done with per dimension loops
+}        
+      
+ 
 
 if (length(plotList) > 3){
     tabVar <- ".tabset .tabset-fade .tabset-dropdown"
