@@ -5888,6 +5888,11 @@ for (j in 1:length(PCAdimensions)){
                 "\n cat(  '\n')",
                 "\n\n\n```\n"   
             )
+            
+            chnkVec <- c(
+                chnkVec,
+                NewChnk
+            )
         }
             
             
