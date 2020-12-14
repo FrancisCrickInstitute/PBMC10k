@@ -1,7 +1,10 @@
 ---
-
+title: "Pseudo-bulk Differential Gene Expression Analysis"
+subtitle:  "`r projectParams$subtitle`"
 author: "Stefan Boeing"
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+abstract: |
+  In this section pseudo-bulk differential gene expression analyses for this project are presented. The method used here was developed recently by the Huber lab and is desribed in detail [here](https://www.biorxiv.org/content/10.1101/2020.08.13.249623v2).
 
 output: 
     html_document:
@@ -10,7 +13,7 @@ output:
         toc: true
         toc_depth: 3
         toc_float: true
-    css:
+        css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
     
 always_allow_html: yes
 ---
@@ -26,9 +29,20 @@ knitr::opts_chunk$set(
 ```
 
 
-## Part B Database
+```{r hpc_notes, include=FALSE}
 
-module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;R;
+## Get interactive session ##
+#  srun --time=08:00:00 --mem=40G -p int --pty bash
+
+# module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;R;
+
+# sbatch --time=12:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runA.r" --job-name="rA"  --mem=100G -o rA.slurm >> commands.txt
+
+# sbatch --time=12:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runA.r" --job-name="rA" -p hmem --mem=300G -o rA.slurm >> commands.txt
+
+# --mem-per-cpu=14G -p hmem --pty bash
+
+```
 
 ```{r populate_meta_data_database, eval=TRUE, echo=F, results=F}
 #Create the environment and load a suitable version of R, e.g. so:
@@ -40,6 +54,8 @@ library(glmGamPoi)
 .libPaths(myPaths)
 
 library(Seurat)
+library(ggplot2)
+library(tidyverse)
 
 VersionPdfExt <- paste0(".V", gsub("-", "", Sys.Date()), ".pdf")
 
@@ -63,6 +79,7 @@ dbTable <- read.delim(
 
 db.pwd <- as.vector(dbTable[1,1])
 
+figureCount <- 1
 
 source("assets/SBwebtools.pckg.r")
 
@@ -95,6 +112,27 @@ Obio <- setDataBaseParameters(Obio)
 # Obio@parameterList$host <- "10.152.22.193"
 # Obio@parameterList$db.user <- "boeingS"
 # db.pwd <- "5+3f4nB04042018"
+
+## Set file paths ##
+baseFN <- paste0(
+   Obio@parameterList$project_id, 
+   ".DGE.table.xlsx"
+)
+
+
+outPutFN <- paste0(
+     Obio@parameterList$html_local,
+      "report_tables/",
+     baseFN
+)
+  
+ 
+FNrel <- paste0("report_tables/", baseFN)
+ 
+## Create table link string ##
+tableLink <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameterList$project_id, '/html/', FNrel,' target="_blank">here</a>')  
+
+tableString <- paste0('An Excel table with the DGE results can be downloaded  ',tableLink,'.')
 
 
 load(paste0(
@@ -253,9 +291,13 @@ DGEinputList <- list(
 ###############################################################################
 ## DGE Analysis                                                              ##
 
+plotList <- list()
+chnkVec <- as.vector(NULL, mode = "character")
 
 for (i in 1:length(DGEinputList)){
     tag <- paste0(unlist(DGEinputList[[i]]["name"]))
+    
+    
     
     resList <- doDGEsc(
         obj = OsC,
@@ -267,22 +309,231 @@ for (i in 1:length(DGEinputList)){
     
     OsC <- resList$OsC
     
+    ###########################################################################
+    ## Add average intensity for MA-Plot to DGE table                        ##
+    
+    OsC_DGE <- OsC
+    OsC_DGE@meta.data[["DGE_sel"]] <- 0
+    
+    OsC_DGE@meta.data[OsC_DGE@meta.data[,unlist(DGEinputList[[i]]["DGEselCol"])] != "", "DGE_sel"] <- 1
+    
+    row.names(OsC_DGE@meta.data) <- OsC_DGE@meta.data[,"cellID"]
+    
+    OsC_DGE <- subset(x = OsC_DGE, subset = DGE_sel == 1)
+    
+    
+    Idents(OsC_DGE) <- "DGE_sel"
+    
+    cluster.averages <- AverageExpression(
+        OsC_DGE, 
+        return.seurat = TRUE
+    )
+    
+    dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
+    dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
+    row.names(dfAvgExpr) <- NULL
+    
+    nameTag <- paste0("add_MA_cts_MA_Avg_", unlist(DGEinputList[[i]]))
+    names(dfAvgExpr) <- gsub("X1", nameTag, names(dfAvgExpr))
+    
+    dfDataTable <- resList$DGEtable
+    
+    dfDataTable <- merge(
+        dfDataTable, 
+        dfAvgExpr, 
+        by.x = "gene",
+        by.y = "gene",
+        all =TRUE
+    )
+    
+    dfDataTable[is.na(dfDataTable)] <- 0
+    
+    ## Done adding avg intensity for MA-plot                                 ##
+    ###########################################################################
+    
     Obio@dataTableList[[tag]] <- data.frame(NULL)
-    Obio@dataTableList[[tag]] <- resList$DGEtable
+    Obio@dataTableList[[tag]] <- dfDataTable
     
     DGEtagVec <- c(
       DGEtagVec,
       tag
     )
     
-    print(paste0("Done with ", tag))
+    ## Done with DGE Analysis                                                ##
+    ###########################################################################
+    
+    ###########################################################################
+    ## Create DGE Selection plot                                             ##
+    dfPlot <- OsC@meta.data
+    
+    
+    
+    pos <- grep("included", names(dfPlot))
+    if (length(pos) == 0){
+        dfPlot[["included"]] <- "+"
+    }
+
+    pos <- grep("cellID", names(dfPlot))
+      if (length(pos) == 0){
+      dfPlot[["cellID"]] <- row.names(dfPlot)
+    }
+
+    dfPlot$UMAP_1 <- NULL
+    dfPlot$UMAP_2 <- NULL
+            
+    ## Get UMAP coordinates ##
+    coord <- data.frame(OsC@reductions$umap@cell.embeddings)
+    coord[["cellID"]] <- row.names(coord)
+    coord <-coord[coord$cellID %in% dfPlot$cellID, ]
+            
+    dfPlot <- merge(dfPlot, coord, by.x = "cellID", by.y="cellID", all=T)
+    dfPlot[is.na(dfPlot)] <- 0
+    dfPlot <- dfPlot[dfPlot$UMAP_1 != 0 & dfPlot$UMAP_2 != 0,]
+            
+            
+    ## Add cluster colors ##
+    dfPlot[["Cluster"]] <- dfPlot[,unlist(DGEinputList[[i]]["name"])]
+    dfPlot$Cluster[is.na(dfPlot$Cluster)] <- ""
+    dfPlot[dfPlot$Cluster == "", "Cluster"] <- "Rest"
+    
+    label <- as.vector(gsub("DGE_", "", unlist(DGEinputList[[i]]["name"])))
+    redGroup <- as.vector(unlist(strsplit(label, "_vs_"))[1])
+    blueGroup <- as.vector(unlist(strsplit(label, "_vs_"))[2])
+    greyGroup <- "Rest"
+    
+    ## Assigning colors ##
+    dfCol <- data.frame(name = unique(dfPlot$Cluster), col = rep("", length(unique(dfPlot$Cluster))), stringsAsFactors = F)
+    dfCol[dfCol$name == redGroup, "col"] <- "red"
+    dfCol[dfCol$name == blueGroup, "col"] <- "blue"
+    dfCol[dfCol$name == greyGroup, "col"] <- "grey"
+    
+    dfColExtra <- dfCol[dfCol$col == "",]
+    if (nrow(dfColExtra) > 0){
+        eColVec <- dfColExtra$name
+        library(scales)
+        eCols = hue_pal()(length(eColVec))
+        for (l in 1:length(eColVec)){
+            dfCol[dfCol$name == eColVec[l], "col"] <- eCols[l]
+        }
+    }
+    
+    colVec <- dfCol$col
+    names(colVec) <- dfCol$name
+    
+    maxX <- 1.1*max(dfPlot$UMAP_1, na.rm = T)
+    minX <- 1.1*min(dfPlot$UMAP_1, na.rm = T)
+    maxY <- 1.1*max(dfPlot$UMAP_2, na.rm = T)
+    minY <- 1.1*min(dfPlot$UMAP_2, na.rm = T)            
+
+    #colVec <- dfPair$sampleColor
+    #names(colVec) <- dfPair$sampleName
+
+    dfPlot$Cluster <- factor(dfPlot$Cluster, levels = dfCol$name)
+
+    dotsize  = 1
+    if (nrow(dfPlot) > 10000){
+      dotsize  = 0.75
+    } else if (nrow(dfPlot) > 20000){
+      dotsize = 0.5
+    } else if (nrow(dfPlot) > 50000){
+      dotsize = 0.25
+    }
+
+    plotList[[tag]] <- ggplot(
+        data=dfPlot[dfPlot$included == "+",], 
+        aes(UMAP_1, UMAP_2, color=Cluster)
+      ) + geom_point( shape=16, size = as.numeric(dotsize)
+      ) + xlab("UMAP1") + ylab("UMAP2"
+      ) + theme_bw(
+      )  +  theme(
+          axis.text.y   = element_text(size=8),
+          axis.text.x   = element_text(size=8),
+          axis.title.y  = element_text(size=8),
+          axis.title.x  = element_text(size=8),
+          axis.line = element_line(colour = "black"),
+          panel.border = element_rect(colour = "black", fill=NA, size=1),
+          plot.title = element_text(hjust = 0.5, size = 12),
+          legend.title = element_blank()
+      ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+      ) + ggtitle(paste0("Cell Selection for ", gsub("_", " ", unlist(DGEinputList[[i]]["name"])))
+      ) + xlim(minX, maxX) + ylim(minY, maxY
+      ) + coord_fixed(ratio=1
+      ) + scale_colour_manual("DGE Groups" ,values = colVec
+      ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+      )
+
+
+      ## Add colors if specified ##
+
+            
+
+      FNbase <- paste0(tag, VersionPdfExt)
+      FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+      FNrel <- paste0("report_figures/", FNbase)
+            
+      pdf(FN)
+          print(plotList[[tag]])
+      dev.off()
+            
+      link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/pca?x_axis=UMAP_1&y_axis=UMAP_2" target="_blank">here</a>')  
+            
+      figLegend <- paste0(
+      '**Figure ', 
+      figureCount, 
+                ':** ',
+                ' UMAP showing all cells from all samples together. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+                'An interactive version of this figure can be found ', link, '. '
+            )
+            
+      figureCount <- figureCount + 1
+            
+      NewChnk <- paste0(
+          "#### ", tag,
+          "\n```{r Sample_DGE_",
+          tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+          figLegend,"'}\n",
+          "\n",
+          "\n print(plotList[['",tag,"']])",
+          "\n cat(  '\n')",
+          "\n\n\n```\n"   
+      )
+            
+      chnkVec <- c(
+          chnkVec,
+          NewChnk
+      )
+
+      ## Done creating DGE selection plot                                      ##
+      ###########################################################################
+    
+    
+      print(paste0("Done with ", tag))
 }
 
 ## Done DGE                                                                  ##
 ###############################################################################
 
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+``` 
+
+### Differential Gene Expression Comparions Cell Selections {`r tabVar`}
+In this section the cells that were used for the DGE comparisons are highlighted. 
+
+```{r CellTypePlot, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+``` 
 
 
+```{r data_DGE_summary, echo=F, eval=T, warning=FALSE, results="asis"}
+
+###############################################################################
+## Assemble DGE summary table                                                ##
 
 for (i in 1:length(DGEtagVec)){
   if (i ==1){
@@ -305,29 +556,297 @@ for (i in 1:length(DGEtagVec)){
 Obio@dataTableList[["DGE_table"]] <- NULL
 Obio@dataTableList[["DGE_table"]] <- dfTemp
 
+## Done adding DGE table                                                     ##
+###############################################################################
+```
 
-## Check ref genes ##
-# refGenes <- c(
-#   "Ebf1", 
-#   "Lhx5", 
-#   "Ros1", 
-#   "Vgll2", 
-#   "Calca", 
-#   "Cadps2", 
-#   "Vdr", 
-#   "Sgcg", 
-#   "Wnt5b", 
-#   "Coch", 
-#   "Lhx1", 
-#   "Ebf3", 
-#   "Cntn6", 
-#   "Barhl2", 
-#   "Olfr111", 
-#   "Olfr115"
-# )
 
-## Done 
-##################
+```{r data_MA_plots, echo=F, eval=T, warning=FALSE, results="asis"}
+
+
+###############################################################################
+## Make MA-plots                                                             ##
+plotList <- list()
+chnkVec <- as.vector(NULL, mode = "character")
+
+dfAllPlots <- Obio@dataTableList[["DGE_table"]] 
+
+for (i in 1:length(DGEtagVec)){
+    tag <- paste0("MA_Plot_", DGEtagVec[i])  
+    selVec <- c(
+        "gene",
+        names(dfAllPlots)[grep(DGEtagVec[i], names(dfAllPlots))]
+    )
+    
+    dfPlot <- dfAllPlots[,selVec]
+    pos <- grep("included", names(dfPlot))
+    if (length(pos) == 0){
+        dfPlot[["included"]] <- "+"
+    }
+    
+    logFCtwoSD <- 2*sd(dfPlot[,grep("_logFC_", names(dfPlot))])
+    
+    dfPlot[["DGE_Status"]] <- "Unchanged"
+    dfPlot[dfPlot[,grep("_logFC_", names(dfPlot))] > logFCtwoSD & dfPlot[,grep("_padj_", names(dfPlot))] < 0.05, "DGE_Status"] <- "Up"
+    dfPlot[dfPlot[,grep("_logFC_", names(dfPlot))] < -1 *logFCtwoSD & dfPlot[,grep("_padj_", names(dfPlot))] < 0.05, "DGE_Status"] <- "Down"
+    
+    colVec <- c("red", "blue", "black")
+    names(colVec) <- c("Up", "Down", "Unchanged")
+  
+    
+    dfPlot[["X"]] <- dfPlot[,grep("add_MA_cts_MA_Avg", names(dfPlot))]
+    dfPlot[["Y"]] <- dfPlot[,grep("contrast_1_logFC", names(dfPlot))]
+    
+    dotsize  = 1.25
+    if (nrow(dfPlot) > 10000){
+      dotsize  = 1
+    } else if (nrow(dfPlot) > 20000){
+      dotsize = 0.75
+    } else if (nrow(dfPlot) > 50000){
+      dotsize = 0.5
+    }
+
+    logFClims <- ceiling(max(abs(dfPlot$Y)))
+    
+    plotList[[tag]] <- ggplot(
+        data=dfPlot[dfPlot$included == "+",], 
+        aes(X, Y, color=DGE_Status,)
+      ) + geom_hline(yintercept = c(logFCtwoSD, -1 * logFCtwoSD), col = "darkgrey", lty=2
+      ) + geom_point( shape=16, size = as.numeric(dotsize),alpha = 0.7
+      ) + xlab(paste0("log10 Avg Intensity ", gsub("_", " ",label))) + ylab(paste0("log2-Fold Change ", gsub("_", " ",label))
+      ) + theme_bw(
+      )  +  theme(
+          axis.text.y   = element_text(size=8),
+          axis.text.x   = element_text(size=8),
+          axis.title.y  = element_text(size=8),
+          axis.title.x  = element_text(size=8),
+          axis.line = element_line(colour = "black"),
+          panel.border = element_rect(colour = "black", fill=NA, size=1),
+          plot.title = element_text(hjust = 0.5, size = 12)
+          #legend.title = element_blank()
+      ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+      ) + ggtitle(paste0("MA-stype Plot for DGE Comparison ", gsub("_", " ", label))
+      ) + ylim(logFClims, -1 * logFClims
+      ) + scale_color_manual("DGE Status" ,values = colVec
+      ) + scale_y_continuous(breaks=c(seq(-20,20,2))
+      )
+
+
+      ## Add colors if specified ##
+
+            
+
+      FNbase <- paste0(tag, VersionPdfExt)
+      FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+      FNrel <- paste0("report_figures/", FNbase)
+            
+      pdf(FN)
+          print(plotList[[tag]])
+      dev.off()
+      
+      xLabel <- names(dfPlot[grep("MA_Avg", names(dfPlot))])      
+      yLabel <- names(dfPlot[grep("_logFC_", names(dfPlot))])  
+      link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=',xLabel,'&y_axis=',yLabel,'" target="_blank">here</a>')  
+            
+      figLegend <- paste0(
+      '**Figure ', 
+      figureCount, 
+                ':** ',
+                ' MA-style plot for differential gene expression comparison ',gsub("_", " ", DGEtagVec),'. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+                'An interactive version of this figure can be found ', link, '. ',
+                tableLink
+            )
+            
+      figureCount <- figureCount + 1
+            
+      NewChnk <- paste0(
+          "#### ", tag,
+          "\n```{r MA_DGE_",
+          tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+          figLegend,"'}\n",
+          "\n",
+          "\n print(plotList[['",tag,"']])",
+          "\n cat(  '\n')",
+          "\n\n\n```\n"   
+      )
+            
+      chnkVec <- c(
+          chnkVec,
+          NewChnk
+      )
+
+      ## Done creating DGE selection plot                                      ##
+      ###########################################################################
+    
+    
+    
+    
+}
+
+
+## Done MA- plots                                                            ##
+###############################################################################
+
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+``` 
+
+### DGE MA-style Plots {`r tabVar`}
+
+```{r DGE_MA_plot, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+``` 
+
+
+```{r data_Volcano_plots, echo=F, eval=T, warning=FALSE, results="asis"}
+###############################################################################
+## Make Volcano plots
+plotList <- list()
+chnkVec <- as.vector(NULL, mode = "character")
+
+dfAllPlots <- Obio@dataTableList[["DGE_table"]] 
+
+for (i in 1:length(DGEtagVec)){
+    tag <- paste0("Volcano_Plot_", DGEtagVec[i])  
+    selVec <- c(
+        "gene",
+        names(dfAllPlots)[grep(DGEtagVec[i], names(dfAllPlots))]
+    )
+    
+    dfPlot <- dfAllPlots[,selVec]
+    pos <- grep("included", names(dfPlot))
+    if (length(pos) == 0){
+        dfPlot[["included"]] <- "+"
+    }
+    
+    logFCtwoSD <- 2*sd(dfPlot[,grep("_logFC_", names(dfPlot))])
+    
+    dfPlot[["DGE_Status"]] <- "Unchanged"
+    dfPlot[dfPlot[,grep("_logFC_", names(dfPlot))] > logFCtwoSD & dfPlot[,grep("_padj_", names(dfPlot))] < 0.05, "DGE_Status"] <- "Up"
+    dfPlot[dfPlot[,grep("_logFC_", names(dfPlot))] < -1 *logFCtwoSD & dfPlot[,grep("_padj_", names(dfPlot))] < 0.05, "DGE_Status"] <- "Down"
+    
+    colVec <- c("red", "blue", "black")
+    names(colVec) <- c("Up", "Down", "Unchanged")
+  
+    
+    dfPlot[["X"]] <- dfPlot[,grep("_logFC", names(dfPlot))]
+    dfPlot[["Y"]] <- dfPlot[,grep("_lg10p_", names(dfPlot))]
+    
+    dotsize  = 1.25
+    if (nrow(dfPlot) > 10000){
+      dotsize  = 1
+    } else if (nrow(dfPlot) > 20000){
+      dotsize = 0.75
+    } else if (nrow(dfPlot) > 50000){
+      dotsize = 0.5
+    }
+
+    logFClims <- ceiling(max(abs(dfPlot$X)))
+    
+    plotList[[tag]] <- ggplot(
+        data=dfPlot[dfPlot$included == "+",], 
+        aes(X, Y, color=DGE_Status,)
+      ) + geom_vline(xintercept = c(logFCtwoSD, -1 * logFCtwoSD), col = "darkgrey", lty=2
+      ) + geom_vline(xintercept = 0, col = "darkgrey"
+      ) + geom_hline(yintercept = 0, col = "darkgrey"
+      ) + geom_point( shape=16, size = as.numeric(dotsize),alpha = 0.7
+      ) + xlab(paste0("log2-Fold Change ", gsub("_", " ",label))) + ylab(paste0("-log10(adj p-value) ", gsub("_", " ",label))
+      ) + theme_bw(
+      )  +  theme(
+          axis.text.y   = element_text(size=8),
+          axis.text.x   = element_text(size=8),
+          axis.title.y  = element_text(size=8),
+          axis.title.x  = element_text(size=8),
+          axis.line = element_line(colour = "black"),
+          panel.border = element_rect(colour = "black", fill=NA, size=1),
+          plot.title = element_text(hjust = 0.5, size = 12)
+          #legend.title = element_blank()
+      ) + guides(col = guide_legend(override.aes = list(shape = 16, size = legendDotSize))
+      ) + ggtitle(paste0("Volcano Plot for DGE Comparison ", gsub("_", " ", label))
+      ) + ylim(logFClims, -1 * logFClims
+      ) + scale_color_manual("DGE Status" ,values = colVec
+      ) + scale_y_continuous(breaks=c(seq(0,400,50))
+      ) + scale_x_continuous(breaks=c(seq(-400,400,2))
+      )
+
+
+      ## Add colors if specified ##
+
+            
+
+      FNbase <- paste0(tag, VersionPdfExt)
+      FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+      FNrel <- paste0("report_figures/", FNbase)
+            
+      pdf(FN)
+          print(plotList[[tag]])
+      dev.off()
+      
+      xLabel <- names(dfPlot[grep("_logFC_", names(dfPlot))])      
+      yLabel <- names(dfPlot[grep("_lg10p_", names(dfPlot))])  
+      link <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/scatterplot?x_axis=',xLabel,'&y_axis=',yLabel,'" target="_blank">here</a>')  
+            
+      figLegend <- paste0(
+      '**Figure ', 
+      figureCount, 
+                ':** ',
+                ' Volcano plot for differential gene expression comparison ',gsub("_", " ", DGEtagVec),'. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+                'An interactive version of this figure can be found ', link, '. ',
+                tableLink
+            )
+            
+      figureCount <- figureCount + 1
+            
+      NewChnk <- paste0(
+          "#### ", tag,
+          "\n```{r Volcano_DGE_",
+          tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+          figLegend,"'}\n",
+          "\n",
+          "\n print(plotList[['",tag,"']])",
+          "\n cat(  '\n')",
+          "\n\n\n```\n"   
+      )
+            
+      chnkVec <- c(
+          chnkVec,
+          NewChnk
+      )
+
+      ## Done creating DGE selection plot                                      ##
+      ###########################################################################
+    
+    
+    
+    
+}
+
+
+## Done Volcano plots
+###############################################################################
+
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+``` 
+
+### DGE Volcano Plots {`r tabVar`}
+
+```{r DGE_volcano_plot, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+``` 
+
+
+```{r documentation_saving, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 
 save(Obio, 
      file = paste0(
@@ -356,13 +875,27 @@ save(OsC,
 
 library(openxlsx)
 
-baseFN <- paste0( Obio@parameterList$project_id, ".DGE.table.xlsx")
+if (!dir.exists( paste0(
+   Obio@parameterList$html_local,
+   "report_tables/"))){
+  dir.create(paste0(
+   Obio@parameterList$html_local,
+   "report_tables/"))
+}
 
-outPutFN <- paste0(
-  gsub("working/boeings/","", hpc.mount),
-  "www/boeings/bioLOGIC_external/data/",Obio@parameterList$project_id,"/html/report_tables/",Obio@parameterList$project_id,".DGE.table.xlsx"
+baseFN <- paste0(
+   Obio@parameterList$project_id, 
+   ".DGE.table.xlsx"
 )
 
+
+outPutFN <- paste0(
+     Obio@parameterList$html_local,
+      "report_tables/",
+     baseFN
+)
+  
+ 
 FNrel <- paste0("report_table/", baseFN)
     
 wb <- createWorkbook()
@@ -384,7 +917,7 @@ writeData(wb, 1,dfTemp, startRow = 1, startCol = 1, headerStyle = hs1)
     
 saveWorkbook(
   wb, 
-  gsub(".txt", ".xlsx", outPutFN) , 
+  outPutFN , 
   overwrite = TRUE
 )
 
