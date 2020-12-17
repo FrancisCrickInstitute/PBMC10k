@@ -797,19 +797,115 @@ print("R bioLOGIC single cell object initialized.")
 
 ```
 
-```{r saveSampleList, eval=TRUE, echo=T, results=F}
+```{r createIntegrated, eval=TRUE, echo=T, results=F}
 ### Will save Obio object here, so it can be re-used with different parameters
-save(SampleList, 
-     file = paste0(
+###############################################################################
+## Create sample list filtered on MT and norm_counts_RNA                     ##
+SampleList <- createNormSampleList(
+    obj = Obio,
+    reduce = Obio@parameterList$debugReduce # Default is NULL
+)
+
+print(paste0("Cell Recuction: ", Obio@parameterList$debugReduce))
+lapply(SampleList, dim)
+## Done                                                                      ##
+###############################################################################
+
+###############################################################################
+## Add doublet annotation, if present, to meta data                          ##
+
+pos <- grep("DF_resultlist", names(Obio@dataTableList))
+
+if (length(pos) > 0){
+    sampleNames <- names(SampleList)
+    for (i in 1:length(SampleList)){
+        dfAdd <- Obio@dataTableList[["DF_resultlist"]][[sampleNames[i]]]
+        row.names(dfAdd) <- gsub("-1", "",row.names(dfAdd))
+        dfAdd <- dfAdd[row.names(dfAdd) %in% row.names(SampleList[[i]]@meta.data),]
+        
+        SampleList[[i]] <- addDf2seuratMetaData(
+            obj = SampleList[[i]],
+            dfAdd = dfAdd
+        )
+    }
+}
+
+## Done                                                                      ##
+###############################################################################
+
+###############################################################################
+## Integrate Datasets                                                        ##
+if (length(SampleList) > 1){
+    if (Obio@parameterList$scIntegrationMethod == "SCT"){
+        
+        if (length(grep("scNintegrationFeatures", names(Obio@parameterList))) == 0){
+            Obio@parameterList$scNintegrationFeatures = 3000
+        }
+        
+        library(future)
+        options(future.globals.maxSize = 14000 * 1024^2)
+        plan("multiprocess", workers = 30)
+        
+        sample.features <- SelectIntegrationFeatures(
+            object.list = SampleList, 
+            nfeatures = Obio@parameterList$scNintegrationFeatures
+        )
+        SampleList <- PrepSCTIntegration(
+            object.list = SampleList, 
+            anchor.features = sample.features, 
+            verbose = FALSE
+        )
+        
+        sampleAnchors <- FindIntegrationAnchors(
+            object.list = SampleList, 
+            normalization.method = "SCT", 
+            anchor.features = sample.features, 
+            verbose = FALSE
+        )
+        
+        OsC <- IntegrateData(
+            anchorset = sampleAnchors, 
+            normalization.method = "SCT", 
+            verbose = FALSE
+        )
+        detach("package:future", unload=TRUE)
+        
+    } else {
+    
+        sampleAnchors <- FindIntegrationAnchors(
+            object.list = SampleList, 
+            dims = 1:30
+        ) 
+
+
+        OsC <- IntegrateData(
+            #features.to.integrate = geneIntersectVec,
+            anchorset = sampleAnchors, 
+            dims = 1:30
+        )
+    }
+    Obio@dataTableList$referenceList[["sampleAnchors"]] <- as.vector(sort(sampleAnchors@anchor.features))
+} else {
+    OsC <- SampleList[[1]]
+}
+
+Idents(OsC) <- factor(Idents(OsC), levels = names(Obio@sampleDetailList))
+OsC@meta.data$sampleID <- factor(OsC@meta.data$sampleID, levels = names(Obio@sampleDetailList))
+
+OsC@meta.data[["cellID"]] <- row.names(OsC@meta.data)
+
+save(OsC,
+    file = paste0(
          Obio@parameterList$localWorkDir,
          Obio@parameterList$project_id,
-         "SampleList.Robj"
+        ".Seurat.Robj"
      )
 )
 
 print("R bioLOGIC single cell object initialized.")
 
 ```
+
 
 ### Most up/down-regulated genes
 ### Cluster gene set enrichment
