@@ -26,6 +26,17 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{bash init, eval=F, echo=T}
+## Get interactive session ##
+#  srun --time=08:00:00 --mem=40G -p int --pty bash
+
+# module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;R;
+
+# sbatch --time=08:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runCM.r" --job-name="rCM" --mem=42G -o rCM.slurm >> commands.txt
+
+# sbatch --time=18:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runCM.r" --job-name="rCM" -p hmem --mem=300G -o rCN.slurm >> commands.txt
+
+```
 
 ## Prepare Data
 
@@ -96,7 +107,39 @@ load(SeuratFN)
 
 ```
 
-## Cluster Options {.tabset .tabset-fade .tabset-pills}
+## Do Dimensionality Reduction 
+```{r PCA_UMAP_tSNE, echo=TRUE, eval=TRUE, warning=FALSE, results=FALSE} 
+###############################################################################
+## Perform integrated analysis                                               ##
+
+if (length(Obio@sampleDetailList) > 1){
+    DefaultAssay(OsC) <- "integrated"
+} else {
+    Obio@parameterList$singleCellClusterString <- gsub("integrated", "RNA", Obio@parameterList$singleCellClusterString)
+}
+
+
+# Run the standard workflow for visualization and clustering
+## This will scale on the most variable features only
+OsC <- ScaleData(OsC, verbose = FALSE)
+
+OsC <- RunPCA(
+    OsC, 
+    npcs = Obio@parameterList$singleCellSeuratNpcs4PCA, verbose = FALSE
+)
+# t-SNE and Clustering
+
+## Add PCA clusters to data collection ##
+
+
+OsC <- RunUMAP(OsC, reduction = "pca", dims = 1:20)
+
+OsC <- RunTSNE(OsC, reduction = "pca", dims = 1:20)
+
+OsC <- FindNeighbors(OsC, reduction = "pca", dims = 1:20)
+```
+
+
 ```{r populate_expr_database_1, eval=TRUE, echo=F, results=F}
 if (length(Obio@sampleDetailList) > 1){
     DefaultAssay(OsC) <- "integrated"
@@ -161,7 +204,7 @@ for (i in 1:length(clusterOptionVec)){
     ## with split by sample ##
     tag <- paste0("Clusterplot_by_sample",  "_",i,"_", gsub("[.]", "_", clusterOptionVec[i]))
     
-    plotList[[tag]] <- DimPlot(OsC, reduction = reductionVec[j], group.by = paste0("integrated_snn_res.", clusterOptionVec[i]),label = TRUE, split.by = "sampleID")
+    plotList[[tag]] <- DimPlot(OsC, reduction = reductionVec[j], group.by = gsub("\\.", "_", paste0("integrated_snn_res.", clusterOptionVec[i])),label = TRUE, split.by = "sampleID")
     
     
     ## Save to file ##
@@ -204,6 +247,21 @@ for (i in 1:length(clusterOptionVec)){
     OsC@tools$BuildClusterTree$tip.label <- paste0("C", OsC@tools$BuildClusterTree$tip.label)
     
     library(ggtree)
+    
+    ## Color by cluster ##
+    h <- sum(c("sampleName", "sampleColor") %in% OsC@meta.data)
+    if (h ==2){
+      dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
+      colVec <- as.vector(dfCol$sampleColor)
+      names(colVec) <- as.vector(dfCol$sampleName)
+      plotList[[tag]] <- plotList[[tag]] + geom_tiplab(color=colVec
+        ) 
+    } else {
+      plotList[[tag]] <- plotList[[tag]] + geom_tiplab(
+        )   
+    }
+  ## Done ##
+    
     plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree) + geom_tree() + theme_tree() + geom_tiplab() + labs(title=tag
     ) +  theme(
       panel.border = element_rect(colour = "black", fill=NA, size=1),
@@ -252,8 +310,16 @@ for (i in 1:length(clusterOptionVec)){
 }
 
 
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
 ```
 
+
+## Cluster Options {`r tabVar`}
 
 ```{r Plot_tsne_data_plotting, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 
@@ -262,17 +328,16 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 ```
 
 
-## Example Gene categories to help with the clustering decission {.tabset .tabset-fade .tabset-pills}
+
 ```{r AUC_prep_from_file, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 
 library(AUCell)
 plotList <- list()
 chnkVec <- as.vector(NULL, mode = "character")
 
-FN <- paste0(hpc.mount, "Projects/lovellbadger/emily.frost/358_RLL_EF_single_cell_p27kip1_in_ovarian_granulosa_cells_SC19235/basedata/20200120.category.file.txt")
 
 dfHeatmapGenes <- read.delim(
-  FN,
+  Obio@parameterList$catRefFile,
   header = T,
   sep = "\t",
   stringsAsFactors = F
@@ -440,7 +505,16 @@ for (i in 1:length(Obio@parameterList$cat2DplotList)){
 }
 
 
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
 ```
+
+## Example Gene categories to help with the clustering decission {`r tabVar`}
+
 
 ```{r enrichment_plots, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
