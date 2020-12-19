@@ -1958,3 +1958,165 @@ setGeneric(
 ## Done Cell Cycle Barchart                                                  ##
 ###############################################################################
 
+###############################################################################
+## Cell Cycle UMAP per sample                                                ##
+
+# This function will display cell cycle phase estimates per sample ##
+setGeneric(
+    name="doUMAP_cellCyle",
+    def=function(
+        SampleList,
+        obj = Obio,
+        figureCount = figureCount,
+        VersionPdfExt = ".pdf",
+        tocSubLevel = 4,
+        dotsize = 0.5,
+        cellCycleRefFile = paste0(hpc.mount, "Projects/reference_data/cell_cycle_vignette_files/nestorawa_forcellcycle_expressionMatrix.txt")
+    ) {
+        ###############################################################################
+        ## Make plots                                                                ##
+        library(Seurat)
+        
+        exp.mat <- read.table(file = cellCycleRefFile, header = TRUE, 
+                              as.is = TRUE, row.names = 1)
+        
+        
+        # A list of cell cycle markers, from Tirosh et al, 2015, is loaded with Seurat.  We can
+        # segregate this list into markers of G2/M phase and markers of S phase
+        s.genes <- cc.genes$s.genes
+        g2m.genes <- cc.genes$g2m.genes
+        
+        print(paste0("Used as S-phase marker genes: ", sort(unique(paste(s.genes, collapse = ", ")))))
+        print(paste0("Used as G2M-phase marker genes: ", sort(unique(paste(g2m.genes, collapse = ", ")))))
+        
+        
+        
+        
+        plotList <- list()
+        chnkVec <- as.vector(NULL, mode = "character")
+        sampleNames <- as.vector(names(obj@sampleDetailList))
+        
+        ## Calculate cell cycle scores for each individual sample ##
+        Idents(SampleList[[sampleNames[i]]]) <- "sampleID"
+        
+        for (i in 1:length(sampleNames)){
+            # Create our Seurat object and complete the initalization steps
+            SampleList[[sampleNames[i]]] <- CellCycleScoring(
+                SampleList[[sampleNames[i]]], 
+                s.features = s.genes, 
+                g2m.features = g2m.genes, 
+                set.ident = TRUE
+            )
+            
+            ###############################################################################
+            ## Make one UMAP plot per sample                                             ##
+            
+            sampleVec <- sampleNames[i]
+            
+            dfPlot <- SampleList[[sampleNames[i]]]@meta.data
+            pos <- grep("included", names(dfPlot))
+            if (length(pos) == 0){
+                dfPlot[["included"]] <- "+"
+            }
+            dfPlot[["cellID"]] <- row.names(dfPlot)
+            
+            ## Get UMAP coordinates ##
+            coord <- data.frame(SampleList[[sampleNames[i]]]@reductions$umap@cell.embeddings)
+            coord[["cellID"]] <- row.names(coord)
+            coord <-coord[coord$cellID %in% dfPlot$cellID, ]
+            dfPlot$UMAP_1 <- NULL
+            dfPlot$UMAP_2 <- NULL
+            
+            dfPlot <- merge(dfPlot, coord, by.x = "cellID", by.y="cellID", all=T)
+            dfPlot[is.na(dfPlot)] <- 0
+            dfPlot <- dfPlot[dfPlot$UMAP_1 != 0 & dfPlot$UMAP_2 != 0,]
+            
+            
+            ## Add cluster colors ##
+            #dfPlot[["Cluster"]] <- paste0("C", dfPlot$seurat_clusters)
+            #clusterVec <- as.vector(paste0("C", unique(sort(dfPlot$seurat_clusters))))
+            
+            #library(scales)
+            #clusterCols = hue_pal()(length(clusterVec))
+            
+            #dfPlot$Cluster <- factor(dfPlot$Cluster, levels = clusterVec)            
+            
+            maxX <- 1.1*max(dfPlot$UMAP_1, na.rm = T)
+            minX <- 1.1*min(dfPlot$UMAP_1, na.rm = T)
+            maxY <- 1.1*max(dfPlot$UMAP_2, na.rm = T)
+            minY <- 1.1*min(dfPlot$UMAP_2, na.rm = T)               
+            
+            
+            tag <- paste0("UMAP_Cell_Cycle_Plot_", sampleNames[i])
+            
+            plotList[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(UMAP_1, UMAP_2, color=Phase)
+            ) + geom_point( shape=16, size = as.numeric(dotsize)
+            ) + xlab("UMAP1") + ylab("UMAP2"
+            ) + theme_bw(
+            )  +  theme(
+                axis.text.y   = element_text(size=8),
+                axis.text.x   = element_text(size=8),
+                axis.title.y  = element_text(size=8),
+                axis.title.x  = element_text(size=8),
+                axis.line = element_line(colour = "black"),
+                panel.border = element_rect(colour = "black", fill=NA, size=1),
+                plot.title = element_text(hjust = 0.5, size = 12),
+                legend.title = element_blank()
+            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = 5))
+            ) + ggtitle(paste0(gsub("_", " ",tag))
+            ) + xlim(minX, maxX) + ylim(minY, maxY
+            ) + coord_fixed(ratio=1
+            ) 
+            
+            if (length(unique(dfPlot$Cluster)) > 15){
+                plotList[[tag]] <- plotList[[tag]] + theme(legend.position = "none")
+            }
+            
+            FNbase <- paste0(tag, VersionPdfExt)
+            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+            FNrel <- paste0("report_figures/", FNbase)
+            
+            pdf(FN)
+            print(plotList[[tag]])
+            dev.off()
+            
+            figLegend <- paste0(
+                '**Figure ', 
+                figureCount, 
+                ':** ',
+                ' Sample-level UMAPs. Estimated cell-cylce phase color-coded. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.'
+            )
+            
+            figureCount <- figureCount + 1
+            
+            NewChnk <- paste0(
+                paste("#### ", tag),
+                "\n```{r ",
+                tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+                figLegend,"'}\n",
+                "\n",
+                "\n print(plotList[['",tag,"']])",
+                "\n cat(  '\n')",
+                "\n\n\n```\n"   
+            )
+            
+            chnkVec <- c(
+                chnkVec,
+                NewChnk
+            )
+            
+            ## Done making one umap plot per sample                                      ##
+            ###############################################################################
+        }  ## End looping through samples
+        
+        returnList <- list(
+            "plotList" = plotList,
+            "chnkVec" = chnkVec,
+            "figureCount" = figureCount
+        )
+        
+    })
+
+## Done Cell Cycle UMAP per sample                                           ##
+###############################################################################
+

@@ -702,6 +702,37 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 ```
 
+
+```{r UMAP_data_CC, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
+###############################################################################
+## Do percent mt plots                                                       ##
+resList <- doUMAP_cellCyle(
+        SampleList,
+        obj = Obio,
+        figureCount = figureCount,
+        VersionPdfExt = ".pdf",
+        tocSubLevel = 4,
+        dotsize = 0.5,
+        cellCycleRefFile = paste0(hpc.mount, "Projects/reference_data/cell_cycle_vignette_files/nestorawa_forcellcycle_expressionMatrix.txt")
+)
+
+
+plotList <- resList$plotList
+chnkVec <- resList$chnkVec
+figureCount <- resList$figureCount
+
+## Done create cellRanger QC plots                                           ##
+###############################################################################
+
+```
+
+### Plot Cell Cycle UMAP Per Sample {.tabset .tabset-fade .tabset-pills}
+```{r Plot_UMAP_CC, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+```
+
 ### Plot Per Sample Cell Cycle Estimate {.tabset .tabset-fade .tabset-pills}
 ```{r cell_cyle_hist_data, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
 ###############################################################################
