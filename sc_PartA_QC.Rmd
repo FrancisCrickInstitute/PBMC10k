@@ -724,16 +724,25 @@ figureCount <- resList$figureCount
 ## Done create cellRanger QC plots                                           ##
 ###############################################################################
 
+
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
+
 ```
 
-### Plot Cell Cycle UMAP Per Sample {.tabset .tabset-fade .tabset-pills}
+
+### Plot Cell Cycle UMAP Per Sample {`r tabVar`}
 ```{r Plot_UMAP_CC, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 
 cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 ```
 
-### Plot Per Sample Cell Cycle Estimate {.tabset .tabset-fade .tabset-pills}
+
 ```{r cell_cyle_hist_data, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
 ###############################################################################
 ## Do percent mt plots                                                       ##
@@ -753,15 +762,24 @@ figureCount <- resList$figureCount
 ## Done create cellRanger QC plots                                           ##
 ###############################################################################
 
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
+
 ```
 
+
+### Plot Per Sample Cell Cycle Estimate {`r tabVar`}
 ```{r Plot_cellCycleBarchart, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 
 cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 ```
 
-### Plot Per Sample Doublet Estimate {.tabset .tabset-fade .tabset-pills}
+
 ```{r DF_data, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
 ###############################################################################
 ## Do percent mt plots                                                       ##
@@ -784,15 +802,24 @@ Obio@dataTableList[["DF_resultlist"]] <- resList$addList
 ## Done create cellRanger QC plots                                           ##
 ###############################################################################
 
+if (length(plotListDF) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
+
 ```
 
+### Plot Per Sample Doublet Estimate  {`r tabVar`}
+{.tabset .tabset-fade .tabset-pills}
 ```{r Plot_DF, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 
 cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 ```
 
-### Plot Per Sample MT Percentage {.tabset .tabset-fade .tabset-pills}
+
 ```{r UMAP_percentage, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
 ###############################################################################
 ## Do percent mt plots                                                       ##
@@ -815,7 +842,16 @@ figureCount <- resList$figureCount
 ## Done create cellRanger QC plots                                           ##
 ###############################################################################
 
+if (length(plotListUMT) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
+
 ```
+
+### Plot Per Sample MT Percentage {`r tabVar`}
 
 ```{r Plot_percent_MT, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 
@@ -823,7 +859,7 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 ```
 
-### Plot Per Sample nFeatures RNA {.tabset .tabset-fade .tabset-pills}
+
 ```{r UMAP_nFeatures, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
 ###############################################################################
 ## Do percent mt plots                                                       ##
@@ -846,7 +882,16 @@ figureCount <- resList$figureCount
 ## Done create cellRanger QC plots                                           ##
 ###############################################################################
 
+if (length(plotListNC) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
+
 ```
+
+### Plot Per Sample nFeatures RNA {`r tabVar`}
 
 ```{r Plot_nFeatureRNA, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 
