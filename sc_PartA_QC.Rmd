@@ -80,19 +80,7 @@ if (dir.exists("/Volumes/babs/working/boeings/")){
     hpc.mount <- ""
 }
 
-# source(
-#     paste0(
-#         hpc.mount,
-#         "Stefan/protocol_files/github/boeings/packages/packageSourceCode/SBwebtools.pckg.r"
-#     )
-# )
 
-# source(
-#     paste0(
-#         hpc.mount,
-#         "Stefan/protocol_files/github/boeings/packages/scTools/scTools.r"
-#     )
-# )
 
 source("assets/scTools.r")
 source("assets/SBwebtools.pckg.r")
@@ -122,7 +110,7 @@ sampleDetailList <- list(
     "mliGlia" = list(
         "type" = "TenX",
         "gene.column" = 1, # default 2
-        "path" = "/camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/FASTQ_files/mliGlia/outs/filtered_feature_bc_matrix",
+        "path" = paste0(hpc.mount, "Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/FASTQ_files/mliGlia/outs/filtered_feature_bc_matrix"),
         "singleCellClusterParameter" = singleCellClusterParameter,
         "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
@@ -138,7 +126,7 @@ sampleDetailList <- list(
     "mliNeuron" = list(
         "type" = "TenX",
         "gene.column" = 1,
-        "path" = "/camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/FASTQ_files/mliNeuron/outs/filtered_feature_bc_matrix",
+        "path" = paste0(hpc.mount,"Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/FASTQ_files/mliNeuron/outs/filtered_feature_bc_matrix"),
         "singleCellClusterParameter" = singleCellClusterParameter,
         "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
         "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
@@ -466,9 +454,8 @@ print("R bioLOGIC single cell object initialized.")
 ```
 
 ## QC Section
-### Create First figure
 
-### Create QC Table
+
 ```{r create_QC_Table, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
 
 tableCreated <- FALSE
@@ -547,21 +534,27 @@ chnkVec <- paste0(
         "\n cat(  '\n')",
         "\n\n\n```\n"   
     )
-}    
+    tabVar <- "### Create QC Table"
+}   else {
+    tabVar <- ""
+}
 ## Done creating one table per cluster                                      ##
 ##############################################################################
 ```
 
+`r tabVar`
 ```{r render_QCTable, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 
 if (exists("dfRes")){
     cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
-}
+    
+} 
 ```
 
-### Turn QC Table into figures
 
-### CellRanger QC {.tabset .tabset-fade .tabset-pills}
+
+
+
 ```{r QC_raw_data, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
 
 ###############################################################################
@@ -579,12 +572,29 @@ resList <- doCRplots(
 plotListQC1 <- resList$plotListQC1
 chnkVec <- resList$chnkVec
 figureCount <- resList$figureCount
+    if (length(plotListQC1) > 3){
+        
+        tabVar <- "### CellRanger QC {.tabset .tabset-fade .tabset-dropdown}"
+    } else {
+        
+        tabVar <- "### CellRanger QC {.tabset .tabset-fade .tabset-pills}"
+    }
+
+    
+        
+} else {
+    tabVar <- ""
 }
 
 ## Done create cellRanger QC plots                                           ##
 ###############################################################################
 
+
+ 
 ```
+
+
+`r tabVar`
 
 ```{r Plot_tsne_data_plotting, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 if (exists("dfRes")){
@@ -599,8 +609,12 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 ```{r start_seurat, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
 
 SampleList <- createSampleListQC(
-    obj = Obio
+    obj = Obio,
+    reduce = Obio@parameterList$debugReduce    
 )
+
+print(paste0("Cell Recuction: ", Obio@parameterList$debugReduce))
+lapply(SampleList, dim)
 
 ```
 
@@ -683,6 +697,34 @@ figureCount <- resList$figureCount
 ```
 
 ```{r Plot_UMAP, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+
+```
+
+### Plot Per Sample Cell Cycle Estimate {.tabset .tabset-fade .tabset-pills}
+```{r cell_cyle_hist_data, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
+###############################################################################
+## Do percent mt plots                                                       ##
+resList <- doCellCycleBarchart(
+        SampleList,
+        obj = Obio,
+        figureCount = figureCount,
+        VersionPdfExt = ".pdf",
+        tocSubLevel = 4,
+        cellCycleRefFile = paste0(hpc.mount, "Projects/reference_data/cell_cycle_vignette_files/nestorawa_forcellcycle_expressionMatrix.txt")
+)
+
+plotList <- resList$plotList
+chnkVec <- resList$chnkVec
+figureCount <- resList$figureCount
+
+## Done create cellRanger QC plots                                           ##
+###############################################################################
+
+```
+
+```{r Plot_cellCycleBarchart, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
 
 cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 

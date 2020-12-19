@@ -10506,6 +10506,9 @@ DotPlotSB <- function (
         y = "Features"
     ) 
     
+    if (nrow(data.plot) > 10){
+        plot <- plot + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    }
    
     if (!is.null(x = split.by)) {
         plot <- plot + scale_color_identity()

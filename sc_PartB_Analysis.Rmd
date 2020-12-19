@@ -104,6 +104,7 @@ dbTable <- read.delim(
 
 db.pwd <- as.vector(dbTable[1,1])
 
+## Set filename for temp pdf files ##
 
 if (length(.libPaths()) > 2){
     .libPaths(.libPaths()[2:3])
@@ -119,6 +120,8 @@ ObioFN <- paste0(
 
 load(ObioFN)
 
+## Activate debug mode on subset of cells < 1
+# Obio@parameterList$debugReduce <- 0.25
 
 ## Set project specific parameters ##
 Obio <- setMountingPoint(Obio)
@@ -159,6 +162,7 @@ if (!dir.exists(Obio@parameterList[["html_local"]])){
 }
 
 Obio@parameterList[["reportFigDir"]] <- paste0(Obio@parameterList$html_local, "report_figures/")
+pdfTemp <- paste0(Obio@parameterList$reportFigDir, "temp.pdf")
 
 
 if (!dir.exists(Obio@parameterList$reportFigDir)){
@@ -176,6 +180,9 @@ if (Obio@parameterList$host == "10.27.241.234"){
     urlString <- "biologic.crick.ac.uk"
 }
 
+
+## Debugging mode on subset of cells ##
+# Obio@parameterList$d
 
 ```
 
@@ -4299,7 +4306,11 @@ plotList[[tag]] <- DotPlotSB(
         dot.scale = 4,
         col.min = 0,
         col.max = 5
-    ) + ggtitle(gsub("_", "", tag)) + xlab("") + coord_fixed() + coord_flip() + theme_bw() 
+    ) + ggtitle(gsub("_", "", tag)
+    ) + xlab(""
+    ) + coord_fixed(
+    #) + coord_flip(
+    ) + theme_bw() 
     
 
 ## Save to file ##
@@ -5377,6 +5388,7 @@ for (i in 1:length(xVec)){
     ## End histograms
     
     ## Arrange Figure ##
+    pdf(pdfTemp)
     plotListGene[[tag]]  <- grid.arrange(hist_top, empty, plotListGene[[tag]] , hist_right, ncol=2, nrow=2, widths=c(4, 1), heights=c(1, 4))
  
     plotListGene[[tag]]  <- annotate_figure(
@@ -5387,8 +5399,8 @@ for (i in 1:length(xVec)){
                      #right = text_grob(bquote("Superscript: ("*kg~NH[3]~ha^-1~yr^-1*")"), rot = 90),
                      #fig.lab = "Figure 1", fig.lab.face = "bold"
      )
-    
-    
+    dev.off()
+    unlink(pdfTemp)
     ## Done arranging figure ##
     
     

@@ -48,7 +48,7 @@ setGeneric(
         
         
         figureCreated <- FALSE
-        sampleNames <- names(Obio@sampleDetailList)
+        sampleNames <- names(obj@sampleDetailList)
 
         rawSampleList <- list()
         filtSampleList <- list()
@@ -728,16 +728,16 @@ setGeneric(
         plotListRF <- list()
         chnkVec <- as.vector(NULL, mode = "character")
 
-        sampleNames <- as.vector(names(Obio@sampleDetailList))
+        sampleNames <- as.vector(names(obj@sampleDetailList))
 
         for (i in 1:length(sampleNames)){
             tag <- sampleNames[i]
 
             SampleList[[sampleNames[i]]]@meta.data[["included"]] <- "+"
 
-            SampleList[[sampleNames[i]]]@meta.data[((SampleList[[sampleNames[i]]]@meta.data$nFeature_RNA < Obio@sampleDetailList[[sampleNames[i]]]$SeuratNrnaMinFeatures) | (SampleList[[sampleNames[i]]]@meta.data$nFeature_RNA > Obio@sampleDetailList[[sampleNames[i]]]$SeuratNrnaMaxFeatures)), "included"] <- "ex_N_Feat_RNA"
+            SampleList[[sampleNames[i]]]@meta.data[((SampleList[[sampleNames[i]]]@meta.data$nFeature_RNA < obj@sampleDetailList[[sampleNames[i]]]$SeuratNrnaMinFeatures) | (SampleList[[sampleNames[i]]]@meta.data$nFeature_RNA > obj@sampleDetailList[[sampleNames[i]]]$SeuratNrnaMaxFeatures)), "included"] <- "ex_N_Feat_RNA"
 
-            SampleList[[sampleNames[i]]]@meta.data[(SampleList[[sampleNames[i]]]@meta.data$percent.mt > Obio@sampleDetailList[[sampleNames[i]]]$singleCellSeuratMtCutoff ), "included"] <- "ex_MT_Perc"
+            SampleList[[sampleNames[i]]]@meta.data[(SampleList[[sampleNames[i]]]@meta.data$percent.mt > obj@sampleDetailList[[sampleNames[i]]]$singleCellSeuratMtCutoff ), "included"] <- "ex_MT_Perc"
 
 
             dfHist <-  SampleList[[sampleNames[i]]]@meta.data
@@ -792,8 +792,9 @@ setGeneric(
             plotListRF[[paste0("Hist_GL_", tag)]] <- ggplot(data=dfHist, aes(x=nFeature_RNA, fill = included)
             ) + geom_vline( xintercept = c(x1meanLine, x2meanLine), col="grey", linetype = "dashed"
             ) + geom_histogram(binwidth=50, alpha = 0.5
-            ) + scale_fill_manual(values=colVec) + geom_point(aes(x=x, y=fitVec1), color = "#009900", size = 0.5
+            ) + scale_fill_manual(values=colVec) + geom_point(aes(x=x, y=fitVec1), color = "#009900", size = 0.1
             ) + geom_point(aes(x=x, y=fitVec2), color = "#FF0000", size = 0.1
+            ) + theme_bw(
             ) +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
@@ -802,7 +803,7 @@ setGeneric(
                 axis.line = element_line(colour = "black"),
                 panel.border = element_rect(colour = "black", fill=NA, size=1),
                 plot.title = element_text(hjust = 0.5, size = 12)
-            ) + geom_vline(xintercept = obj@parameterList$SeuratNrnaMinFeatures, col="red"
+            ) + geom_vline(xintercept = obj@sampleDetailList[[i]]$SeuratNrnaMinFeatures, col="red"
             ) + geom_hline(yintercept = 0, col="black"
 
             ) + labs(title = paste0("Histogram nFeatures RNA per cell ", names(SampleList)[i], " (SD1: ", round(sd(x),2),")") ,y = "Count", x = "nFeatures RNA"
@@ -811,7 +812,7 @@ setGeneric(
             ###########################################################################
             ## Save plot to file                                                     ##
             FNbase <- paste0("Historgram.GL",names(SampleList)[i], VersionPdfExt)
-            FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+            FN <- paste0(obj@parameterList$reportFigDir, FNbase)
             FNrel <- paste0("report_figures/", FNbase)
 
             pdf(FN)
@@ -936,7 +937,7 @@ setGeneric(
 
             write.table(
                 dfAdd,
-                paste0(Obio@parameterList$localWorkDir,"DF_", sampleNames[i],".txt"),
+                paste0(obj@parameterList$localWorkDir,"DF_", sampleNames[i],".txt"),
                 row.names = F,
                 sep = "\t"
             )
@@ -1170,11 +1171,11 @@ setGeneric(
             }
 
             ## Label mitochondrial cells ##
-            if (Obio@parameterList$species == "mus_musculus"){
+            if (obj@parameterList$species == "mus_musculus"){
                 mtSel <- "^mt-"
-            } else if (Obio@parameterList$species == "homo_sapiens") {
+            } else if (obj@parameterList$species == "homo_sapiens") {
                 mtSel <- "^MT-"
-            } else if (Obio@parameterList$species == "danio_rerio") {
+            } else if (obj@parameterList$species == "danio_rerio") {
                 mtSel <- "^mt-"
             } else {
                 mtSel <- "^MitoGene-"
@@ -1199,7 +1200,7 @@ setGeneric(
                 obj@parameterList$scIntegrationMethod <- "standard"
             }
 
-            if (Obio@parameterList$scIntegrationMethod == "SCT"){
+            if (obj@parameterList$scIntegrationMethod == "SCT"){
                 SampleList[[i]] <- SCTransform(SampleList[[i]], verbose = FALSE)
                 SampleList[[i]] <- NormalizeData(
                     SampleList[[i]],
@@ -1425,7 +1426,7 @@ setGeneric(
     plotListRF <- list()
     chnkVec <- as.vector(NULL, mode = "character")
 
-    sampleNames <- as.vector(names(Obio@sampleDetailList))
+    sampleNames <- as.vector(names(obj@sampleDetailList))
 
     for (i in 1:length(sampleNames)){
             tag <- paste0("Hist_MT_", sampleNames[i])
@@ -1490,7 +1491,7 @@ setGeneric(
             ) + geom_vline( xintercept = c(x1meanLine, x2meanLine), col="grey", linetype = "dashed"
             ) + geom_histogram(binwidth=0.3, alpha = 0.5
             ) + geom_vline( xintercept = obj@sampleDetailList[[sampleNames[i]]]$singleCellSeuratMtCutoff, col="red", linetype = "dashed"
-            ) + scale_fill_manual(values=colVec) + geom_point(aes(x=x, y=fitVec1), color = "#009900", size = 0.5
+            ) + scale_fill_manual(values=colVec) + geom_point(aes(x=x, y=fitVec1), color = "#009900", size = 0.1
             ) + geom_point(aes(x=x, y=fitVec2), color = "#FF0000", size = 0.1
             ) +  theme(
                 axis.text.y   = element_text(size=8),
@@ -1500,11 +1501,12 @@ setGeneric(
                 axis.line = element_line(colour = "black"),
                 panel.border = element_rect(colour = "black", fill=NA, size=1),
                 plot.title = element_text(hjust = 0.5, size = 12)
-            ) + geom_vline(xintercept = Obio@parameterList$SeuratNrnaMinFeatures, col="red"
+            ) + geom_vline(xintercept = obj@sampleDetailList[[i]]$singleCellSeuratMtCutoff, col="red"
             ) + geom_hline(yintercept = 0, col="black"
 
             ) + labs(title = paste0("Histogram Percent Mitochondrial Genes per Cell ", names(SampleList)[i], " \n (SD1: ", round(sd(x),2),")") ,y = "Count", x = "Percent Mitochondrial Genes"
-            ) + xlim(0, max(dfHist$x))
+            ) + xlim(0, max(dfHist$x)
+            ) + theme_bw()
 
             ###########################################################################
             ## Save plot to file                                                     ##
@@ -1663,7 +1665,7 @@ setGeneric(
 
         comp_1 <- unique(comp_1[,selVec])
 
-        pos <- grep(paste0("DGE_", DGEselCol), names(Obio@dataTableList))
+        pos <- grep(paste0("DGE_", DGEselCol), names(obj@dataTableList))
 
         returnList <- list(
             "OsC" = obj,
@@ -1775,3 +1777,184 @@ setGeneric(
 
 ## Done                                                                      ##
 ###############################################################################
+
+###############################################################################
+## Cell Cycle Barchart per sample                                             ##
+
+# This function will display cell cycle phase estimates per sample ##
+setGeneric(
+    name="doCellCycleBarchart",
+    def=function(
+        SampleList,
+        obj = "Obio",
+        figureCount = 1,
+        VersionPdfExt = ".pdf",
+        tocSubLevel = 4,
+        cellCycleRefFile = 'paste0(hpc.mount, "Projects/reference_data/cell_cycle_vignette_files/nestorawa_forcellcycle_expressionMatrix.txt")'
+        
+    ) {
+        ###############################################################################
+        ## Make plots                                                                ##
+        library(Seurat)
+        
+        exp.mat <- read.table(file = cellCycleRefFile, header = TRUE, 
+                              as.is = TRUE, row.names = 1)
+        
+        
+        # A list of cell cycle markers, from Tirosh et al, 2015, is loaded with Seurat.  We can
+        # segregate this list into markers of G2/M phase and markers of S phase
+        s.genes <- cc.genes$s.genes
+        g2m.genes <- cc.genes$g2m.genes
+        
+        print(paste0("Used as S-phase marker genes: ", sort(unique(paste(s.genes, collapse = ", ")))))
+        print(paste0("Used as G2M-phase marker genes: ", sort(unique(paste(g2m.genes, collapse = ", ")))))
+        
+        
+        
+        
+        plotList <- list()
+        chnkVec <- as.vector(NULL, mode = "character")
+        sampleNames <- as.vector(names(obj@sampleDetailList))
+        
+        ## Calculate cell cycle scores for each individual sample ##
+        Idents(SampleList[[sampleNames[i]]]) <- "sampleID"
+        
+        for (i in 1:length(sampleNames)){
+            # Create our Seurat object and complete the initalization steps
+            SampleList[[sampleNames[i]]] <- CellCycleScoring(
+                SampleList[[sampleNames[i]]], 
+                s.features = s.genes, 
+                g2m.features = g2m.genes, 
+                set.ident = TRUE
+            )
+            
+            NcellsS <- nrow(SampleList[[sampleNames[i]]]@meta.data[SampleList[[sampleNames[i]]]@meta.data$Phase == "S",])
+            NcellsG2M <- nrow(SampleList[[sampleNames[i]]]@meta.data[SampleList[[sampleNames[i]]]@meta.data$Phase == "G2M",])
+            NcellsG1 <- nrow(SampleList[[sampleNames[i]]]@meta.data[SampleList[[sampleNames[i]]]@meta.data$Phase == "G1",])
+            Nsum <- sum(c(NcellsS, NcellsG2M, NcellsG1))
+            PercS <- NcellsS/Nsum
+            PercG2M <- NcellsG2M/Nsum
+            PercG1 <- NcellsG1/Nsum
+            
+            dfTempRes <- data.frame(
+                sampleName = rep(sampleNames[i], 3), 
+                Phase = c("G1", "S", "G2M"),
+                Ncells = c(NcellsG1, NcellsS, NcellsG2M),
+                PercCells = c(PercG1, PercS, PercG2M)
+            )
+            
+            if (i ==1){
+                dfRes <- dfTempRes
+            } else {
+                dfRes <- rbind(dfRes, dfTempRes)
+            }
+            
+            
+            
+        }    
+        
+        tag <- "CellCycle_Barchart_Ncells"    
+        plotList[[tag]] <- ggplot(
+            data=dfRes, aes(x= sampleName, y=Ncells, fill=Phase)
+        ) + geom_bar(stat="identity", colour="black"
+        ) + coord_flip()   + theme_bw() +  theme(
+            axis.text.y   = element_text(size=8),
+            axis.text.x   = element_text(size=8),
+            axis.title.y  = element_text(size=8),
+            axis.title.x  = element_text(size=8),
+            axis.line = element_line(colour = "black"),
+            panel.border = element_rect(colour = "black", fill=NA, size=1),
+            plot.title = element_text(hjust = 0.5, size = 12)
+        ) + labs(title = paste0(gsub("_", " ", tag)," enriched genes") ,y = "N Cells", x = ""
+        ) 
+        
+        FNbase <- paste0("Sample.", tag, VersionPdfExt)
+        FN <- paste0(obj@parameterList$reportFigDir, FNbase)
+        FNrel <- paste0("report_figures/", FNbase)
+        
+        figLegend <- paste0(
+            "**Figure ",
+            figureCount,
+            ":** ",
+            " Sample-level cell cycle estimates. Download a pdf of this figure [here](", FNrel,")."
+        )
+        
+        figureCount <- figureCount + 1
+        
+        NewChnk <- paste0(
+            paste(rep("#", tocSubLevel), collapse=""), " ", tag,
+            "\n```{r sample_",
+            tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+            figLegend,"'}\n",
+            "\n",
+            "\n print(plotList[['",tag,"']])",
+            "\n cat(  '\n')",
+            "\n\n\n```\n"
+        )
+        
+        chnkVec <- c(
+            chnkVec,
+            NewChnk
+        )
+        
+        tag <- "CellCycle_Barchart_Percent_Cells"    
+        plotList[[tag]] <- ggplot(
+            data=dfRes, aes(x= sampleName, y=PercCells, fill=Phase)
+        ) + geom_bar(stat="identity", colour="black"
+        ) + coord_flip()   + theme_bw() +  theme(
+            axis.text.y   = element_text(size=8),
+            axis.text.x   = element_text(size=8),
+            axis.title.y  = element_text(size=8),
+            axis.title.x  = element_text(size=8),
+            axis.line = element_line(colour = "black"),
+            panel.border = element_rect(colour = "black", fill=NA, size=1),
+            plot.title = element_text(hjust = 0.5, size = 12)
+        ) + labs(title = paste0(gsub("_", " ", tag)," enriched genes") ,y = "Percent Cells", x = ""
+        ) 
+        
+        
+        
+        FNbase <- paste0("Sample.", tag, VersionPdfExt)
+        FN <- paste0(obj@parameterList$reportFigDir, FNbase)
+        FNrel <- paste0("report_figures/", FNbase)
+        
+        figLegend <- paste0(
+            "**Figure ",
+            figureCount,
+            ":** ",
+            " Sample-level cell cycle estimates. Download a pdf of this figure [here](", FNrel,")."
+        )
+        
+        figureCount <- figureCount + 1
+        
+        NewChnk <- paste0(
+            paste(rep("#", tocSubLevel), collapse=""), " ", tag,
+            "\n```{r sample_",
+            tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+            figLegend,"'}\n",
+            "\n",
+            "\n print(plotList[['",tag,"']])",
+            "\n cat(  '\n')",
+            "\n\n\n```\n"
+        )
+        
+        chnkVec <- c(
+            chnkVec,
+            NewChnk
+        )
+        
+        
+        
+        
+        
+        returnList <- list(
+            "plotList" = plotList,
+            "chnkVec" = chnkVec,
+            "figureCount" = figureCount
+        )
+        
+    })
+
+## Done Cell Cycle Barchart                                                  ##
+###############################################################################
+
