@@ -96,7 +96,9 @@ SeuratFN <- paste0("../", list.files("..")[grep(".Seurat.Robj", list.files("..")
 
 load(SeuratFN)
 
-
+## Rename Seurat object
+OsC_CF <- OsC
+rm(OsC)
 
 ## External database credentials ##
 #Obio@parameterList$host <- "10.27.241.82"
@@ -113,7 +115,7 @@ load(SeuratFN)
 ## Perform integrated analysis                                               ##
 
 if (length(Obio@sampleDetailList) > 1){
-    DefaultAssay(OsC) <- "integrated"
+    DefaultAssay(OsC_CF) <- "integrated"
 } else {
     Obio@parameterList$singleCellClusterString <- gsub("integrated", "RNA", Obio@parameterList$singleCellClusterString)
 }
@@ -121,34 +123,43 @@ if (length(Obio@sampleDetailList) > 1){
 
 # Run the standard workflow for visualization and clustering
 ## This will scale on the most variable features only
-OsC <- ScaleData(OsC, verbose = FALSE)
+OsC_CF <- ScaleData(OsC_CF, verbose = FALSE)
 
-OsC <- RunPCA(
-    OsC, 
-    npcs = Obio@parameterList$singleCellSeuratNpcs4PCA, verbose = FALSE
-)
+
+redVec <- names(OsC_CF@reductions)
+
+
+if (!("pca" %in% redVec )){
+    OsC_CF <- RunPCA(
+        OsC_CF, 
+        npcs = Obio@parameterList$singleCellSeuratNpcs4PCA, verbose = FALSE
+    )
+}
 # t-SNE and Clustering
 
 ## Add PCA clusters to data collection ##
 
+if (!("umap" %in% redVec )){
+    OsC_CF <- RunUMAP(OsC_CF, reduction = "pca", dims = 1:20)
+}
 
-OsC <- RunUMAP(OsC, reduction = "pca", dims = 1:20)
+if (!("tsne" %in% redVec )){
+OsC_CF <- RunTSNE(OsC_CF, reduction = "pca", dims = 1:20)
+}
 
-OsC <- RunTSNE(OsC, reduction = "pca", dims = 1:20)
-
-OsC <- FindNeighbors(OsC, reduction = "pca", dims = 1:20)
+OsC_CF <- FindNeighbors(OsC_CF, reduction = "pca", dims = 1:20)
 ```
 
 
 ```{r populate_expr_database_1, eval=TRUE, echo=F, results=F}
 if (length(Obio@sampleDetailList) > 1){
-    DefaultAssay(OsC) <- "integrated"
+    DefaultAssay(OsC_CF) <- "integrated"
 } else {
     Obio@parameterList$singleCellClusterString <- gsub("integrated", "RNA", Obio@parameterList$singleCellClusterString)
 }
 
 
-clusterOptionVec <- c(0.3,0.5,0.7,0.9, 1,1,1.3,1.5, 1.7,1.9, 2.1,2.3)
+clusterOptionVec <- c(0.2,0.3,0.5,0.7,0.9, 1,1,1.3,1.5, 1.7,1.9, 2.1,2.3,2.5)
 
 
 plotList <- list()
@@ -157,15 +168,15 @@ reductionVec <- c("umap", "tsne")
 j =1
 
 for (i in 1:length(clusterOptionVec)){
-    OsC <- FindClusters(OsC, resolution = clusterOptionVec[i])
-    names(OsC@meta.data) <- gsub("\\.", "_", names(OsC@meta.data))
+    OsC_CF <- FindClusters(OsC_CF, resolution = clusterOptionVec[i])
+    names(OsC_CF@meta.data) <- gsub("\\.", "_", names(OsC_CF@meta.data))
 ## Rational: Run PCA on variable features, then scale data for heatmaps and other applications
-    allGenes <- rownames(x = OsC@assays$RNA)
-    OsC <- ScaleData(OsC, verbose = FALSE, features=allGenes)
+    allGenes <- rownames(x = OsC_CF@assays$RNA)
+    OsC_CF <- ScaleData(OsC_CF, verbose = FALSE, features=allGenes)
     
     tag <- paste0("Clusterplot_all", "_",i,"_",gsub("[.]", "_", clusterOptionVec[i]))
     
-    plotList[[tag]] <- DimPlot(OsC, reduction = reductionVec[j], group.by = "seurat_clusters",label = TRUE)
+    plotList[[tag]] <- DimPlot(OsC_CF, reduction = reductionVec[j], group.by = "seurat_clusters",label = TRUE)
     
     
     ## Save to file ##
@@ -204,7 +215,7 @@ for (i in 1:length(clusterOptionVec)){
     ## with split by sample ##
     tag <- paste0("Clusterplot_by_sample",  "_",i,"_", gsub("[.]", "_", clusterOptionVec[i]))
     
-    plotList[[tag]] <- DimPlot(OsC, reduction = reductionVec[j], group.by = gsub("\\.", "_", paste0("integrated_snn_res.", clusterOptionVec[i])),label = TRUE, split.by = "sampleID")
+    plotList[[tag]] <- DimPlot(OsC_CF, reduction = reductionVec[j], group.by = gsub("\\.", "_", paste0("integrated_snn_res.", clusterOptionVec[i])),label = TRUE, split.by = "sampleID")
     
     
     ## Save to file ##
@@ -240,36 +251,37 @@ for (i in 1:length(clusterOptionVec)){
     )
     
     ## Add cluster dendrogram ##
-    OsC <- BuildClusterTree(OsC)
+    
     
     tag <- paste0("Cluster_dendrogram_" , "_",i,"_",gsub("[.]", "_", clusterOptionVec[i]))
     
-    OsC@tools$BuildClusterTree$tip.label <- paste0("C", OsC@tools$BuildClusterTree$tip.label)
+    Idents(OsC_CF) <- "clusterName"
+    OsC_CF <- BuildClusterTree(OsC_CF)
+    OsC_CF@tools$BuildClusterTree$tip.label <- OsC_CF@tools$BuildClusterTree$tip.label
     
     library(ggtree)
-    
-    ## Color by cluster ##
-    h <- sum(c("sampleName", "sampleColor") %in% OsC@meta.data)
-    if (h ==2){
-      dfCol <- unique(OsC@meta.data[,c("sampleName", "sampleColor")])
-      colVec <- as.vector(dfCol$sampleColor)
-      names(colVec) <- as.vector(dfCol$sampleName)
-      plotList[[tag]] <- plotList[[tag]] + geom_tiplab(color=colVec
-        ) 
-    } else {
-      plotList[[tag]] <- plotList[[tag]] + geom_tiplab(
-        )   
-    }
-  ## Done ##
-    
-    plotList[[tag]]  <- ggplot(OsC@tools$BuildClusterTree) + geom_tree() + theme_tree() + geom_tiplab() + labs(title=tag
+    plotList[[tag]]  <- ggplot(OsC_CF@tools$BuildClusterTree) + geom_tree() + theme_tree() + labs(title=tag
     ) +  theme(
       panel.border = element_rect(colour = "black", fill=NA, size=1),
       axis.title.x=element_blank(),
       plot.title = element_text(hjust = 0.5, size = 12)
     ) 
+    ## Color by cluster ##
+    h <- sum(c("sampleName", "sampleColor") %in% names(OsC_CF@meta.data))
+    if (h ==2){
+      dfCol <- unique(OsC_CF@meta.data[,c("sampleName", "sampleColor")])
+      colVec <- as.vector(dfCol$sampleColor)
+      names(colVec) <- as.vector(dfCol$sampleName)
+      plotList[[tag]] <- plotList[[tag]] + geom_tiplab(color=colVec
+        ) 
+    } else {
+      plotList[[tag]] <- plotList[[tag]] + geom_tiplab()   
+    }
+  ## Done ##
     
-    #+ xlim(-1,1.2*max(OsC@tools$BuildClusterTree$edge)) 
+    
+    
+    #+ xlim(-1,1.2*max(OsC_CF@tools$BuildClusterTree$edge)) 
     
     
     ## Save to file ##
@@ -291,6 +303,7 @@ for (i in 1:length(clusterOptionVec)){
     
     
     NewChnk <- paste0(
+        "### ",tag,
         "\n```{r Clusterdendro_",tag,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
         figLegend,"'}\n",
         "\n",
@@ -348,7 +361,7 @@ geneSets <- list()
 
 for (i in 1:ncol(dfHeatmapGenes)){
     genes <- as.vector(dfHeatmapGenes[2:nrow(dfHeatmapGenes),i])
-    genes <- genes[genes %in% rownames(x = OsC@assays$RNA)]
+    genes <- genes[genes %in% rownames(x = OsC_CF@assays$RNA)]
     geneSets[[names(dfHeatmapGenes)[i]]] <- genes
 }
 
@@ -360,14 +373,14 @@ Obio@parameterList[["cat2DplotList"]] <- geneSets
 ###############################################################################
 ## Get backdrop
 
-exprMatrix <- as.matrix(OsC@assays$RNA@counts)
+exprMatrix <- as.matrix(OsC_CF@assays$RNA@counts)
 #logMat <- log10(exprMatrix+1)
 
 # When using a Seurat object #
-logMat <- data.frame(OsC[["RNA"]]@data)
+logMat <- data.frame(OsC_CF[["RNA"]]@data)
 
 ## Load tSNE coordinates ##
-cellsTsne <- data.frame(OsC@reductions$umap@cell.embeddings)
+cellsTsne <- data.frame(OsC_CF@reductions$umap@cell.embeddings)
 
 ## done
 FNbase <- paste0("CatScatter_Rankings", VersionPdfExt)
@@ -504,6 +517,14 @@ for (i in 1:length(Obio@parameterList$cat2DplotList)){
     )
 }
 
+
+save(OsC_CF,
+    file = paste0(
+         Obio@parameterList$localWorkDir,
+         Obio@parameterList$project_id,
+        ".SeuratCF"
+     )
+)
 
 if (length(plotList) > 3){
     tabVar <- ".tabset .tabset-fade .tabset-dropdown"
