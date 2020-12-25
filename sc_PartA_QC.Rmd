@@ -608,13 +608,32 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 ### Make Sample List for single-sample assessment
 ```{r start_seurat, echo=TRUE, eval=TRUE, warning=FALSE, results=F}
 
+## Use subset for debugging, e.g. by Obio@parameterList$debugReduce <- 0.1
+
+
+## Remove all cell cycle effects ##
+## vars.to.regress: NULL, c("S_Score", "G2M_Score") or "CC_Difference"
+
+vars.to.regress = "CC_Difference"
+
 SampleList <- createSampleListQC(
     obj = Obio,
-    reduce = Obio@parameterList$debugReduce    
+    reduce = Obio@parameterList$debugReduce,    
+    vars.to.regress = vars.to.regress,
+    s.genes = NULL,
+    g2m.genes = NULL
 )
+## Reove only G2M to S-phase scores G1 and G2M differences are maintained ##
+
+# SampleListRegPartial <- createSampleListQC(
+#     obj = Obio,
+#     reduce = Obio@parameterList$debugReduce,    
+#     vars.to.regress = c("CC_Difference")
+# )
 
 print(paste0("Cell Recuction: ", Obio@parameterList$debugReduce))
-lapply(SampleList, dim)
+lapply(SampleList, dim)    
+    
 
 ```
 
@@ -921,7 +940,10 @@ print("R bioLOGIC single cell object initialized.")
 ## Create sample list filtered on MT and norm_counts_RNA                     ##
 SampleList <- createNormSampleList(
     obj = Obio,
-    reduce = Obio@parameterList$debugReduce # Default is NULL
+    reduce = Obio@parameterList$debugReduce, # Default is NULL
+    vars.to.regress = vars.to.regress,
+    s.genes = NULL,
+    g2m.genes = NULL
 )
 
 print(paste0("Cell Recuction: ", Obio@parameterList$debugReduce))

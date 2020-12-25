@@ -237,7 +237,8 @@ for (i in 1:length(catList)){
 ## Create sample list filtered on MT and norm_counts_RNA                     ##
 SampleList <- createNormSampleList(
     obj = Obio,
-    reduce = Obio@parameterList$debugReduce # Default is NULL
+    reduce = Obio@parameterList$debugReduce, # Default is NULL
+    vars.to.regress = "CC_Difference"
 )
 
 print(paste0("Cell Recuction: ", Obio@parameterList$debugReduce))
@@ -3017,7 +3018,7 @@ dfSample <- dfSample[names(Obio@sampleDetailList),]
 sampleIDs <- dfSample$sampleName
 colVec <- dfSample$sampleColor
 
-clusterIDs <- unique(OsC@meta.data[,"clusterName"])
+clusterIDs <- unique(OsC@meta.data[,"sampleName"])
 
 if (length(grep("cellIdent", names(OsC@meta.data))) == 0){
   OsC@meta.data[["cellIdent"]] <- "All"
@@ -3031,7 +3032,7 @@ if (length(grep("^cellIdent$", names(dfTemp))) == 0){
   dfTemp[["cellIdent"]] <- "All"
 }
 
-dfTemp <- dfTemp[dfTemp$percent.mt <= max(Obio@parameterList$singleCellSeuratMtCutoff), ]
+#dfTemp <- dfTemp[dfTemp$percent.mt <= max(Obio@parameterList$singleCellSeuratMtCutoff), ]
 dfTemp[["cellID"]] <- row.names(dfTemp)
 dfTemp <- unique(dfTemp[,c("cellID", "sampleName", "clusterName", "cellIdent")])
 names(dfTemp) <- gsub("clusterName", "Cluster", names(dfTemp) )
