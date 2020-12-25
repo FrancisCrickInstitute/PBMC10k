@@ -368,11 +368,11 @@ setGeneric(
             #library(scales)
             #clusterCols = hue_pal()(length(clusterVec))
 
-            dfPlot$percent.mt <- as.numeric(dfPlot$percent.mt)
+            dfPlot$percent_mt <- as.numeric(dfPlot$percent_mt)
 
 
 
-            plotListUMT[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(UMAP_1, UMAP_2, color=percent.mt)
+            plotListUMT[[tag]] <- ggplot(data=dfPlot[dfPlot$included == "+",], aes(UMAP_1, UMAP_2, color=percent_mt)
             ) + geom_point( shape=16, size = as.numeric(dotsize)
             ) + xlab("UMAP1") + ylab("UMAP2")  +  theme(
                 axis.text.y   = element_text(size=8),
@@ -737,7 +737,7 @@ setGeneric(
 
             SampleList[[sampleNames[i]]]@meta.data[((SampleList[[sampleNames[i]]]@meta.data$nFeature_RNA < obj@sampleDetailList[[sampleNames[i]]]$SeuratNrnaMinFeatures) | (SampleList[[sampleNames[i]]]@meta.data$nFeature_RNA > obj@sampleDetailList[[sampleNames[i]]]$SeuratNrnaMaxFeatures)), "included"] <- "ex_N_Feat_RNA"
 
-            SampleList[[sampleNames[i]]]@meta.data[(SampleList[[sampleNames[i]]]@meta.data$percent.mt > obj@sampleDetailList[[sampleNames[i]]]$singleCellSeuratMtCutoff ), "included"] <- "ex_MT_Perc"
+            SampleList[[sampleNames[i]]]@meta.data[(SampleList[[sampleNames[i]]]@meta.data$percent_mt > obj@sampleDetailList[[sampleNames[i]]]$singleCellSeuratMtCutoff ), "included"] <- "ex_MT_Perc"
 
 
             dfHist <-  SampleList[[sampleNames[i]]]@meta.data
@@ -1062,7 +1062,12 @@ setGeneric(
     name="createNormSampleList",
     def=function(
         obj,
-        reduce = NULL
+        reduce = NULL,
+        vars.to.regress = NULL,
+        g2m.genes = NULL,
+        s.genes = NULL
+        #vars to regress cell cycle options #c("S_Score", "G2M_Score) or
+        #"CC_Difference"
         #figureCount = 1,
         #VersionPdfExt = ".pdf",
         #tocSubLevel = 4
@@ -1170,6 +1175,8 @@ setGeneric(
                 
             }
 
+            
+            
             ## Label mitochondrial cells ##
             if (obj@parameterList$species == "mus_musculus"){
                 mtSel <- "^mt-"
@@ -1178,13 +1185,13 @@ setGeneric(
             } else if (obj@parameterList$species == "danio_rerio") {
                 mtSel <- "^mt-"
             } else {
-                mtSel <- "^MitoGene-"
+                stop("Mitochondrial gene identifier not specified for this species in function createNormSampleList().")
             }
 
-            SampleList[[i]][["percent.mt"]] <- PercentageFeatureSet(object =SampleList[[i]], pattern = mtSel)
+            SampleList[[i]][["percent_mt"]] <- PercentageFeatureSet(object =SampleList[[i]], pattern = mtSel)
 
 
-            SampleList[[i]][["percent.mt"]] <- PercentageFeatureSet(
+            SampleList[[i]][["percent_mt"]] <- PercentageFeatureSet(
                 object =SampleList[[i]], pattern = mtSel
             )
             ## Remove contaminating cells ##
@@ -1192,7 +1199,7 @@ setGeneric(
                 x = SampleList[[i]],
                 subset = nFeature_RNA > obj@sampleDetailList[[i]]$SeuratNrnaMinFeatures
                 & nFeature_RNA < obj@sampleDetailList[[i]]$SeuratNrnaMaxFeatures
-                & percent.mt < obj@sampleDetailList[[i]]$singleCellSeuratMtCutoff
+                & percent_mt < obj@sampleDetailList[[i]]$singleCellSeuratMtCutoff
             )
 
             ## Normalization
@@ -1212,30 +1219,80 @@ setGeneric(
                     SampleList[[i]],
                     verbose = FALSE
                 )
-
-                SampleList[[i]] <- FindVariableFeatures(
-                    SampleList[[i]],
-                    selection.method = "vst",
-                    nfeatures = NtopGenes,
-                    verbose = FALSE
-                )
-
-                unionVarGenes <- unique(
-                    c(
-                        unionVarGenes,
-                        VariableFeatures(SampleList[[i]])
-                    )
-                )
-
-                geneIntersectVec <- unique(
-                    c(
-                        geneIntersectVec,
-                        rownames(x = SampleList[[i]]@assays$RNA)
-                    )
-                )
-
             }
-
+            
+            SampleList[[i]] <- FindVariableFeatures(
+                SampleList[[i]],
+                selection.method = "vst",
+                nfeatures = NtopGenes,
+                verbose = FALSE
+            )
+            
+            unionVarGenes <- unique(
+                c(
+                    unionVarGenes,
+                    VariableFeatures(SampleList[[i]])
+                )
+            )
+            
+            geneIntersectVec <- unique(
+                c(
+                    geneIntersectVec,
+                    rownames(x = SampleList[[i]]@assays$RNA)
+                )
+            )
+            
+            ## Assign cell cycle scores ##
+            
+            if (obj@parameterList$geneIDcolumn != "mgi_symbol" & obj@parameterList$geneIDcolumn != "hgnc_symbol") {
+                queryGS <- "hgnc_symbol" 
+            } else {
+                queryGS <- obj@parameterList$geneIDcolumn
+            }
+            
+            if (is.null(s.genes)){
+                s.genes <- retrieve.gene.category.from.db(
+                    cat_id = "ag_lab_categories__41",
+                    password = db.pwd,
+                    gene.symbol = queryGS,
+                    user = obj@dbDetailList$db.user,
+                    host = obj@dbDetailList$host
+                )
+            }
+            
+            if (is.null(g2m.genes)){
+                g2m.genes <- retrieve.gene.category.from.db(
+                    cat_id = "ag_lab_categories__42",
+                    password = db.pwd,
+                    gene.symbol = queryGS,
+                    user = obj@dbDetailList$db.user,
+                    host = obj@dbDetailList$host
+                )
+            }
+            
+            #Idents(SampleList[[sampleID]]) <- "sampleID"
+            SampleList[[sampleID]] <- CellCycleScoring(
+                SampleList[[sampleID]], 
+                s.features = s.genes, 
+                g2m.features = g2m.genes, 
+                set.ident = TRUE
+            )    
+            ## Done adding cell cycle scores ##
+            
+            ## Remove dots from column names ##
+            names(SampleList[[sampleID]]@meta.data) <- gsub("\\.", "_",names(SampleList[[sampleID]]@meta.data))
+            
+            ## Add G1 to G2M-S differences
+            SampleList[[sampleID]]$CC_Difference <- SampleList[[sampleID]]$S_Score - SampleList[[sampleID]]$G2M_Score
+            
+            
+            ## Regress out irrelevant items, if specified ##
+            SampleList[[i]] <- ScaleData(
+                SampleList[[i]], 
+                verbose = FALSE,
+                vars.to.regress = vars.to.regress,
+                features = row.names(SampleList[[i]])
+            )
 
         }
         return(SampleList)
@@ -1250,12 +1307,16 @@ setGeneric(
     name="createSampleListQC",
     def=function(
         obj,
-        reduce = NULL
+        reduce = NULL,
+        vars.to.regress = NULL,
+        s.genes = NULL,
+        g2m.genes = NULL
         #figureCount = 1,
         #VersionPdfExt = ".pdf",
         #tocSubLevel = 4
     ) {
     ## Create Sample List ##
+    library(Seurat)
     SampleList <- list()
 
     for (i in 1:length(obj@sampleDetailList)){
@@ -1338,19 +1399,21 @@ setGeneric(
         SampleList[[sampleID]]@meta.data[["sampleID"]] <-
             sampleID
 
-
-
         if (!is.null(reduce)){
             set.seed(127)
             n.cells <- round(reduce * nrow(SampleList[[sampleID]]@meta.data))
-            SampleList[[sampleID]] <- SubsetData(
-                SampleList[[sampleID]],
-                cells.use = sample(x = object@cell.names, size = n.cells) )
+            cellVec <- row.names(SampleList[[sampleID]]@meta.data)
+            cellVec <- cellVec[sample(1:length(cellVec), n.cells)]
+            
+            SampleList[[sampleID]] <- subset(
+                x = SampleList[[sampleID]],
+                cells = cellVec
+            )
+            
         }
 
-        ## Normalise ##
-        SampleList[[i]] <- SCTransform(SampleList[[i]])
-
+        
+        
         ## Label mitochondrial cells ##
         if (obj@parameterList$species == "mus_musculus"){
             mtSel <- "^mt-"
@@ -1359,24 +1422,87 @@ setGeneric(
         } else if (obj@parameterList$species == "danio_rerio") {
             mtSel <- "^mt-"
         } else {
+            stop("mtSel not defined for this species in createSampleListQC")
             mtSel <- "^MitoGene-"
         }
 
-        SampleList[[i]][["percent.mt"]] <- PercentageFeatureSet(object =SampleList[[i]], pattern = mtSel)
+        SampleList[[i]][["percent_mt"]] <- PercentageFeatureSet(object =SampleList[[i]], pattern = mtSel)
+        names(SampleList[[i]]@meta.data) <- gsub("percent.mt","percent_mt",names(SampleList[[i]]@meta.data))
 
-        ## Do PCA ##
+        ## Normalise ##
+        SampleList[[i]] <- SCTransform(SampleList[[i]], verbose = FALSE)
+        SampleList[[i]] <- NormalizeData(
+            SampleList[[i]],
+            verbose = FALSE,
+            assay = "RNA"
+        )
+        
+        ## Find variable features ##
         SampleList[[i]] <- FindVariableFeatures(
             object = SampleList[[i]],
             selection.method = 'vst',
-            nfeatures = 2000
+            nfeatures =  obj@parameterList$NtopGenes
         )
 
-
-        SampleList[[i]] <- ScaleData(SampleList[[i]], verbose = FALSE)
+        
+        ## Assign cell cycle scores
+        if (obj@parameterList$geneIDcolumn != "mgi_symbol" & obj@parameterList$geneIDcolumn != "hgnc_symbol") {
+            queryGS <- "hgnc_symbol" 
+        } else {
+            queryGS <- obj@parameterList$geneIDcolumn
+        }
+        
+        if (is.null(s.genes)){
+            s.genes <- retrieve.gene.category.from.db(
+                cat_id = "ag_lab_categories__41",
+                password = db.pwd,
+                gene.symbol = queryGS,
+                user = obj@dbDetailList$db.user,
+                host = obj@dbDetailList$host
+            )
+        }
+        
+        if (is.null(g2m.genes)){
+            g2m.genes <- retrieve.gene.category.from.db(
+                cat_id = "ag_lab_categories__42",
+                password = db.pwd,
+                gene.symbol = queryGS,
+                user = obj@dbDetailList$db.user,
+                host = obj@dbDetailList$host
+            )
+        }
+        
+        
+        #Idents(SampleList[[sampleID]]) <- "orig.ident"
+        SampleList[[sampleID]] <- CellCycleScoring(
+            SampleList[[sampleID]], 
+            s.features = s.genes, 
+            g2m.features = g2m.genes, 
+            set.ident = TRUE
+        )    
+        
+        print(sampleID)
+        print(names(SampleList[[sampleID]]@meta.data))
+        
+        ## Remove dots from column names ##
+        names(SampleList[[sampleID]]@meta.data) <- gsub("\\.", "_",names(SampleList[[sampleID]]@meta.data))
+        
+        ## Add G1 to G2M-S differences
+        SampleList[[sampleID]]$CC_Difference <- SampleList[[sampleID]]$S_Score - SampleList[[sampleID]]$G2M_Score
+        
+        
+        ## 20201221 - added features = row.names(SampleList[[i]]) and vars to regress
+        SampleList[[i]] <- ScaleData(
+            SampleList[[i]], 
+            verbose = FALSE,
+            vars.to.regress = vars.to.regress,
+            features = row.names(SampleList[[i]])
+        )
 
         SampleList[[i]] <- RunPCA(
             SampleList[[i]],
-            npcs = obj@sampleDetailList[[i]]$singleCellSeuratNpcs4PCA, verbose = FALSE
+            npcs = obj@sampleDetailList[[i]]$singleCellSeuratNpcs4PCA, 
+            verbose = FALSE
         )
         ## Do tSNE ##
         SampleList[[i]] <- RunTSNE(SampleList[[i]], reduction = "pca", dims = 1:20)
@@ -1390,7 +1516,7 @@ setGeneric(
 
         ## Annotated included/excluded cells ##
         SampleList[[i]]@meta.data[["selected"]] <- "+"
-        SampleList[[i]]@meta.data[SampleList[[i]]@meta.data$percent.mt > obj@sampleDetailList[[i]]$singleCellSeuratMtCutoff  ,"selected"] <- ""
+        SampleList[[i]]@meta.data[SampleList[[i]]@meta.data$percent_mt > obj@sampleDetailList[[i]]$singleCellSeuratMtCutoff  ,"selected"] <- ""
         SampleList[[i]]@meta.data[SampleList[[i]]@meta.data$nFeature_RNA > obj@sampleDetailList[[i]]$SeuratNrnaMaxFeatures  ,"selected"] <- ""
         SampleList[[i]]@meta.data[SampleList[[i]]@meta.data$nFeature_RNA < obj@sampleDetailList[[i]]$SeuratNrnaMinFeatures  ,"selected"] <- ""
     }
@@ -1435,14 +1561,14 @@ setGeneric(
 
             SampleList[[sampleNames[i]]]@meta.data[((SampleList[[sampleNames[i]]]@meta.data$nFeature_RNA < obj@sampleDetailList[[sampleNames[i]]]$SeuratNrnaMinFeatures) | (SampleList[[sampleNames[i]]]@meta.data$nFeature_RNA > obj@sampleDetailList[[sampleNames[i]]]$SeuratNrnaMaxFeatures)), "included"] <- "ex_N_Feat_RNA"
 
-            SampleList[[sampleNames[i]]]@meta.data[(SampleList[[sampleNames[i]]]@meta.data$percent.mt > obj@sampleDetailList[[sampleNames[i]]]$singleCellSeuratMtCutoff ), "included"] <- "ex_MT_Perc"
+            SampleList[[sampleNames[i]]]@meta.data[(SampleList[[sampleNames[i]]]@meta.data$percent_mt > obj@sampleDetailList[[sampleNames[i]]]$singleCellSeuratMtCutoff ), "included"] <- "ex_MT_Perc"
 
 
             dfHist <-  SampleList[[sampleNames[i]]]@meta.data
 
             ## Fit GMM
             library(mixtools)
-            x <- as.vector( dfHist$percent.mt)
+            x <- as.vector( dfHist$percent_mt)
             dfHist[["x"]] <- x
             fit <- normalmixEM(x, k = 2) #try to fit two Gaussians
 
@@ -1457,7 +1583,7 @@ setGeneric(
             x2meanLine <- fit$mu[2]
 
             ## Find histogram max count ##
-            pTest <- ggplot(data=dfHist, aes(x=percent.mt, fill = included)
+            pTest <- ggplot(data=dfHist, aes(x=percent_mt, fill = included)
             ) + geom_histogram(binwidth=0.3
             )
             dfT <- ggplot_build(pTest)$data[[1]]
@@ -1487,7 +1613,7 @@ setGeneric(
 
 
 
-            plotListRF[[tag]] <- ggplot(data=dfHist, aes(x=percent.mt, fill = included)
+            plotListRF[[tag]] <- ggplot(data=dfHist, aes(x=percent_mt, fill = included)
             ) + geom_vline( xintercept = c(x1meanLine, x2meanLine), col="grey", linetype = "dashed"
             ) + geom_histogram(binwidth=0.3, alpha = 0.5
             ) + geom_vline( xintercept = obj@sampleDetailList[[sampleNames[i]]]$singleCellSeuratMtCutoff, col="red", linetype = "dashed"
