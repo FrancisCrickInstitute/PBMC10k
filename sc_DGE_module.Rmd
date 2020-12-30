@@ -965,6 +965,8 @@ database.table <- import.db.table.from.db(
 )
 
 database.table$row_names <- NULL
+
+dfTemp <- Obio@dataTableList[["DGE_table"]]
 dfTemp$ref_gene <- NULL
 
 #names(dfTemp) <- gsub("logFC", "logFC_glmG", names(dfTemp))
@@ -1004,7 +1006,7 @@ cmd.vec <- upload.datatable.to.database(
         "VARCHAR(1) CHARACTER SET latin1 COLLATE latin1_swedish_ci" = c("ppos", "amino_acid", "charge","known_site"),
         "BIGINT(8) NULL DEFAULT NULL" = c("row_names"),
         "INT(8) NULL DEFAULT NULL" = c("DEseq2Normalized","CoVarOrder","row_id", "cluster_order","cluster_id", "count_cut_off", "^position$", "raw_counts"),
-        "DECIMAL(6,3) NULL DEFAULT NULL" = c("Integrated_Samples_","_avg_diff_","Ind_var","add_counts_",  "lg2BaseMean","lg2baseMean","contrast_P_PCA_estimatePCA","^CoVar$","NES", "logFC", "lg2_avg","norm_counts", "intensity", "^int", "iBAQ","^localization_prob$", "stat", "lg10p","contrast_x_"),
+        "DECIMAL(6,3) NULL DEFAULT NULL" = c("Integrated_Samples_","_avg_diff_","Ind_var","add_counts_",  "lg2BaseMean","lg2baseMean","contrast_P_PCA_estimatePCA","^CoVar$","NES", "logFC", "lg2_avg","norm_counts", "intensity", "^int", "iBAQ","^localization_prob$", "stat", "lg10p","contrast_x_", "add_MA_cts_MA"),
         "DECIMAL(6,5) NULL DEFAULT NULL" = c("r2_PCA","padj", "pvalue","^pep$", "p_value_PCA")
     ),
     new.table = TRUE,
