@@ -1,10 +1,4 @@
 ---
-title: "Pseudo-bulk Differential Gene Expression Analysis"
-subtitle:  "`r projectParams$subtitle`"
-author: "Stefan Boeing"
-date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
-abstract: |
-  In this section pseudo-bulk differential gene expression analyses for this project are presented. The method used here was developed recently by the Huber lab and is desribed in detail [here](https://www.biorxiv.org/content/10.1101/2020.08.13.249623v2).
 
 output: 
     html_document:
@@ -19,6 +13,7 @@ always_allow_html: yes
 ---
     
     
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
     tidy = TRUE,
@@ -38,7 +33,7 @@ knitr::opts_chunk$set(
 
 # sbatch --time=12:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runA.r" --job-name="rA"  --mem=100G -o rA.slurm >> commands.txt
 
-# sbatch --time=12:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runA.r" --job-name="rA" -p hmem --mem=300G -o rA.slurm >> commands.txt
+# sbatch --time=24:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runDGE.r" --job-name="rDGE" -p hmem --mem=300G -o rDGE.slurm >> commands.txt
 
 # --mem-per-cpu=14G -p hmem --pty bash
 
@@ -56,6 +51,7 @@ library(glmGamPoi)
 library(Seurat)
 library(ggplot2)
 library(tidyverse)
+library(knitr)
 
 VersionPdfExt <- paste0(".V", gsub("-", "", Sys.Date()), ".pdf")
 
@@ -129,6 +125,15 @@ outPutFN <- paste0(
  
 FNrel <- paste0("report_tables/", baseFN)
  
+## Create url string
+if (Obio@parameterList$host == "10.27.241.234"){
+    urlString <- "biologic.thecrick.org"
+} else {
+    urlString <- "biologic.crick.ac.uk"
+}
+
+legendDotSize <- 5
+
 ## Create table link string ##
 tableLink <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameterList$project_id, '/html/', FNrel,' target="_blank">here</a>')  
 
@@ -272,11 +277,34 @@ DGEtagVec <- as.vector(NULL, mode = "character")
 
 DGEinputList <- list(
   "comp_1" = list(
-      "name"    = "DGE_Glia_vs_Neuron",
+      "name"    = "DGE_NicheCT26_vs_DistalCT26",
       "DGEselCol" = "sampleID",
       "DGEsampleList" = list(
-          "Glia"   = c("mliGlia"),
-          "Neuron" = c("mliNeuron")
+          "NicheCT26"   = c("NicheCT26"),
+          "DistalCT26" = c("DistalCT26")
+      )
+  ),
+  "comp_2" = list(
+      "name"    = "DGE_Niche4T1_vs_Distal4T1",
+      "DGEselCol" = "sampleID",
+      "DGEsampleList" = list(
+          "Niche4T1"   = c("Niche4T1"),
+          "Distal4T1" = c("Distal4T1")
+      )
+  ),
+  "comp_3" = list(
+      "name"    = "DGE_MetCT26_vs_ParentalCT26",
+      "DGEselCol" = "sampleID",
+      "DGEsampleList" = list(
+          "MetCT26"   = c("MetCT26"),
+          "ParentalCT26" = c("ParentalCT26")
+      )
+  ),"comp_4" = list(
+      "name"    = "DGE_Met4T1_vs_Parental4T1",
+      "DGEselCol" = "sampleID",
+      "DGEsampleList" = list(
+          "Met4T1"   = c("Met4T1"),
+          "Parental4T1" = c("Parental4T1")
       )
   )
 )
@@ -595,7 +623,7 @@ for (i in 1:length(DGEtagVec)){
   
     
     dfPlot[["X"]] <- dfPlot[,grep("add_MA_cts_MA_Avg", names(dfPlot))]
-    dfPlot[["Y"]] <- dfPlot[,grep("contrast_1_logFC", names(dfPlot))]
+    dfPlot[["Y"]] <- dfPlot[,grep("_logFC", names(dfPlot))]
     
     dotsize  = 1.25
     if (nrow(dfPlot) > 10000){
@@ -652,7 +680,7 @@ for (i in 1:length(DGEtagVec)){
       '**Figure ', 
       figureCount, 
                 ':** ',
-                ' MA-style plot for differential gene expression comparison ',gsub("_", " ", DGEtagVec),'. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+                ' MA-style plot for differential gene expression comparison ',gsub("_", " ", DGEtagVec[i]),'. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
                 'An interactive version of this figure can be found ', link, '. ',
                 tableLink
             )
@@ -795,7 +823,7 @@ for (i in 1:length(DGEtagVec)){
       '**Figure ', 
       figureCount, 
                 ':** ',
-                ' Volcano plot for differential gene expression comparison ',gsub("_", " ", DGEtagVec),'. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+                ' Volcano plot for differential gene expression comparison ',gsub("_", " ", DGEtagVec[i]),'. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
                 'An interactive version of this figure can be found ', link, '. ',
                 tableLink
             )
@@ -1236,12 +1264,92 @@ save(OsC,
 
 
 
+
+```{r create_report_params, eval=T, results="asis"}
+
+## Try to retrieve project data from db ##
+library(RMySQL)
+db.pwd2 <- "_asf_"
+db.user2 <- "asf"
+host2 <- "ms1.thecrick.org"
+projectParams <- Obio@documentationParams
+
+tryCatch({
+    dbDB = dbConnect(drv = RMySQL::MySQL(), user = db.user2, password = db.pwd2, host = host2, dbname = "asf");
+dfProposal =  dbGetQuery(dbDB, paste0("SELECT * FROM asf_proposals WHERE project_name ='",Obio@parameterList$lims.id,"'"));
+dbDisconnect(dbDB)
+  }, error = function(x) {
+    message("Project Database could not be reached or has no entry in Obio@parameterList$lims.id for this analysis.")
+   
+})
+
+if (exists("dfProposal")){
+  if (nrow(dfProposal) == 1){
+      if (!is.na(dfProposal[1,"ProjectAlias"]) & dfProposal[1,"ProjectAlias"] != ""){
+          projectParams[["title"]] = paste0(dfProposal[1,"ProjectAlias"], " - ", dfProposal[1,"project_name"])
+      }
+      
+      if (!is.na(dfProposal[1,"project_user"]) & dfProposal[1,"project_user"] != ""){
+          projectParams[["subtitle"]] = paste0(dfProposal[1,"user_lab"], " Lab - ", dfProposal[1,"project_user"])
+          projectParams[["subtitle"]] <- gsub("^ Lab - ", "", projectParams[["subtitle"]])
+          
+      }
+      
+      if (!is.na(dfProposal[1,"proposal_text"]) & dfProposal[1,"proposal_text"] != ""){
+          projectParams[["abstract"]] = dfProposal[1,"proposal_text"]
+         
+          
+      }
+  }
+}
+   
+## Escape all special characters
+projectParams <- lapply(
+  projectParams, function(x) 
+  #gsub("([.|()\\^{}+$*?]|\\[|\\])", "\\\\\1", x)
+  gsub("([.|()/\\^{}+$*?]|\\[|\\])", " ", x)
+) 
+
+projectParams <- lapply(
+  projectParams, function(x) 
+  #gsub("([.|()\\^{}+$*?]|\\[|\\])", "\\\\\1", x)
+  gsub("\\\n", " ", x)
+) 
+
+
+#projectParams$title <- "Title"
+# projectParams$abstract <- "This is the QC section."
+#projectParams$subtitle <- "Abstract"
+
+```
+
+
+
 ## Documentation
 ```{r documentation, eval=TRUE, echo=T, results=T}
 sessionInfo()
 ```
 
-
 ---
-title: '`r paste0("DGE Module for project ",  Obio@parameterList$project_id)`'
+title: "`r projectParams$title`"
+subtitle:  "`r projectParams$subtitle`"
+author:
+    - Bioinformatics: Stefan Boeing^[The Francis Crick Institute, stefan.boeing@crick.ac.uk]
+date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
+
+abstract: |
+    In this section pseudo-bulk differential gene expression analyses for this project are presented. The method used here was developed recently by the Huber lab and is desribed in detail [here](https://www.biorxiv.org/content/10.1101/2020.08.13.249623v2).
+
+output: 
+    html_document:
+        code_folding: hide
+        df_print: tibble
+        toc: true
+        toc_depth: 5
+        toc_float: true
+        css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
+
+always_allow_html: yes
+
+
 ---
