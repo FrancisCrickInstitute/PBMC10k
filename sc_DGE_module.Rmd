@@ -107,7 +107,16 @@ Obio <- setDataBaseParameters(Obio)
 ## Upload metadata table > p315_PCA
 # Obio@parameterList$host <- "10.152.22.193"
 # Obio@parameterList$db.user <- "boeingS"
-# db.pwd <- "5+3f4nB04042018"
+# db.pwd <- "5+3f4nB040420"
+
+## Create url string
+if (Obio@parameterList$host == "10.27.241.234"){
+    urlString <- "biologic.thecrick.org"
+} else {
+    urlString <- "biologic.crick.ac.uk"
+}
+
+legendDotSize <- 5
 
 ## Set file paths ##
 baseFN <- paste0(
@@ -125,14 +134,6 @@ outPutFN <- paste0(
  
 FNrel <- paste0("report_tables/", baseFN)
  
-## Create url string
-if (Obio@parameterList$host == "10.27.241.234"){
-    urlString <- "biologic.thecrick.org"
-} else {
-    urlString <- "biologic.crick.ac.uk"
-}
-
-legendDotSize <- 5
 
 ## Create table link string ##
 tableLink <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameterList$project_id, '/html/', FNrel,' target="_blank">here</a>')  
@@ -509,7 +510,7 @@ for (i in 1:length(DGEinputList)){
       '**Figure ', 
       figureCount, 
                 ':** ',
-                ' UMAP showing all cells from all samples together. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+                ' UMAP showing all cells from all samples together. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. ',
                 'An interactive version of this figure can be found ', link, '. '
             )
             
@@ -680,9 +681,9 @@ for (i in 1:length(DGEtagVec)){
       '**Figure ', 
       figureCount, 
                 ':** ',
-                ' MA-style plot for differential gene expression comparison ',gsub("_", " ", DGEtagVec[i]),'. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+                ' MA-style plot for differential gene expression comparison ',gsub("_", " ", DGEtagVec[i]),'. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. ',
                 'An interactive version of this figure can be found ', link, '. ',
-                tableLink
+                tableString
             )
             
       figureCount <- figureCount + 1
@@ -825,7 +826,7 @@ for (i in 1:length(DGEtagVec)){
                 ':** ',
                 ' Volcano plot for differential gene expression comparison ',gsub("_", " ", DGEtagVec[i]),'. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
                 'An interactive version of this figure can be found ', link, '. ',
-                tableLink
+                tableString
             )
             
       figureCount <- figureCount + 1
@@ -1339,17 +1340,5 @@ date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 
 abstract: |
     In this section pseudo-bulk differential gene expression analyses for this project are presented. The method used here was developed recently by the Huber lab and is desribed in detail [here](https://www.biorxiv.org/content/10.1101/2020.08.13.249623v2).
-
-output: 
-    html_document:
-        code_folding: hide
-        df_print: tibble
-        toc: true
-        toc_depth: 5
-        toc_float: true
-        css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
-
-always_allow_html: yes
-
 
 ---
