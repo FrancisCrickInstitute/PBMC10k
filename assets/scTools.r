@@ -934,10 +934,15 @@ setGeneric(
 
             dfAdd <- SampleList[[sampleNames[i]]]@meta.data[,c("DF_Classification", "DF_pANN")]
             addList[[sampleNames[i]]] <- dfAdd
+            
+            tempDir <- paste0(obj@parameterList$localWorkDir,"temp")
+            if(!dir.exists(tempDir)){
+                dir.create(tempDir)
+            }
 
             write.table(
                 dfAdd,
-                paste0(obj@parameterList$localWorkDir,"DF_", sampleNames[i],".txt"),
+                paste0(obj@parameterList$localWorkDir,"temp/DF_", sampleNames[i],".txt"),
                 row.names = F,
                 sep = "\t"
             )
