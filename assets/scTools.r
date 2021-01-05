@@ -186,19 +186,20 @@ setGeneric(
             ) + geom_point(
                 shape = 16,
                 size = as.numeric(dotsize)
-            ) + xlab("log10(N Droplets)") + ylab("lg10(UMI Count Per Cell)")  +  theme(
+            ) + xlab("log10(N Droplets)") + ylab("lg10(UMI Count Per Cell)"
+            ) + theme_bw(
+            )  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
                 axis.title.x  = element_text(size=8),
                 axis.line = element_line(colour = "black"),
                 panel.border = element_rect(colour = "black", fill=NA, size=1),
-                plot.title = element_text(hjust = 0.5, size = 12),
-                panel.background = element_rect(fill = "lightgrey")
+                plot.title = element_text(hjust = 0.5, size = 12)
             ) + ggtitle(paste0("QC Sample ", tag)
             ) + scale_color_manual(values=alpha(c("#000000","#009900"), 0.5)
             ) + coord_fixed(ratio=1
-            ) + theme_bw()
+            ) 
 
             FNbase <- paste0("cellranger.result.", tag, VersionPdfExt)
             FN <- paste0(obj@parameterList$reportFigDir, FNbase)

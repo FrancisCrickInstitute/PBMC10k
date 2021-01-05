@@ -255,7 +255,7 @@ for (i in 1:length(clusterOptionVec)){
     
     tag <- paste0("Cluster_dendrogram_" , "_",i,"_",gsub("[.]", "_", clusterOptionVec[i]))
     
-    Idents(OsC_CF) <- "clusterName"
+    Idents(OsC_CF) <- "seurat_clusters"
     OsC_CF <- BuildClusterTree(OsC_CF)
     OsC_CF@tools$BuildClusterTree$tip.label <- OsC_CF@tools$BuildClusterTree$tip.label
     
@@ -322,6 +322,30 @@ for (i in 1:length(clusterOptionVec)){
     
 }
 
+## Save cluster patterns for featureView ##
+dfMeta <- OsC_CF@meta.data
+
+selVec <- c(
+    "cellID",
+    names(dfMeta)[grep("_res_", names(dfMeta))]
+)
+
+dfMeta <- dfMeta[,selVec]
+names(dfMeta) <- gsub("integrated_snn_res_", "ClusterTestRes_",names(dfMeta))
+names(dfMeta) <- gsub("integrated_rnn_res_", "ClusterTestRes_",names(dfMeta))
+
+tempDir <- paste0(Obio@parameterList$localWorkDir,"temp")
+            if(!dir.exists(tempDir)){
+                dir.create(tempDir)
+            }
+
+FN <- paste0(Obio@parameterList$localWorkDir, "temp/ClusterFinder.output.txt")
+write.table(
+    dfMeta,
+    FN,
+    row.names = F, 
+    sep = "\t"
+)
 
 if (length(plotList) > 3){
     tabVar <- ".tabset .tabset-fade .tabset-dropdown"
@@ -467,7 +491,7 @@ for (i in 1:length(Obio@parameterList$cat2DplotList)){
     
      plotList[[tag]] <- ggplot(data = dfAUC, aes(x=UMAP_1, y=UMAP_2, color = mAUC)
             )+ geom_point( shape=16, size = dotsize
-            ) + scale_color_gradient2(low="grey", high="darkblue"
+            ) + scale_color_gradient(low="grey", high="darkblue"
             ) + xlab(input$x_axis) + ylab(input$y_axis)  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),

@@ -408,7 +408,12 @@ Obio <- createAnalysisFolders(
 Obio <- setDataBaseParameters(Obio)
 
 
-Obio@parameterList[["reportFigDir"]] <- paste0(Obio@parameterList$localWorkDir,Obio@parameterList$project_id, "/report_figures/")
+## Create outputfolders ##
+Obio@parameterList[["reportFigDir"]] <- paste0(Obio@parameterList$localWorkDir,"html_local", "/report_figures/")
+
+if (!dir.exists(Obio@parameterList$reportFigDir)){
+    dir.create(Obio@parameterList$reportFigDir)
+}
 
 ####
 
@@ -421,14 +426,8 @@ dbTable <- read.delim(
 
 db.pwd <- as.vector(dbTable[1,1])
 
-## Create outputfolders ##
-if (!dir.exists(paste0(Obio@parameterList$localWorkDir,Obio@parameterList$project_id))){
-    dir.create(paste0(Obio@parameterList$localWorkDir,Obio@parameterList$project_id))
-}
 
-if (!dir.exists(Obio@parameterList$reportFigDir)){
-    dir.create(Obio@parameterList$reportFigDir)
-}
+
 
 
 figureCount <- 1
@@ -1563,8 +1562,239 @@ save(OsC,
 
 print("R bioLOGIC single cell object initialized.")
 
+## Prepare for AUC ##
+## UMAP ##
+DefaultAssay(OsC) <- "RNA"
+
+
+OsC <- FindVariableFeatures(
+    object = OsC,
+    selection.method = 'vst', 
+    nfeatures = 2000
+)
+
+if (length(Obio@sampleDetailList) > 1){
+    DefaultAssay(OsC) <- "integrated"
+} else {
+    Obio@parameterList$singleCellClusterString <- gsub("integrated", "RNA", Obio@parameterList$singleCellClusterString)
+}
+
+
+# Run the standard workflow for visualization and clustering
+## This will scale on the most variable features only
+OsC <- ScaleData(OsC, verbose = FALSE)
+
+OsC <- RunPCA(
+    OsC, 
+    npcs = Obio@parameterList$singleCellSeuratNpcs4PCA, verbose = FALSE
+)
+# t-SNE and Clustering
+
+## Add PCA clusters to data collection ##
+
+
+OsC <- RunUMAP(OsC, reduction = "pca", dims = 1:20)
+
+OsC <- FindNeighbors(OsC, reduction = "pca", dims = 1:20)
+
+OsC <- FindClusters(OsC, resolution = Obio@parameterList$singleCellClusterParameter)
+
+
 ```
 
+
+```{r AUC_prep_from_file, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
+
+library(AUCell)
+plotList <- list()
+chnkVec <- as.vector(NULL, mode = "character")
+
+
+dfHeatmapGenes <- read.delim(
+  Obio@parameterList$catRefFile,
+  header = T,
+  sep = "\t",
+  stringsAsFactors = F
+  
+)
+
+geneSets <- list()
+
+for (i in 1:ncol(dfHeatmapGenes)){
+    genes <- as.vector(dfHeatmapGenes[2:nrow(dfHeatmapGenes),i])
+    genes <- genes[genes %in% rownames(x = OsC@assays$RNA)]
+    geneSets[[names(dfHeatmapGenes)[i]]] <- genes
+}
+
+
+Obio@parameterList[["cat2DplotList"]] <- geneSets
+
+
+
+###############################################################################
+## Get backdrop
+
+exprMatrix <- as.matrix(OsC@assays$RNA@counts)
+#logMat <- log10(exprMatrix+1)
+
+# When using a Seurat object #
+logMat <- data.frame(OsC[["RNA"]]@data)
+
+## Load tSNE coordinates ##
+cellsTsne <- data.frame(OsC@reductions$umap@cell.embeddings)
+
+## done
+FNbase <- paste0("CatScatter_Rankings", VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
+    
+
+pdf(FN)
+    cells_rankings <- AUCell_buildRankings(exprMatrix)
+dev.off()
+
+geneSets <- Obio@parameterList$cat2DplotList
+
+cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=nrow(cells_rankings)*0.05)
+
+## Select thresholds ##
+
+
+FNbase <- paste0("CatScatterHist", VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
+            
+pdf(FN)
+    set.seed(123)
+    cells_assignment <- AUCell_exploreThresholds(
+        cells_AUC, 
+        plotHist=TRUE, 
+        nCores=1, 
+        assign=TRUE
+    )
+dev.off()
+
+
+## Add data to dfExpr ##
+
+## Plot CatScatters ##
+for (i in 1:length(Obio@parameterList$cat2DplotList)){
+    HMname <- names(Obio@parameterList$cat2DplotList)[i]
+    tag <- gsub("[.]", "_", HMname)
+    
+    FNbase <- paste0("CatScatterHist_", HMname, VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    
+    selectedThresholds <-  cells_assignment[[i]]$aucThr$thresholds 
+    
+    if ("minimumDens" %in% rownames(selectedThresholds)) {
+        pThr <- selectedThresholds["minimumDens", "threshold"]
+    } else if ("Global_k1" %in% rownames(selectedThresholds)){
+        pThr <- selectedThresholds["Global_k1", "threshold"]
+    } else {
+        pThr <- selectedThresholds[1, "threshold"]
+    }
+    
+    if (nrow(cellsTsne) > 15000){
+        cex = 0.25
+    } else if (nrow(cellsTsne) > 1000){
+        cex = 0.5 
+    } else {
+        cex = 1
+    }
+    
+    
+    ## Get AUC matrix ##
+    tSNE.df <- data.frame(cellsTsne, cell=rownames(cellsTsne))
+    mAUC <- getAUC(cells_AUC)[HMname,rownames(tSNE.df)]
+    dfAUC <- data.frame(mAUC)
+    dfAUC[["cellID"]] <- row.names(dfAUC)
+    dfAUC <- merge(dfAUC, tSNE.df, by.x = "cellID", by.y = "cell")
+    
+    
+    input <- list(
+        "x_axis" = "UMAP1",
+        "y_axis" = "UMAP2",
+        "gene" = HMname
+    )
+    dotsize <- cex
+    
+    legendNote <- paste0(
+            " The following genes of this dataset are represented in this figure: ",
+            paste0(sort(Obio@parameterList$cat2DplotList[[i]]), collapse = ", ")
+        )
+    
+     plotList[[tag]] <- ggplot(data = dfAUC, aes(x=UMAP_1, y=UMAP_2, color = mAUC)
+            )+ geom_point( shape=16, size = dotsize
+            ) + scale_color_gradient(low="grey", high="darkblue"
+            ) + theme_bw(
+            ) + xlab(input$x_axis) + ylab(input$y_axis)  +  theme(
+                axis.text.y   = element_text(size=8),
+                axis.text.x   = element_text(size=8),
+                axis.title.y  = element_text(size=8),
+                axis.title.x  = element_text(size=8),
+                axis.line = element_line(colour = "black"),
+                panel.border = element_rect(colour = "black", fill=NA, size=1),
+                plot.title = element_text(hjust = 0.5, size = 12)
+            )+ ggtitle(paste0("Category: ", input$gene)
+            ) + coord_fixed(ratio = 1) #+ theme(legend.position="none") 
+     
+     FNbase <- paste0("CatScatter", HMname, VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+        print(plotList[[tag]])
+    dev.off()
+    ## Create R markdown chunk ##
+    figLegend <- paste0(
+        "**Figure ", 
+        figureCount, 
+        ":** Category Scatter showing gene category ", 
+        HMname, ". ", legendNote, 
+        ". Download a pdf of this figure [here](", FNrel,"). "
+    )
+            
+            
+    figureCount <- figureCount + 1 
+            
+    NewChnk <- paste0(
+        "### Category Feature Plot ",HMname,
+                "\n```{r CatFeatPlot1_",
+                i,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+                figLegend,"'}\n",
+                "\n",
+                "\n print(plotList[['",tag,"']])",
+                "\n cat(  '\n')",
+                "\n\n\n```\n"   
+            )
+          
+        
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+}
+
+
+
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
+```
+
+## Example Gene categories to help with the clustering decission {`r tabVar`}
+
+
+```{r enrichment_plots, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+```
 
 
 ## Documentation
