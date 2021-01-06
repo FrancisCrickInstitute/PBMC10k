@@ -376,7 +376,7 @@ if (length(pos) > 0){
     if (dfObio$debugReduce == "" | toupper(dfObio$debugReduce) == "NULL") {
          "debugReduce" <- NULL
     }  else {
-        debugReduce <- as.numeric(dfObio$debugReduce)
+        debugReduce <- as.numeric(dfObio$debugReduce[1])
     }
 } else {
     debugReduce <- NULL
@@ -404,8 +404,8 @@ Obio = new(
         "gse.id.vector" = "",
         "addDmaps" = TRUE,
 
-       "lims.id"= as.vector(dfObio$limsID[1]),
-        "asf.id" = as.vector(dfObio$limsID[1]),
+       "lims.id"= as.vector(dfObio$asfID[1]),
+        "asf.id" = as.vector(dfObio$asfID[1]),
 
         "machine" = NULL,
         "experiment.type" = projectDetailList$experiment.type,   
@@ -621,10 +621,12 @@ if (exists("cmdDocuVec") & length(cmdDocuVec) > 0){
 ```
 
 `r cellRangerVar`
-```{r cellRangerCommands, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
+```{r cellRangerCommands, echo=F, eval=TRUE, warning=FALSE, results="asis"}
 
 if (exists("cmdDocuVec") & length(cmdDocuVec) > 0){
-    cat(paste(knit(text = cmdDocuVec, quiet = T), collapse = '\n'))
+    for (i in 1:length(cmdDocuVec)){
+        print(cmdDocuVec[i])
+    }
     
 } 
 ```
@@ -1759,6 +1761,7 @@ for (i in 1:length(Obio@parameterList$cat2DplotList)){
     }
     
     
+    
     ## Get AUC matrix ##
     tSNE.df <- data.frame(cellsTsne, cell=rownames(cellsTsne))
     mAUC <- getAUC(cells_AUC)[HMname,rownames(tSNE.df)]
@@ -1766,6 +1769,16 @@ for (i in 1:length(Obio@parameterList$cat2DplotList)){
     dfAUC[["cellID"]] <- row.names(dfAUC)
     dfAUC <- merge(dfAUC, tSNE.df, by.x = "cellID", by.y = "cell")
     
+    dfDocAUC <- unique(dfAUC[,c("cellID", "mAUC")])
+    dfDocAUC[["cat"]] <- paste0("Cat_",tag) 
+    if (i == 1){
+      dfResAUC <- dfDocAUC
+    } else {
+      dfResAUC <- rbind(
+        dfResAUC, 
+        dfDocAUC
+      )
+    }
     
     input <- list(
         "x_axis" = "UMAP1",
@@ -1832,7 +1845,8 @@ for (i in 1:length(Obio@parameterList$cat2DplotList)){
     )
 }
 
-
+Obio@dataTableList[["dfResAUC"]] <- data.frame(NULL)
+Obio@dataTableList[["dfResAUC"]] <- dfResAUC
 
 if (length(plotList) > 3){
     tabVar <- ".tabset .tabset-fade .tabset-dropdown"
@@ -1906,7 +1920,7 @@ projectParams <- lapply(
 
 
 #projectParams$title <- "Title"
-projectParams$abstract <- "This is the QC section."
+projectParams$abstract <- "This is the QC section. In this section basic sequencing parameters are documented. Then particles that contain only ambient RNA or dead/dying cells are identified to be removed. An estimate on doubets (GEMS containing more than one cell) is made. Finally biological biases by cell cycle or gender are evaluated and regressed out as required."
 #projectParams$subtitle <- "Abstract"
 
 ```
