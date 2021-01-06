@@ -2174,9 +2174,11 @@ if (nrow(dfGeneralMarkers) > 0){
     dfGeneralMarkersFilt <- dfGeneralMarkers[dfGeneralMarkers$avg_diff > lgFCthreshold | dfGeneralMarkers$avg_diff < -lgFCthreshold,]
     Obio@dataTableList[["dfGeneralMarkersFilt"]] <- dfGeneralMarkersFilt
     
-    dfTop1 <- data.frame(dfGeneralMarkers %>% group_by(cluster) %>% top_n(1, avg_diff))
-    dfTop5 <- data.frame(dfGeneralMarkers %>% group_by(cluster) %>% top_n(5, avg_diff))
-    dfTop10 <- data.frame(dfGeneralMarkers %>% group_by(cluster) %>% top_n(10, avg_diff))
+    dfGeneralMarkersPos <- dfGeneralMarkers[dfGeneralMarkers$direction == "positive", ]
+    dfTop1 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(1, avg_diff))
+    dfTop5 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(5, avg_diff))
+    dfTop10 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(10, avg_diff))
+    dfTop50 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(50, avg_diff))
     
     Obio@dataTableList[["dfGeneralMarkersTop10"]] <- dfTop10
     
@@ -2439,7 +2441,7 @@ if (length(pos) > 0){
               figureCount <- figureCount + 1 
               
               NewChnk <- paste0(
-                  " #### Doublets All Timepoints", 
+                  "#### Doublets All Timepoints", 
                   "\n```{r ", tag, ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
                   figLegend,"'}\n",
                   "\n",
@@ -3755,6 +3757,26 @@ for (i in 1:length(clusterVec)){
 
 Obio@dataTableList[["dfClusterResiduals"]] <- dfClusterResiduals
 
+###############################################################################
+## Select a suitable cut-off for marker genes                                ##
+library(tidyverse)
+dfLongResiduals <- data.frame(
+    dfClusterResiduals %>% pivot_longer(!gene, names_to = "cluster", values_to = "residuals")
+)
+
+
+dfRegMins <- data.frame(dfLongResiduals %>% group_by(cluster) %>%   top_n(10, residuals) %>% summarize(min10 = min(residuals)))
+
+## Select as cut-off: median of all so at least half the cluster have 10 marker genes
+LRcutOff <- median(dfRegMins$min10)
+if (LRcutOff > 1){
+    LRcutOff <- 1
+}
+
+LRcutOff <- round(LRcutOff, 3)
+## Done                                                                      ##
+###############################################################################
+
 ## Make gene set with Residual marker genes ##
 if (Obio@parameterList$geneIDcolumn != "hgnc_symbol" & Obio@parameterList$geneIDcolumn != "mgi_symbol"){
     refGeneIDcolumn <- "hgnc_symbol"
@@ -3776,23 +3798,17 @@ if (Obio@parameterList$geneIDcolumn != "hgnc_symbol" & Obio@parameterList$geneID
 }
 
 residualClusterMarkers <- list()
-DefaultcutOff <- 1
 
 clusterVec <- names(dfClusterResiduals)
 clusterVec <- clusterVec[clusterVec != "gene"]
 
 for (i in 1:length(clusterVec)){
-    clusterGenes <- as.vector(sort(unique(dfClusterResiduals[dfClusterResiduals[, clusterVec[i]] > DefaultcutOff,"gene"])))
-    if (length(clusterGenes) < 3){
-        usedCutOff <- DefaultcutOff/2
-        clusterGenes <- as.vector(sort(unique(dfClusterResiduals[dfClusterResiduals[, clusterVec[i]] > usedCutOff,"gene"])))
-    } else {
-        usedCutOff <- DefaultcutOff
-    }
+    clusterGenes <- as.vector(sort(unique(dfClusterResiduals[dfClusterResiduals[, clusterVec[i]] > LRcutOff,"gene"])))
+   
     
     if (length(clusterGenes) > 1){
-        residualClusterMarkers[[paste0(clusterVec[[i]], "_Linear_Regression_Markers_", DefaultcutOff)]] <- c(
-            paste0(clusterVec[[i]], "_Linear_Regression_Markers_", gsub("\\.", "_", usedCutOff) , " Experiment ", Obio@parameterList$project_id),
+        residualClusterMarkers[[paste0(clusterVec[[i]], "_Linear_Regression_Markers_", LRcutOff)]] <- c(
+            paste0(clusterVec[[i]], "_Linear_Regression_Markers_", gsub("\\.", "_", LRcutOff) , " Experiment ", Obio@parameterList$project_id),
             clusterGenes
         )
     } 
@@ -4078,8 +4094,23 @@ OsC_HM <- ScaleData(OsC_HM, verbose = FALSE, features=allGenes)
 ## Order Heatmap Genes by cluster similarity
 
 ## For the moment: resetting heatmap list to keep it short ##
+
+## Select heatmap genes ##
+ 
+dfGeneralMarkers <- Obio@dataTableList$dfGeneralMarkers 
+dfGeneralMarkersPos <- dfGeneralMarkers[dfGeneralMarkers$avg_diff > 0,]
+
+Nsel <- 1
+
+geneVec <- as.vector(NULL, mode="character")
+while(length(geneVec) < 20 & Nsel < nrow(dfGeneralMarkersPos)){
+    geneVec <-  as.vector(unique(data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(Nsel, avg_diff))[,"gene"]))
+    Nsel <- Nsel + 1
+}
+
+
 Obio@parameterList[["cat2HMplotList"]] <- list()
-Obio@parameterList[["cat2HMplotList"]][["Top5_Cluster_Markers"]] <- as.vector(dfTop5$gene)
+Obio@parameterList[["cat2HMplotList"]][["Top5_Cluster_Markers"]] <- geneVec 
 
 ## Add top transcription factors for each cluster ##
 ## Get transcription factor genes ##
@@ -4109,11 +4140,12 @@ if (queryGS != Obio@parameterList$geneIDcolumn){
     tempVec <- tempVec[tempVec != ""]
 }
 
-dfHMG <- dfGeneralMarkers[dfGeneralMarkers$gene %in% tempVec, ]
+dfHMG <- dfGeneralMarkersPos[dfGeneralMarkersPos$gene %in% tempVec, ]
 dfHMGsel <- data.frame(dfHMG %>% group_by(cluster) %>% top_n(5, avg_diff))
 
-Obio@parameterList[["cat2HMplotList"]][["Top5_TF_Cluster_Markers"]] <- as.vector(unique(dfHMGsel$gene))
-
+if (length(as.vector(unique(dfHMGsel$gene))) > 0){
+    Obio@parameterList[["cat2HMplotList"]][["Top5_TF_Cluster_Markers"]] <- as.vector(unique(dfHMGsel$gene))
+}
 ## Done with translation
   
 
@@ -4430,7 +4462,17 @@ dfLongResiduals <- data.frame(
 ###############################################################################
 
 
-dfLongResiduals <- dfLongResiduals[abs(dfLongResiduals$residuals) > 1, ]
+dfRegMins <- data.frame(dfLongResiduals %>% group_by(cluster) %>%   top_n(10, residuals) %>% summarize(min10 = min(residuals)))
+
+## Select as cut-off: median of all so at least half the cluster have 10 marker genes
+cutOff <- median(dfRegMins$min10)
+if (cutOff > 1){
+    cutOff <- 1
+}
+
+dfLongResiduals <- dfLongResiduals[dfLongResiduals$residuals > cutOff, ]
+
+
 dfLongResiduals$cluster <- gsub("_Residuals", "", dfLongResiduals$cluster)
 
 dfLongResiduals[["join_col"]] <- paste0(
