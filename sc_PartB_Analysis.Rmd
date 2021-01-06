@@ -240,7 +240,7 @@ for (i in 1:length(catList)){
 SampleList <- createNormSampleList(
     obj = Obio,
     reduce = Obio@parameterList$debugReduce, # Default is NULL
-    vars.to.regress = NULL
+    vars.to.regress = Obio@scDetailList$vars.to.regress
 )
 
 print(paste0("Cell Recuction: ", Obio@parameterList$debugReduce))

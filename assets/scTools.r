@@ -1081,7 +1081,7 @@ setGeneric(
         ## Create Sample List ##
         SampleList <- list()
         unionVarGenes <- as.vector(NULL, mode = "character")
-        NtopGenes <- obj@parameterList$NtopGenes
+        NtopGenes <- obj@scDetailList$NtopGenes
         geneIntersectVec <- as.vector(NULL, mode="character")
 
 
@@ -1162,7 +1162,7 @@ setGeneric(
                 counts = fullMat,
                 project = sampleID,
                 min.cells = 0,
-                min.features = obj@parameterList$SeuratNrnaMinFeatures
+                min.features = obj@sampleDetailList[[i]]$SeuratNrnaMinFeatures
             )
 
             SampleList[[sampleID]]@meta.data[["sampleID"]] <-
@@ -1487,8 +1487,8 @@ setGeneric(
             set.ident = TRUE
         )    
         
-        print(sampleID)
-        print(names(SampleList[[sampleID]]@meta.data))
+        #print(sampleID)
+        #print(names(SampleList[[sampleID]]@meta.data))
         
         ## Remove dots from column names ##
         names(SampleList[[sampleID]]@meta.data) <- gsub("\\.", "_",names(SampleList[[sampleID]]@meta.data))
@@ -1501,8 +1501,8 @@ setGeneric(
         SampleList[[i]] <- ScaleData(
             SampleList[[i]], 
             verbose = FALSE,
-            vars.to.regress = vars.to.regress,
-            features = row.names(SampleList[[i]])
+            vars.to.regress = vars.to.regress #,
+            #features = row.names(SampleList[[i]])
         )
 
         SampleList[[i]] <- RunPCA(
