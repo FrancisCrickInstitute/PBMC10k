@@ -46,12 +46,12 @@ knitr::opts_chunk$set(
 ```{r init, eval=T, echo=T}
 ###############################################################################
 ## Create biologic Object for visualization                                  ##
-singleCellClusterParameter <- 0.4
-NtopGenes <- 2000
-singleCellSeuratMtCutoff <- c(10)
-singleCellSeuratNpcs4PCA <- 30
-SeuratNrnaMaxFeatures <- 10000
-SeuratNrnaMinFeatures <- 1000
+# singleCellClusterParameter <- 0.4
+# NtopGenes <- 2000
+# singleCellSeuratMtCutoff <- c(10)
+# singleCellSeuratNpcs4PCA <- 30
+# SeuratNrnaMaxFeatures <- 10000
+# SeuratNrnaMinFeatures <- 1000
 
 ## Done                                                                      ##
 ###############################################################################
@@ -101,44 +101,61 @@ library(DT)
 
 
 ###############################################################################
+## Create biologic Metadata object                                           ##
+
+FN <- "design/sc.design.file.csv"
+
+if (file.exists(FN)){
+    dfObio <- read.csv(FN, header = F, stringsAsFactors = F)
+}
+
+dfObio[is.na(dfObio)] <- ""
+
+dfObio <- dfObio[dfObio[,1] != "", ]
+
+dfObio <- data.frame(t(dfObio), stringsAsFactors = F)
+
+names(dfObio) <- as.vector(t(dfObio[1,]))
+dfObio <- dfObio[-1,]
+
+for (i in 1:ncol(dfObio)){
+    pos <- grep("#", dfObio[,i])
+    if (length(pos) > 0){
+        dfObio[pos, i] <- ""
+    }
+}
+
+##                                                                           ##
+###############################################################################
+
+###############################################################################
 ## Create sampleDetail List                                                  ##
 
 # type must be in c("TenX", "matrixFiles", "loomFiles", "hdf5Files")
 
-sampleDetailList <- list(
+sampleNameVec <- trimws(dfObio$sampleName)
+sampleNameVec <- sampleNameVec[sampleNameVec != ""]
 
-    "mliGlia" = list(
-        "type" = "TenX",
-        "gene.column" = 1, # default 2
-        "path" = paste0(hpc.mount, "Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/FASTQ_files/mliGlia/outs/filtered_feature_bc_matrix"),
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "SCP1038",
+sampleDetailList <- list()
 
-        "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "machine" = NULL
-    ),
-
-    "mliNeuron" = list(
-        "type" = "TenX",
-        "gene.column" = 1,
-        "path" = paste0(hpc.mount,"Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/FASTQ_files/mliNeuron/outs/filtered_feature_bc_matrix"),
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "limsId"= "SCP1038",
-
+for (i in 1:length(sampleNameVec)){
+    sampleDetailList[[sampleNameVec[i]]] <- list(
+        "type" = as.vector(dfObio$type[i]),
+        "gene.column" =  as.numeric(dfObio$gene.column[i]), # default 2
+        "path" = as.vector(dfObio$path[i]),
+        "singleCellClusterParameter" = as.numeric(dfObio$singleCellClusterParameter[1]),
+        "singleCellSeuratMtCutoff" = as.numeric(dfObio$singleCellSeuratMtCutoff[i]),
+        "singleCellSeuratNpcs4PCA" = as.numeric(dfObio$singleCellSeuratNpcs4PCA[1]),
+        "SeuratNrnaMaxFeatures" = as.numeric(dfObio$SeuratNrnaMaxFeatures[i]),
+        "SeuratNrnaMinFeatures" = as.numeric(dfObio$SeuratNrnaMinFeatures[i]),
+        "limsId"= as.vector(dfObio$limsID[i]),
         "singleCellChemistry" = NULL,
 	    "singleCellCellrangerVersion" = NULL, 
         "machine" = NULL
     )
-)
+}
+
+
 
 ##                                                                           ##
 ###############################################################################
@@ -146,10 +163,10 @@ sampleDetailList <- list(
 ###############################################################################
 ## dbDetailList                                                              ##
 dbDetailList <- list(
-    "primDataDB" = "vpl_data",
-    "ref.cat.db" = "reference_categories_db_new",
-     "db.user" = "boeingS",
-     "host" = "10.27.241.82"
+    "primDataDB" = as.vector(dfObio$primDataDB[1]),
+    "ref.cat.db" = as.vector(dfObio$ref.cat.db[1]),
+     "db.user" = as.vector(dfObio$db.user[1]),
+     "host" = as.vector(dfObio$host[1])
 )
 ## End dbDetailList                                                          ##
 ###############################################################################
@@ -158,23 +175,23 @@ dbDetailList <- list(
 ## Project detail list                                                       ##
 projectDetailList <- list(
 
-    "folder" = "pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/",
+    "folder" = as.vector(dfObio$folder[1]),
 
-    "lab.categories.table" = "vp_lab_categories", # default NULL
-    "sra.id.vector" = "",
-    "gse.id.vector" = "",
-    "asf.id" = "SCP1038",
-    "experiment.type" = "sc_rna_seq",   
-    "species" = "mus_musculus", 
-    "release" = "release-89", 
+    "lab.categories.table" = as.vector(dfObio$lab.categories.table[1]), # default NULL
+    "sra.id.vector" = as.vector(dfObio$sra.id.vector[1]),
+    "gse.id.vector" = as.vector(dfObio$gse.id.vector[1]),
+    "asf.id" = as.vector(dfObio$asf.id[1]),
+    "experiment.type" = as.vector(dfObio$experiment.type[1]),   
+    "species" = as.vector(dfObio$species[1]), 
+    "release" = as.vector(dfObio$release[1]), 
 
-    "project_id" = "vpl409",
-    "labname" = "Regev",
+    "project_id" = as.vector(dfObio$project_id[1]),
+    "labname" = as.vector(dfObio$labname[1]),
 
-    "timecourse.units" = "",
-    "count.table.headline" = "lg10 Expr for all Samples",
-    "count.table.sidelabel" = "lg10 Expr",
-    "heamap.headline.text" = "Heatmap: Row-averaged Expr"
+    "timecourse.units" = as.vector(dfObio$timecourse.units[1]),
+    "count.table.headline" = as.vector(dfObio$count.table.headline[1]),
+    "count.table.sidelabel" = as.vector(dfObio$count.table.headline[1]),
+    "heamap.headline.text" = as.vector(dfObio$count.table.headline[1])
 )
 ## End project detail list                                                   ##
 ###############################################################################
@@ -183,9 +200,9 @@ projectDetailList <- list(
 ## Project Parameters                                                        ##
 documentationParams <- list(
 
-    "title" = "The human and mouse enteric nervous system at single cell resolution",
-    "subtitle" = "Regev Lab - Cell 2020",
-    "abstract" = "The enteric nervous system (ENS) coordinates diverse functions in the intestine, but has eluded comprehensive molecular characterization due to the rarity and diversity of cells. Here, we develop two methods to profile the ENS of adult mice and humans at single cell resolution: RAISIN RNA-Seq, for profiling intact nuclei with ribosome-bound mRNA, and MIRACL-Seq, for label-free enrichment of rare cell types by droplet-based profiling. The 1,187,535 nuclei in our mouse atlas include 5,068 neurons from the ileum and colon, revealing extraordinary neuron diversity. We highlight circadian expression changes in enteric neurons, show that disease-related genes are dysregulated with aging, and identify differences between the ileum and proximal/distal colon. In human, we profile 436,202 nuclei recovering 1,445 neurons and identify conserved and species-specific transcriptional programs, and putative neuro-epithelial, neuro-stromal, and neuro-immune interactions. The human ENS expresses risk genes for neuropathic, inflammatory, and extra-intestinal diseases, suggesting neuronal contributions to disease. In this analysis the mouse mli Neuron and mli Glia subset is re-analysed."
+    "title" = as.vector(dfObio$title[1]),
+    "subtitle" =  as.vector(dfObio$subtitle[1]),
+    "abstract" = as.vector(dfObio$abstract[1])
 
 )
 
@@ -196,37 +213,55 @@ documentationParams <- list(
 
 ###############################################################################
 ## Project detail list                                                       ##
+if (dfObio$vars.to.regress[1] == "" | toupper(dfObio$vars.to.regress[1]) == "NULL"){
+    vars.to.regress <- NULL
+} else {
+    vars.to.regress = dfObio$vars.to.regress[1]
+}
+
 scDetailList <- list(
-    "NtopGenes" =  NtopGenes,
-    "singleCellClusterParameter" = singleCellClusterParameter,
-    "singleCellClusterString" = paste0("integrated_snn_res.", singleCellClusterParameter),
-    "scIntegrationMethod" = "SCT", # "SCT" or "standard"
-    "scNintegrationFeatures" = 3000,
-    "primReduction" = "umap"
+    "NtopGenes" =  as.numeric(dfObio$NtopGenes[1]),
+    "singleCellClusterParameter" = as.numeric(dfObio$singleCellClusterParameter[1]),
+    "singleCellClusterString" = paste0("integrated_snn_res.", as.numeric(dfObio$singleCellClusterParameter[1])),
+    "scIntegrationMethod" = toupper(as.vector(dfObio$scIntegrationMethod[1])),"SCT", # "SCT" or "standard"
+    "scNintegrationFeatures" = as.numeric(dfObio$scNintegrationFeatures[1]),
+    "primReduction" = tolower(as.vector(dfObio$primReduction[1])),
+    "vars.to.regress" = vars.to.regress
+    
 )
 ## End project detail list                                                   ##
 ###############################################################################
 
 ###############################################################################
 ## Reference Table List                                                      ##
-referenceTableList = list(
-    "Hallmark Signatures" = "mysigdb_h_hallmarks",
-    "Pathways" = "mysigdb_c2_1329_canonical_pathways",
-    "GO-BP" = "mysigdb_c5_BP",                               
-    "GO-MF" = "mysigdb_c5_MF",
-    "TF Motifs" = "TRANSFAC_and_JASPAR_PWMs",
-    "Protein Complexes" = "networkcategories",
-    "GO-BP" = "GO_Biological_Process_2017",
-    "Immunologic Signatures" = "mysigdb_c7_immunologic_signatures",
-    "LINCS Down" = "LINCS_L1000_Chem_Pert_down",
-    "LINCS Up" = "LINCS_L1000_Chem_Pert_up",
-    "Allen Brain Atlas" = "Allen_Brain_Atlas",
-    "Cell Type Signatures" = "mysigdb_sc_sig",
-    "Cell Type Signatures" = "cibersort_L22"
-)
+dfRefTab <- dfObio[,grep("referenceTableListDB", names(dfObio))]
+
+referenceTableList = list()
+
+if (ncol(dfRefTab) > 0){
+    for (i in 1:ncol(dfRefTab)){
+        referenceTableList[[as.vector(dfRefTab[1,i])]] <- as.vector(dfRefTab[2,i])
+        
+    }
+## To be added: Check tables against database    
+}
+
 
 ##############################################################################
 ## Tables for signature enrichment                                          ##
+dfRefTab <- dfObio[,grep("cellSignatureDBtable", names(dfObio))]
+
+clusterSigEnrichmentList = list()
+
+if (ncol(dfRefTab) > 0){
+    for (i in 1:ncol(dfRefTab)){
+        clusterSigEnrichmentList[[as.vector(dfRefTab[1,i])]] <- as.vector(dfRefTab[2,i])
+        
+    }
+## To be added: Check tables against database    
+}
+
+
 clusterSigEnrichmentList = list(
     "Cell Type Signatures" = "mysigdb_sc_sig",
     "Cell Type Signatures" = "cibersort_L22",
@@ -334,6 +369,22 @@ clusterSigEnrichmentList = list(
 # Species has to be "mus_musculus", "homo_sapiens", "danio_rerio" 
 # release-86, release-89
 
+## Create defaults ##
+pos <- grep("debugReduce", names(dfObio))
+
+if (length(pos) > 0){
+    if (dfObio$debugReduce == "" | toupper(dfObio$debugReduce) == "NULL") {
+         "debugReduce" <- NULL
+    }  else {
+        debugReduce <- as.numeric(dfObio$debugReduce)
+    }
+} else {
+    debugReduce <- NULL
+}
+
+
+
+
 Obio = new(
     "bioLOGIC",
     clusterSigEnrichmentList = clusterSigEnrichmentList,
@@ -342,9 +393,10 @@ Obio = new(
     projectDetailList = projectDetailList,
     sampleDetailList = sampleDetailList, 
     referenceTableList = referenceTableList,
+    scDetailList = scDetailList,
     parameterList = list(
 
-        "debugReduce" = NULL, # Default NULL
+        "debugReduce" = debugReduce, # Default NULL
 
         "lab.categories.table" = projectDetailList$lab.categories.table, # default NULL
         "folder" = projectDetailList$folder,
@@ -352,13 +404,13 @@ Obio = new(
         "gse.id.vector" = "",
         "addDmaps" = TRUE,
 
-       "lims.id"= "",
-        "asf.id" = "",
+       "lims.id"= as.vector(dfObio$limsID[1]),
+        "asf.id" = as.vector(dfObio$limsID[1]),
 
         "machine" = NULL,
-        "experiment.type" = "sc_rna_seq",   
+        "experiment.type" = projectDetailList$experiment.type,   
         "species" = projectDetailList$species, 
-        "release" = "release-89", 
+        "release" = projectDetailList$release, 
         "project_id" = projectDetailList$project_id,
         "labname" = projectDetailList$labname,
         "db.user" =  dbDetailList$db.user,
@@ -374,25 +426,26 @@ Obio = new(
         "addFullTPMtable" = FALSE,
         "hpcMount" = "",
         "parallelProcessing" = FALSE,
-        "timeseries" = TRUE,
-        "NtopGenes" =  NtopGenes,
-        "singleCellClusterParameter" = singleCellClusterParameter,
-        "singleCellClusterString" = paste0("integrated_snn_res.", singleCellClusterParameter),
-        "singleCellRead10XgeneColumn" = 1, # default is 2
-        "singleCellPercExpressedMinCutOff" = 10,
-        "singleCellTranscriptome"="GRCh38",
-	    "singleCellChemistry" = NULL,
-	    "singleCellCellrangerVersion" = NULL, 
-        "singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
-        "singleCellSeuratNpcs4PCA" = singleCellSeuratNpcs4PCA,
-        "scIntegrationMethod" = "SCT", # "SCT" or "standard"
-        "scNintegrationFeatures" = scDetailList$scNintegrationFeatures,
-        "SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
-        "SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
-        "primReduction" = "umap",
-        "qcReports" = list(),
-        "catRefFile" = "/camp/stp/babs/working/boeings/Projects/pachnisv/song.chng/330_10xscRNAseq_DIV4_DIV11_DIV20_SC19069/basedata/vpl330.mm.AUC.gene.cats.txt",
+        "timeseries" = FALSE,
+        "NtopGenes" =  scDetailList$NtopGenes,
+        "singleCellClusterParameter" = as.numeric(dfObio$singleCellClusterParameter[1]),
+        "singleCellClusterString" = paste0("integrated_snn_res.", as.vector(dfObio$singleCellClusterParameter[1])),
+        #"singleCellRead10XgeneColumn" = 1, # default is 2
+        #"singleCellPercExpressedMinCutOff" = 10,
+        #"singleCellTranscriptome"="GRCh38",
+	    #"singleCellChemistry" = NULL,
+	    #"singleCellCellrangerVersion" = NULL, 
+        #"singleCellSeuratMtCutoff" = singleCellSeuratMtCutoff,
+        "singleCellSeuratNpcs4PCA" = as.numeric(dfObio$singleCellSeuratNpcs4PCA[1]),
+        "scIntegrationMethod" = as.vector(dfObio$scIntegrationMethod[1]), # "SCT" or "standard"
+        #"scNintegrationFeatures" = scDetailList$scNintegrationFeatures,
+        #"SeuratNrnaMaxFeatures" = SeuratNrnaMaxFeatures,
+        #"SeuratNrnaMinFeatures" = SeuratNrnaMinFeatures,
+        #"primReduction" = "umap",
+        #"qcReports" = list(),
+        "catRefFile" = as.vector(dfObio$catRefFile[1]),
         referenceTableList = referenceTableList
+       
     )
 )
 
@@ -408,7 +461,12 @@ Obio <- createAnalysisFolders(
 Obio <- setDataBaseParameters(Obio)
 
 
-Obio@parameterList[["reportFigDir"]] <- paste0(Obio@parameterList$localWorkDir,Obio@parameterList$project_id, "/report_figures/")
+## Create outputfolders ##
+Obio@parameterList[["reportFigDir"]] <- paste0(Obio@parameterList$localWorkDir,"html_local", "/report_figures/")
+
+if (!dir.exists(Obio@parameterList$reportFigDir)){
+    dir.create(Obio@parameterList$reportFigDir)
+}
 
 ####
 
@@ -421,14 +479,8 @@ dbTable <- read.delim(
 
 db.pwd <- as.vector(dbTable[1,1])
 
-## Create outputfolders ##
-if (!dir.exists(paste0(Obio@parameterList$localWorkDir,Obio@parameterList$project_id))){
-    dir.create(paste0(Obio@parameterList$localWorkDir,Obio@parameterList$project_id))
-}
 
-if (!dir.exists(Obio@parameterList$reportFigDir)){
-    dir.create(Obio@parameterList$reportFigDir)
-}
+
 
 
 figureCount <- 1
@@ -650,12 +702,12 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 ## vars.to.regress: NULL, c("S_Score", "G2M_Score") or "CC_Difference"
 
 #Obio@parameterList[["vars.to.regress"]] = "CC_Difference"
-Obio@parameterList[["vars.to.regress"]] = NULL
+#Obio@parameterList[["vars.to.regress"]] = NULL
 
 SampleList <- createSampleListQC(
     obj = Obio,
     reduce = Obio@parameterList$debugReduce,    
-    vars.to.regress = Obio@parameterList$vars.to.regress,
+    vars.to.regress = Obio@scDetailList$vars.to.regress,
     s.genes = NULL,
     g2m.genes = NULL
 )
@@ -664,7 +716,7 @@ SampleList <- createSampleListQC(
 print(paste0("Cell Recuction: ", Obio@parameterList$debugReduce))
 lapply(SampleList, dim)    
     
-if (is.null(Obio@parameterList$vars.to.regress)){
+if (is.null(Obio@scDetailList$vars.to.regress)){
     stringVar <- "### Regressed-out Variables /n No regression was applied to input single-cell samples before integration."
 } else {
     stringVar <- paste0("### Regressed-out Variables /n Regression for parameter ", Obio@parameterList$vars.to.regress, " was used on the individual single-cell samples before integration.")
@@ -1010,7 +1062,7 @@ lapply(SampleList, dim)
 ###############################################################################
 ## Integrate Datasets                                                        ##
 if (length(SampleList) > 1){
-    if (Obio@parameterList$scIntegrationMethod == "SCT"){
+    if (Obio@scDetailList$scIntegrationMethod == "SCT"){
         
         if (length(grep("scNintegrationFeatures", names(Obio@parameterList))) == 0){
             Obio@parameterList$scNintegrationFeatures = 3000
@@ -1075,7 +1127,7 @@ DefaultAssay(OsC) <- "RNA"
 OsC <- FindVariableFeatures(
     object = OsC,
     selection.method = 'vst', 
-    nfeatures = 2000
+    nfeatures = Obio@parameterList$NtopGenes
 )
 
 if (length(Obio@sampleDetailList) > 1){
@@ -1396,7 +1448,7 @@ OsC <- RunUMAP(OsC, reduction = "pca", dims = 1:20)
 
 OsC <- FindNeighbors(OsC, reduction = "pca", dims = 1:20)
 
-OsC <- FindClusters(OsC, resolution = Obio@parameterList$singleCellClusterParameter)
+OsC <- FindClusters(OsC, resolution = Obio@scDetailList$singleCellClusterParameter)
 
 coord <- data.frame(OsC@reductions$umap@cell.embeddings)
 names(coord) <- paste0(names(coord), "_G2M_S_Regression")
@@ -1563,8 +1615,239 @@ save(OsC,
 
 print("R bioLOGIC single cell object initialized.")
 
+## Prepare for AUC ##
+## UMAP ##
+DefaultAssay(OsC) <- "RNA"
+
+
+OsC <- FindVariableFeatures(
+    object = OsC,
+    selection.method = 'vst', 
+    nfeatures = 2000
+)
+
+if (length(Obio@sampleDetailList) > 1){
+    DefaultAssay(OsC) <- "integrated"
+} else {
+    Obio@parameterList$singleCellClusterString <- gsub("integrated", "RNA", Obio@parameterList$singleCellClusterString)
+}
+
+
+# Run the standard workflow for visualization and clustering
+## This will scale on the most variable features only
+OsC <- ScaleData(OsC, verbose = FALSE)
+
+OsC <- RunPCA(
+    OsC, 
+    npcs = Obio@parameterList$singleCellSeuratNpcs4PCA, verbose = FALSE
+)
+# t-SNE and Clustering
+
+## Add PCA clusters to data collection ##
+
+
+OsC <- RunUMAP(OsC, reduction = "pca", dims = 1:20)
+
+OsC <- FindNeighbors(OsC, reduction = "pca", dims = 1:20)
+
+OsC <- FindClusters(OsC, resolution = Obio@parameterList$singleCellClusterParameter)
+
+
 ```
 
+
+```{r AUC_prep_from_file, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
+
+library(AUCell)
+plotList <- list()
+chnkVec <- as.vector(NULL, mode = "character")
+
+
+dfHeatmapGenes <- read.delim(
+  Obio@parameterList$catRefFile,
+  header = T,
+  sep = "\t",
+  stringsAsFactors = F
+  
+)
+
+geneSets <- list()
+
+for (i in 1:ncol(dfHeatmapGenes)){
+    genes <- as.vector(dfHeatmapGenes[2:nrow(dfHeatmapGenes),i])
+    genes <- genes[genes %in% rownames(x = OsC@assays$RNA)]
+    geneSets[[names(dfHeatmapGenes)[i]]] <- genes
+}
+
+
+Obio@parameterList[["cat2DplotList"]] <- geneSets
+
+
+
+###############################################################################
+## Get backdrop
+
+exprMatrix <- as.matrix(OsC@assays$RNA@counts)
+#logMat <- log10(exprMatrix+1)
+
+# When using a Seurat object #
+logMat <- data.frame(OsC[["RNA"]]@data)
+
+## Load tSNE coordinates ##
+cellsTsne <- data.frame(OsC@reductions$umap@cell.embeddings)
+
+## done
+FNbase <- paste0("CatScatter_Rankings", VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
+    
+
+pdf(FN)
+    cells_rankings <- AUCell_buildRankings(exprMatrix)
+dev.off()
+
+geneSets <- Obio@parameterList$cat2DplotList
+
+cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings, aucMaxRank=nrow(cells_rankings)*0.05)
+
+## Select thresholds ##
+
+
+FNbase <- paste0("CatScatterHist", VersionPdfExt)
+FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+FNrel <- paste0("report_figures/", FNbase)
+            
+pdf(FN)
+    set.seed(123)
+    cells_assignment <- AUCell_exploreThresholds(
+        cells_AUC, 
+        plotHist=TRUE, 
+        nCores=1, 
+        assign=TRUE
+    )
+dev.off()
+
+
+## Add data to dfExpr ##
+
+## Plot CatScatters ##
+for (i in 1:length(Obio@parameterList$cat2DplotList)){
+    HMname <- names(Obio@parameterList$cat2DplotList)[i]
+    tag <- gsub("[.]", "_", HMname)
+    
+    FNbase <- paste0("CatScatterHist_", HMname, VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    
+    selectedThresholds <-  cells_assignment[[i]]$aucThr$thresholds 
+    
+    if ("minimumDens" %in% rownames(selectedThresholds)) {
+        pThr <- selectedThresholds["minimumDens", "threshold"]
+    } else if ("Global_k1" %in% rownames(selectedThresholds)){
+        pThr <- selectedThresholds["Global_k1", "threshold"]
+    } else {
+        pThr <- selectedThresholds[1, "threshold"]
+    }
+    
+    if (nrow(cellsTsne) > 15000){
+        cex = 0.25
+    } else if (nrow(cellsTsne) > 1000){
+        cex = 0.5 
+    } else {
+        cex = 1
+    }
+    
+    
+    ## Get AUC matrix ##
+    tSNE.df <- data.frame(cellsTsne, cell=rownames(cellsTsne))
+    mAUC <- getAUC(cells_AUC)[HMname,rownames(tSNE.df)]
+    dfAUC <- data.frame(mAUC)
+    dfAUC[["cellID"]] <- row.names(dfAUC)
+    dfAUC <- merge(dfAUC, tSNE.df, by.x = "cellID", by.y = "cell")
+    
+    
+    input <- list(
+        "x_axis" = "UMAP1",
+        "y_axis" = "UMAP2",
+        "gene" = HMname
+    )
+    dotsize <- cex
+    
+    legendNote <- paste0(
+            " The following genes of this dataset are represented in this figure: ",
+            paste0(sort(Obio@parameterList$cat2DplotList[[i]]), collapse = ", ")
+        )
+    
+     plotList[[tag]] <- ggplot(data = dfAUC, aes(x=UMAP_1, y=UMAP_2, color = mAUC)
+            )+ geom_point( shape=16, size = dotsize
+            ) + scale_color_gradient(low="grey", high="darkblue"
+            ) + theme_bw(
+            ) + xlab(input$x_axis) + ylab(input$y_axis)  +  theme(
+                axis.text.y   = element_text(size=8),
+                axis.text.x   = element_text(size=8),
+                axis.title.y  = element_text(size=8),
+                axis.title.x  = element_text(size=8),
+                axis.line = element_line(colour = "black"),
+                panel.border = element_rect(colour = "black", fill=NA, size=1),
+                plot.title = element_text(hjust = 0.5, size = 12)
+            )+ ggtitle(paste0("Category: ", input$gene)
+            ) + coord_fixed(ratio = 1) #+ theme(legend.position="none") 
+     
+     FNbase <- paste0("CatScatter", HMname, VersionPdfExt)
+    FN <- paste0(Obio@parameterList$reportFigDir, FNbase)
+    FNrel <- paste0("report_figures/", FNbase)
+    
+    pdf(FN)
+        print(plotList[[tag]])
+    dev.off()
+    ## Create R markdown chunk ##
+    figLegend <- paste0(
+        "**Figure ", 
+        figureCount, 
+        ":** Category Scatter showing gene category ", 
+        HMname, ". ", legendNote, 
+        ". Download a pdf of this figure [here](", FNrel,"). "
+    )
+            
+            
+    figureCount <- figureCount + 1 
+            
+    NewChnk <- paste0(
+        "### Category Feature Plot ",HMname,
+                "\n```{r CatFeatPlot1_",
+                i,", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
+                figLegend,"'}\n",
+                "\n",
+                "\n print(plotList[['",tag,"']])",
+                "\n cat(  '\n')",
+                "\n\n\n```\n"   
+            )
+          
+        
+    
+    chnkVec <- c(
+        chnkVec,
+        NewChnk
+    )
+}
+
+
+
+if (length(plotList) > 3){
+    tabVar <- ".tabset .tabset-fade .tabset-dropdown"
+} else {
+    tabVar <- ".tabset .tabset-fade .tabset-pills"
+}
+
+```
+
+## Example Gene categories to help with the clustering decission {`r tabVar`}
+
+
+```{r enrichment_plots, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
+cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
+```
 
 
 ## Documentation

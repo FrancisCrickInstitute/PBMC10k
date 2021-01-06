@@ -186,19 +186,20 @@ setGeneric(
             ) + geom_point(
                 shape = 16,
                 size = as.numeric(dotsize)
-            ) + xlab("log10(N Droplets)") + ylab("lg10(UMI Count Per Cell)")  +  theme(
+            ) + xlab("log10(N Droplets)") + ylab("lg10(UMI Count Per Cell)"
+            ) + theme_bw(
+            )  +  theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
                 axis.title.x  = element_text(size=8),
                 axis.line = element_line(colour = "black"),
                 panel.border = element_rect(colour = "black", fill=NA, size=1),
-                plot.title = element_text(hjust = 0.5, size = 12),
-                panel.background = element_rect(fill = "lightgrey")
+                plot.title = element_text(hjust = 0.5, size = 12)
             ) + ggtitle(paste0("QC Sample ", tag)
             ) + scale_color_manual(values=alpha(c("#000000","#009900"), 0.5)
             ) + coord_fixed(ratio=1
-            ) + theme_bw()
+            ) 
 
             FNbase <- paste0("cellranger.result.", tag, VersionPdfExt)
             FN <- paste0(obj@parameterList$reportFigDir, FNbase)
@@ -1080,7 +1081,7 @@ setGeneric(
         ## Create Sample List ##
         SampleList <- list()
         unionVarGenes <- as.vector(NULL, mode = "character")
-        NtopGenes <- obj@parameterList$NtopGenes
+        NtopGenes <- obj@scDetailList$NtopGenes
         geneIntersectVec <- as.vector(NULL, mode="character")
 
 
@@ -1161,7 +1162,7 @@ setGeneric(
                 counts = fullMat,
                 project = sampleID,
                 min.cells = 0,
-                min.features = obj@parameterList$SeuratNrnaMinFeatures
+                min.features = obj@sampleDetailList[[i]]$SeuratNrnaMinFeatures
             )
 
             SampleList[[sampleID]]@meta.data[["sampleID"]] <-
@@ -1486,8 +1487,8 @@ setGeneric(
             set.ident = TRUE
         )    
         
-        print(sampleID)
-        print(names(SampleList[[sampleID]]@meta.data))
+        #print(sampleID)
+        #print(names(SampleList[[sampleID]]@meta.data))
         
         ## Remove dots from column names ##
         names(SampleList[[sampleID]]@meta.data) <- gsub("\\.", "_",names(SampleList[[sampleID]]@meta.data))
@@ -1500,8 +1501,8 @@ setGeneric(
         SampleList[[i]] <- ScaleData(
             SampleList[[i]], 
             verbose = FALSE,
-            vars.to.regress = vars.to.regress,
-            features = row.names(SampleList[[i]])
+            vars.to.regress = vars.to.regress #,
+            #features = row.names(SampleList[[i]])
         )
 
         SampleList[[i]] <- RunPCA(

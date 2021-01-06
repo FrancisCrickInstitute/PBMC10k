@@ -1,0 +1,34 @@
+﻿Global Parameters,,
+singleCellClusterParameter,0.4,
+NtopGenes,2000,
+singleCellSeuratNpcs4PCA,30,
+folder,folder pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/,
+lab.categories.table,vp_lab_categories,
+project_id,vpl409,
+labname,Regev,
+sra.id.vector,,
+gse.id.vector,,
+asf.id,,
+experiment.type,sc_rna_seq,
+species,mus_musculus,
+release,release-89,
+timecourse.units,,
+count.table.headline,lg10 Expr for all Samples,
+count.table.sidelabel,lg10 Expr,
+heamap.headline.text,Heatmap: Row-averaged Expr,
+,,
+Sample Parameters,,
+sampleName,mliGlia,mliNeuron
+limsID,SCP1038,SCP1038
+type,TenX,TenX
+gene.column,1,1
+path,/camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/FASTQ_files/mliNeuron/outs/filtered_feature_bc_matrix,
+singleCellSeuratMtCutoff,10,10
+SeuratNrnaMaxFeatures,10000,10000
+SeuratNrnaMinFeatures,1000,1000
+,,
+Database Parameters,,
+primDataDB,vpl_data,
+ref.cat.db,reference_categories_db_new,
+db.user,boeingS,
+host,10.27.241.82,
