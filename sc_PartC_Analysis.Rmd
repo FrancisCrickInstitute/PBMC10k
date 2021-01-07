@@ -223,7 +223,7 @@ for (i in 1:length(clusterIDs)){
 }
 
 #dfdbTable[["cellID"]] <- paste0(dfdbTable$sampleID, "_Cluster", dfdbTable[, Obio@parameterList$singleCellClusterString]) #row.names(dfdbTable)
-dfdbTable[["meta_Mouse"]] <- substr(dfdbTable$cellID, 1, 2)
+#dfdbTable[["meta_Mouse"]] <- substr(dfdbTable$cellID, 1, 2)
 
 ## Assign colors ##
 
