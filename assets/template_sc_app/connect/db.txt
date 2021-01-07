@@ -1,0 +1,2 @@
+"url"	"id"	"id2"	"db"	"coordTb"	"exprTb"	"geneTb"	"default"
+"10.27.241.82"	"EMTAB6653_scData"	"bWT7muDU"	"csl_data"	"EMTAB6653_PCA"	"EMTAB6653_gene_expr_tb"	"EMTAB6653_geneID_tb"	COL1A1

@@ -386,7 +386,7 @@ geneSets <- list()
 for (i in 1:ncol(dfHeatmapGenes)){
     genes <- as.vector(dfHeatmapGenes[2:nrow(dfHeatmapGenes),i])
     genes <- genes[genes %in% rownames(x = OsC_CF@assays$RNA)]
-    geneSets[[names(dfHeatmapGenes)[i]]] <- genes
+    geneSets[[names(dfHeatmapGenes)[i]]] <- unique(genes)
 }
 
 
@@ -486,13 +486,13 @@ for (i in 1:length(Obio@parameterList$cat2DplotList)){
     
     legendNote <- paste0(
             " The following genes of this dataset are represented in this figure: ",
-            paste0(sort(Obio@parameterList$cat2DplotList[[i]]), collapse = ", ")
+            paste0(sort(unique(Obio@parameterList$cat2DplotList[[i]])), collapse = ", ")
         )
     
      plotList[[tag]] <- ggplot(data = dfAUC, aes(x=UMAP_1, y=UMAP_2, color = mAUC)
             )+ geom_point( shape=16, size = dotsize
             ) + scale_color_gradient(low="grey", high="darkblue"
-            ) + xlab(input$x_axis) + ylab(input$y_axis)  +  theme(
+            ) + xlab(input$x_axis) + ylab(input$y_axis)  +  theme_bw() + theme(
                 axis.text.y   = element_text(size=8),
                 axis.text.x   = element_text(size=8),
                 axis.title.y  = element_text(size=8),
@@ -542,13 +542,13 @@ for (i in 1:length(Obio@parameterList$cat2DplotList)){
 }
 
 
-save(OsC_CF,
-    file = paste0(
-         Obio@parameterList$localWorkDir,
-         Obio@parameterList$project_id,
-        ".SeuratCF"
-     )
-)
+# save(OsC_CF,
+#     file = paste0(
+#          Obio@parameterList$localWorkDir,
+#          Obio@parameterList$project_id,
+#         ".SeuratCF"
+#      )
+# )
 
 if (length(plotList) > 3){
     tabVar <- ".tabset .tabset-fade .tabset-dropdown"

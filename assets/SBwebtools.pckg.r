@@ -6603,7 +6603,7 @@ upload.datatable.to.database <- function(
                 dbGetQuery(
                     dbDB, 
                     cmd.string
-                )}, error=function(e) {paste0("Problem adding index ",cols2Index[i],".")})
+                )}, error=function(e) {stop(paste0("Database table not uploaded. Problem adding index ",cols2Index[i],"."))})
             
             dbDisconnect(dbDB)
             
@@ -10409,14 +10409,17 @@ DotPlotSB <- function (
     
     data.plot <- do.call(what = "rbind", args = data.plot)
     
+    
     dfClust <- data.frame(data.plot %>% pivot_wider(!pct.exp, names_from = features.plot, values_from = avg.exp))
     row.names(dfClust) <- dfClust$id
     dfClust$id <- NULL
     
-    dfDist <- hclust(d=dist(t(dfClust)), method = "ward.D2")
-    
-    
-    orderVec <- names(dfClust)[dfDist$order]
+    if (nrow(dfClust) >=2){
+        dfDist <- hclust(d=dist(t(dfClust)), method = "ward.D2")
+        orderVec <- names(dfClust)[dfDist$order]
+    } else {
+        orderVec <- names(dfClust)
+    }
     
     if (!is.null(x = id.levels)) {
         data.plot$id <- factor(x = data.plot$id, levels = id.levels)
