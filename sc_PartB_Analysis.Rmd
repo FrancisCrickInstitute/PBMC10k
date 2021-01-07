@@ -31,7 +31,7 @@ knitr::opts_chunk$set(
 
 # module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;R;
 
-# sbatch --time=08:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runB.r" --job-name="rB" --mem=42G -o rB.slurm >> commands.txt
+# sbatch --time=08:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runB.r" --job-name="rB" --mem=100G -o rB.slurm >> commands.txt
 
 # sbatch --time=18:00:00 --wrap "module purge;source /camp/stp/babs/working/software/modulepath_new_software_tree_2018-08-13;module load pandoc/2.2.3.2-foss-2016b;ml R/3.6.0-foss-2016b-BABS;Rscript runB.r" --job-name="rB" -p hmem --mem=300G -o rB.slurm >> commands.txt
 
@@ -184,6 +184,7 @@ if (Obio@parameterList$host == "10.27.241.234"){
 ## Debugging mode on subset of cells ##
 # Obio@parameterList$d
 
+
 ```
 
 ```{r CreateReferenceGeneList, echo=T, eval=TRUE, warning=FALSE, results=FALSE}
@@ -233,474 +234,15 @@ for (i in 1:length(catList)){
 ### Create Sample List
 ```{r Normalize_Subset_Find_Variable, echo=TRUE, eval=TRUE, warning=FALSE, results=F}   
 
-###############################################################################
-## Get UMAP coordinates without regression                                   ##
-#vars.to.regress = "CC_Difference"
-
-SampleList <- createNormSampleList(
-    obj = Obio,
-    reduce = Obio@parameterList$debugReduce, # Default is NULL
-    vars.to.regress = Obio@scDetailList$vars.to.regress
-)
-
-print(paste0("Cell Recuction: ", Obio@parameterList$debugReduce))
-lapply(SampleList, dim)
-## Done                                                                      ##
-###############################################################################
-
-
-###############################################################################
-## Integrate Datasets                                                        ##
-if (length(SampleList) > 1){
-    if (Obio@parameterList$scIntegrationMethod == "SCT"){
-        
-        if (length(grep("scNintegrationFeatures", names(Obio@parameterList))) == 0){
-            Obio@parameterList$scNintegrationFeatures = 3000
-        }
-        
-        library(future)
-        options(future.globals.maxSize = 14000 * 1024^2)
-        plan("multiprocess", workers = 30)
-        
-        sample.features <- SelectIntegrationFeatures(
-            object.list = SampleList, 
-            nfeatures = Obio@parameterList$scNintegrationFeatures
-        )
-        SampleList <- PrepSCTIntegration(
-            object.list = SampleList, 
-            anchor.features = sample.features, 
-            verbose = FALSE
-        )
-        
-        sampleAnchors <- FindIntegrationAnchors(
-            object.list = SampleList, 
-            normalization.method = "SCT", 
-            anchor.features = sample.features, 
-            verbose = FALSE
-        )
-        
-        OsC <- IntegrateData(
-            anchorset = sampleAnchors, 
-            normalization.method = "SCT", 
-            verbose = FALSE
-        )
-        detach("package:future", unload=TRUE)
-        
-    } else {
-    
-        sampleAnchors <- FindIntegrationAnchors(
-            object.list = SampleList, 
-            dims = 1:30
-        ) 
-
-
-        OsC <- IntegrateData(
-            #features.to.integrate = geneIntersectVec,
-            anchorset = sampleAnchors, 
-            dims = 1:30
-        )
-    }
-    Obio@dataTableList$referenceList[["sampleAnchors"]] <- as.vector(sort(sampleAnchors@anchor.features))
-} else {
-    OsC <- SampleList[[1]]
-}
-
-Idents(OsC) <- factor(Idents(OsC), levels = names(Obio@sampleDetailList))
-OsC@meta.data$sampleID <- factor(OsC@meta.data$sampleID, levels = names(Obio@sampleDetailList))
-
-OsC@meta.data[["cellID"]] <- row.names(OsC@meta.data)
-
-## UMAP ##
-DefaultAssay(OsC) <- "RNA"
-
-
-OsC <- FindVariableFeatures(
-    object = OsC,
-    selection.method = 'vst', 
-    nfeatures = 2000
-)
-
-if (length(Obio@sampleDetailList) > 1){
-    DefaultAssay(OsC) <- "integrated"
-} else {
-    Obio@parameterList$singleCellClusterString <- gsub("integrated", "RNA", Obio@parameterList$singleCellClusterString)
-}
-
-
-# Run the standard workflow for visualization and clustering
-## This will scale on the most variable features only
-OsC <- ScaleData(OsC, verbose = FALSE)
-
-OsC <- RunPCA(
-    OsC, 
-    npcs = Obio@parameterList$singleCellSeuratNpcs4PCA, verbose = FALSE
-)
-# t-SNE and Clustering
-
-## Add PCA clusters to data collection ##
-
-
-OsC <- RunUMAP(OsC, reduction = "pca", dims = 1:20)
-
-OsC <- FindNeighbors(OsC, reduction = "pca", dims = 1:20)
-
-OsC <- FindClusters(OsC, resolution = Obio@parameterList$singleCellClusterParameter)
-
-coord <- data.frame(OsC@reductions$umap@cell.embeddings)
-names(coord) <- paste0(names(coord), "_Without_Regression")
-coord[["cellID"]] <- row.names(coord)
-coord <-coord[coord$cellID %in% OsC@meta.data$cellID, ]
-
-dfMeta <- OsC@meta.data
-dfMeta[["cellID"]] <- row.names(dfMeta)
-dfMeta <- dfMeta[,c("cellID", "seurat_clusters")]
-dfMeta$seurat_clusters <- as.character(dfMeta$seurat_clusters)
-dfMeta$seurat_clusters <- paste0("No_Regression_C", dfMeta$seurat_clusters)
-names(dfMeta) <- gsub("seurat_clusters", "ClusterName_No_Regression", names(dfMeta))
-
-
-dfMeta <- merge(
-    dfMeta,
-    coord,
-    by.x = "cellID",
-    by.y = "cellID",
-    all =TRUE
-)
-
-dfMeta[is.na(dfMeta)] <- ""
-
-
-dfRes <- dfMeta
-
-
-rm(OsC)
-
-## Done get UMAP coordinates full cell cycle regression regression           ##
-###############################################################################
-
-###############################################################################
-## Get UMAP coordinates with Phase regression                                ##
-vars.to.regress = "Phase"
-
-SampleList <- createNormSampleList(
-    obj = Obio,
-    reduce = Obio@parameterList$debugReduce, # Default is NULL
-    vars.to.regress = vars.to.regress
-)
-
-print(paste0("Cell Recuction: ", Obio@parameterList$debugReduce))
-lapply(SampleList, dim)
-## Done                                                                      ##
-###############################################################################
-
-
-###############################################################################
-## Integrate Datasets                                                        ##
-if (length(SampleList) > 1){
-    if (Obio@parameterList$scIntegrationMethod == "SCT"){
-        
-        if (length(grep("scNintegrationFeatures", names(Obio@parameterList))) == 0){
-            Obio@parameterList$scNintegrationFeatures = 3000
-        }
-        
-        library(future)
-        options(future.globals.maxSize = 14000 * 1024^2)
-        plan("multiprocess", workers = 30)
-        
-        sample.features <- SelectIntegrationFeatures(
-            object.list = SampleList, 
-            nfeatures = Obio@parameterList$scNintegrationFeatures
-        )
-        SampleList <- PrepSCTIntegration(
-            object.list = SampleList, 
-            anchor.features = sample.features, 
-            verbose = FALSE
-        )
-        
-        sampleAnchors <- FindIntegrationAnchors(
-            object.list = SampleList, 
-            normalization.method = "SCT", 
-            anchor.features = sample.features, 
-            verbose = FALSE
-        )
-        
-        OsC <- IntegrateData(
-            anchorset = sampleAnchors, 
-            normalization.method = "SCT", 
-            verbose = FALSE
-        )
-        detach("package:future", unload=TRUE)
-        
-    } else {
-    
-        sampleAnchors <- FindIntegrationAnchors(
-            object.list = SampleList, 
-            dims = 1:30
-        ) 
-
-
-        OsC <- IntegrateData(
-            #features.to.integrate = geneIntersectVec,
-            anchorset = sampleAnchors, 
-            dims = 1:30
-        )
-    }
-    Obio@dataTableList$referenceList[["sampleAnchors"]] <- as.vector(sort(sampleAnchors@anchor.features))
-} else {
-    OsC <- SampleList[[1]]
-}
-
-Idents(OsC) <- factor(Idents(OsC), levels = names(Obio@sampleDetailList))
-OsC@meta.data$sampleID <- factor(OsC@meta.data$sampleID, levels = names(Obio@sampleDetailList))
-
-OsC@meta.data[["cellID"]] <- row.names(OsC@meta.data)
-
-## UMAP ##
-DefaultAssay(OsC) <- "RNA"
-
-
-OsC <- FindVariableFeatures(
-    object = OsC,
-    selection.method = 'vst', 
-    nfeatures = 2000
-)
-
-if (length(Obio@sampleDetailList) > 1){
-    DefaultAssay(OsC) <- "integrated"
-} else {
-    Obio@parameterList$singleCellClusterString <- gsub("integrated", "RNA", Obio@parameterList$singleCellClusterString)
-}
-
-
-# Run the standard workflow for visualization and clustering
-## This will scale on the most variable features only
-OsC <- ScaleData(OsC, verbose = FALSE)
-
-OsC <- RunPCA(
-    OsC, 
-    npcs = Obio@parameterList$singleCellSeuratNpcs4PCA, verbose = FALSE
-)
-# t-SNE and Clustering
-
-## Add PCA clusters to data collection ##
-
-
-OsC <- RunUMAP(OsC, reduction = "pca", dims = 1:20)
-
-OsC <- FindNeighbors(OsC, reduction = "pca", dims = 1:20)
-
-OsC <- FindClusters(OsC, resolution = Obio@parameterList$singleCellClusterParameter)
-
-coord <- data.frame(OsC@reductions$umap@cell.embeddings)
-names(coord) <- paste0(names(coord), "_CellCycle_Regression")
-coord[["cellID"]] <- row.names(coord)
-coord <-coord[coord$cellID %in% OsC@meta.data$cellID, ]
-
-dfMeta <- OsC@meta.data
-dfMeta[["cellID"]] <- row.names(dfMeta)
-dfMeta <- dfMeta[,c("cellID", "seurat_clusters")]
-dfMeta$seurat_clusters <- as.character(dfMeta$seurat_clusters)
-dfMeta$seurat_clusters <- paste0("Cell_Cycle_Reg_C", dfMeta$seurat_clusters)
-names(dfMeta) <- gsub("seurat_clusters", "ClusterNames_CellCycle_Regression", names(dfMeta))
-
-
-dfMeta <- merge(
-    dfMeta,
-    coord,
-    by.x = "cellID",
-    by.y = "cellID",
-    all =TRUE
-)
-
-dfMeta[is.na(dfMeta)] <- ""
-
-rm(OsC)
-
-dfRes <- merge(
-    dfRes, 
-    dfMeta, 
-    by.x = "cellID",
-    by.y = "cellID",
-    all = TRUE
-)
-dfRes[is.na(dfRes)] <- 0
-## Done get UMAP coordinates with full cell cycle regression                 ##
-###############################################################################
-
-###############################################################################
-## Get UMAP coordinates with Phase regression                                ##
-vars.to.regress = "CC_Difference"
-
-SampleList <- createNormSampleList(
-    obj = Obio,
-    reduce = Obio@parameterList$debugReduce, # Default is NULL
-    vars.to.regress = vars.to.regress
-)
-
-print(paste0("Cell Recuction: ", Obio@parameterList$debugReduce))
-lapply(SampleList, dim)
-## Done                                                                      ##
-###############################################################################
-
-
-###############################################################################
-## Integrate Datasets                                                        ##
-if (length(SampleList) > 1){
-    if (Obio@parameterList$scIntegrationMethod == "SCT"){
-        
-        if (length(grep("scNintegrationFeatures", names(Obio@parameterList))) == 0){
-            Obio@parameterList$scNintegrationFeatures = 3000
-        }
-        
-        library(future)
-        options(future.globals.maxSize = 14000 * 1024^2)
-        plan("multiprocess", workers = 30)
-        
-        sample.features <- SelectIntegrationFeatures(
-            object.list = SampleList, 
-            nfeatures = Obio@parameterList$scNintegrationFeatures
-        )
-        SampleList <- PrepSCTIntegration(
-            object.list = SampleList, 
-            anchor.features = sample.features, 
-            verbose = FALSE
-        )
-        
-        sampleAnchors <- FindIntegrationAnchors(
-            object.list = SampleList, 
-            normalization.method = "SCT", 
-            anchor.features = sample.features, 
-            verbose = FALSE
-        )
-        
-        OsC <- IntegrateData(
-            anchorset = sampleAnchors, 
-            normalization.method = "SCT", 
-            verbose = FALSE
-        )
-        detach("package:future", unload=TRUE)
-        
-    } else {
-    
-        sampleAnchors <- FindIntegrationAnchors(
-            object.list = SampleList, 
-            dims = 1:30
-        ) 
-
-
-        OsC <- IntegrateData(
-            #features.to.integrate = geneIntersectVec,
-            anchorset = sampleAnchors, 
-            dims = 1:30
-        )
-    }
-    Obio@dataTableList$referenceList[["sampleAnchors"]] <- as.vector(sort(sampleAnchors@anchor.features))
-} else {
-    OsC <- SampleList[[1]]
-}
-
-Idents(OsC) <- factor(Idents(OsC), levels = names(Obio@sampleDetailList))
-OsC@meta.data$sampleID <- factor(OsC@meta.data$sampleID, levels = names(Obio@sampleDetailList))
-
-OsC@meta.data[["cellID"]] <- row.names(OsC@meta.data)
-
-## UMAP ##
-DefaultAssay(OsC) <- "RNA"
-
-
-OsC <- FindVariableFeatures(
-    object = OsC,
-    selection.method = 'vst', 
-    nfeatures = 2000
-)
-
-if (length(Obio@sampleDetailList) > 1){
-    DefaultAssay(OsC) <- "integrated"
-} else {
-    Obio@parameterList$singleCellClusterString <- gsub("integrated", "RNA", Obio@parameterList$singleCellClusterString)
-}
-
-
-# Run the standard workflow for visualization and clustering
-## This will scale on the most variable features only
-OsC <- ScaleData(OsC, verbose = FALSE)
-
-OsC <- RunPCA(
-    OsC, 
-    npcs = Obio@parameterList$singleCellSeuratNpcs4PCA, verbose = FALSE
-)
-# t-SNE and Clustering
-
-## Add PCA clusters to data collection ##
-
-
-OsC <- RunUMAP(OsC, reduction = "pca", dims = 1:20)
-
-OsC <- FindNeighbors(OsC, reduction = "pca", dims = 1:20)
-
-OsC <- FindClusters(OsC, resolution = Obio@parameterList$singleCellClusterParameter)
-
-coord <- data.frame(OsC@reductions$umap@cell.embeddings)
-names(coord) <- paste0(names(coord), "_G2M_S_Regression")
-coord[["cellID"]] <- row.names(coord)
-coord <-coord[coord$cellID %in% OsC@meta.data$cellID, ]
-
-dfMeta <- OsC@meta.data
-dfMeta[["cellID"]] <- row.names(dfMeta)
-dfMeta <- dfMeta[,c("cellID", "seurat_clusters")]
-dfMeta$seurat_clusters <- as.character(dfMeta$seurat_clusters)
-dfMeta$seurat_clusters <- paste0("G2M_S_Reg_C", dfMeta$seurat_clusters)
-names(dfMeta) <- gsub("seurat_clusters", "ClusterNames_G2M_S_Regression", names(dfMeta))
-
-
-dfMeta <- merge(
-    dfMeta,
-    coord,
-    by.x = "cellID",
-    by.y = "cellID",
-    all =TRUE
-)
-
-dfMeta[is.na(dfMeta)] <- ""
-
-rm(OsC)
-
-dfRes <- merge(
-    dfRes, 
-    dfMeta, 
-    by.x = "cellID",
-    by.y = "cellID",
-    all = TRUE
-)
-dfRes[is.na(dfRes)] <- 0
-
-row.names(dfRes) <- dfRes$cellID
-dfRes$cellID <- NULL
-
-FN <- paste0(Obio@parameterList$localWorkDir, "UMAP.regression.coordinates.txt")
-write.table(
-    dfRes,
-    row.names = F, 
-    sep = "\t"
-)
-
-
-## Done get UMAP coordinates with full cell cycle regression                 ##
-###############################################################################
-
-
-###############################################################################
-## Now going for the mainstream analysis                                     ##
-###############################################################################
-
+## Load Seurat Object cretated in part A
 ###############################################################################
 ## Create sample list filtered on MT and norm_counts_RNA                     ##
-Obio@parameterList[["vars.to.regress"]] = "CC_Difference"
-
 SampleList <- createNormSampleList(
     obj = Obio,
     reduce = Obio@parameterList$debugReduce, # Default is NULL
-    vars.to.regress = Obio@parameterList$vars.to.regress
+    vars.to.regress = Obio@parameterList$vars.to.regress,
+    s.genes = NULL,
+    g2m.genes = NULL
 )
 
 print(paste0("Cell Recuction: ", Obio@parameterList$debugReduce))
@@ -791,6 +333,19 @@ OsC@meta.data$sampleID <- factor(OsC@meta.data$sampleID, levels = names(Obio@sam
 
 OsC@meta.data[["cellID"]] <- row.names(OsC@meta.data)
 
+save(OsC,
+    file = paste0(
+         Obio@parameterList$localWorkDir,
+         Obio@parameterList$project_id,
+        ".Seurat.Robj"
+     )
+)
+
+
+
+print("R bioLOGIC single cell object initialized.")
+
+
 ###############################################################################
 ## Setting plotting parameters                                               ##
 dotsize  = 1
@@ -807,58 +362,6 @@ dendrofactor <- 5
 
 ## Setting plotting parameters                                               ##
 ###############################################################################
-
-
-## 
-## Done integration                                                          ##
-###############################################################################
-
-###############################################################################
-## Add additional annotation data                                            ##
-
-#OsC@meta.data[["Mouse"]] <- OsC@meta.data$orig.ident
-
-# ###############################################################################
-# ## Load extra annotation data                                                ##
-# FN <- "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/MetaData.txt"
-# 
-# dfExtra <- read.delim(
-#     FN,
-#     header = T,
-#     sep = "\t",
-#     stringsAsFactors = F
-# )
-# 
-# dfExtra <- dfExtra[dfExtra$cell %in% row.names(OsC@meta.data),]
-# 
-# names(dfExtra) <- gsub("^cluster$", "Article_Cluster", names(dfExtra))
-# names(dfExtra) <- gsub("^CellType$", "Article_Cell_Type", names(dfExtra))
-# names(dfExtra) <- gsub("^CellType$", "Article_Cell_Type", names(dfExtra))
-# names(dfExtra) <- gsub("^CellType$", "Article_Cell_Type", names(dfExtra))
-# 
-# dfExtra[["Patient"]] <- sapply(dfExtra$Patient_piece, function(x) unlist(strsplit(x, "_"))[1])
-# dfExtra$Patient <- paste0("P", dfExtra$Patient)
-# dfExtra[["Region"]] <- sapply(dfExtra$Patient_piece, function(x) unlist(strsplit(x, "_"))[2])
-# dfExtra$CellFromTumor <- as.character(dfExtra$CellFromTumor)
-# dfExtra$CellFromTumor[dfExtra$CellFromTumor == "TRUE"] <- "Tumor"
-# dfExtra$CellFromTumor[dfExtra$CellFromTumor == "FALSE"] <- "Non-Tumor"
-# 
-# 
-# 
-# row.names(dfExtra) <- dfExtra$cell
-# 
-# selVec <- c("CellFromTumor", "Patient", "Region")
-# dfAdd <- dfExtra[,selVec]
-# 
-
-## Add all regression modes ##
-OsC <- addDf2seuratMetaData(
-            obj = OsC,
-            dfAdd = dfRes
-        )
-# 
-# ## Done extra annotation                                                     ##
-# ###############################################################################
 
 
 ```
@@ -1259,7 +762,7 @@ save(OsC,
 
 ###############################################################################
 ## Add custom cluster annotation if specified                                ##
-FNcol <- paste0(Obio@parameterList$localWorkDir, "/customClusterAnnotation.txt")
+FNcol <- paste0(getwd(), "/design/customClusterAnnotation.txt")
 tableValid <- FALSE
 
 if (file.exists(FNcol)){
@@ -1301,7 +804,16 @@ if (!file.exists(FNcol) | !tableValid){
     #dfClusterAnnotation$cellID <- NULL
     ## Add sample colors ##
     
-    FNcol <- paste0(Obio@parameterList$localWorkDir, "clusterAnnotation.txt")
+    annoDir <- paste0(getwd(), "/design")
+    
+    if (!dir.exists(annoDir)){
+        dir.create(annoDir)
+    }
+    
+    
+
+    
+    FNcol <- paste0(annoDir, "/clusterAnnotation.txt")
     write.table(
         dfClusterAnnotation,
         FNcol,
@@ -1380,8 +892,13 @@ if (!file.exists(FNsample) | !tableValid){
     #row.names(dfSampleAnnotation) <- dfSampleAnnotation$cellID
     #dfClusterAnnotation$cellID <- NULL
     ## Add sample colors ##
+    annoDir <- paste0(getwd(), "/design")
     
-    FNsample <- paste0(Obio@parameterList$localWorkDir, "sampleAnnotation.txt")
+    if (!dir.exists(annoDir)){
+        dir.create(annoDir)
+    }
+    
+    FNsample <- paste0(annoDir, "/sampleAnnotation.txt")
 
     
     write.table(
@@ -1951,6 +1468,14 @@ Idents(OsC) <- "clusterName"
 Idents(OsC) <- factor(Idents(OsC), levels = unique(levels(OsC)))
 
 if (length(grep("sampleName", names(OsC@meta.data))) > 0){
+  
+    OsC@meta.data[["cluster_sample"]] <- paste0(
+        OsC@meta.data$clusterName, "_", OsC@meta.data$sampleName
+    )
+    
+    OsC@meta.data$cluster_sample <- factor(OsC@meta.data$cluster_sample , levels = c(unique(OsC@meta.data$cluster_sample)))
+    
+    Idents(OsC) <- "cluster_sample"
     cluster.averages <- AverageExpression(OsC, return.seurat = TRUE, add.ident = "sampleName")
     
     
@@ -2649,9 +2174,11 @@ if (nrow(dfGeneralMarkers) > 0){
     dfGeneralMarkersFilt <- dfGeneralMarkers[dfGeneralMarkers$avg_diff > lgFCthreshold | dfGeneralMarkers$avg_diff < -lgFCthreshold,]
     Obio@dataTableList[["dfGeneralMarkersFilt"]] <- dfGeneralMarkersFilt
     
-    dfTop1 <- data.frame(dfGeneralMarkers %>% group_by(cluster) %>% top_n(1, avg_diff))
-    dfTop5 <- data.frame(dfGeneralMarkers %>% group_by(cluster) %>% top_n(5, avg_diff))
-    dfTop10 <- data.frame(dfGeneralMarkers %>% group_by(cluster) %>% top_n(10, avg_diff))
+    dfGeneralMarkersPos <- dfGeneralMarkers[dfGeneralMarkers$direction == "positive", ]
+    dfTop1 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(1, avg_diff))
+    dfTop5 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(5, avg_diff))
+    dfTop10 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(10, avg_diff))
+    dfTop50 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(50, avg_diff))
     
     Obio@dataTableList[["dfGeneralMarkersTop10"]] <- dfTop10
     
@@ -2914,7 +2441,7 @@ if (length(pos) > 0){
               figureCount <- figureCount + 1 
               
               NewChnk <- paste0(
-                  " #### Doublets All Timepoints", 
+                  "#### Doublets All Timepoints", 
                   "\n```{r ", tag, ", results='asis', echo=F, eval=TRUE, warning=FALSE, fig.cap='",
                   figLegend,"'}\n",
                   "\n",
@@ -4230,6 +3757,26 @@ for (i in 1:length(clusterVec)){
 
 Obio@dataTableList[["dfClusterResiduals"]] <- dfClusterResiduals
 
+###############################################################################
+## Select a suitable cut-off for marker genes                                ##
+library(tidyverse)
+dfLongResiduals <- data.frame(
+    dfClusterResiduals %>% pivot_longer(!gene, names_to = "cluster", values_to = "residuals")
+)
+
+
+dfRegMins <- data.frame(dfLongResiduals %>% group_by(cluster) %>%   top_n(10, residuals) %>% summarize(min10 = min(residuals)))
+
+## Select as cut-off: median of all so at least half the cluster have 10 marker genes
+LRcutOff <- median(dfRegMins$min10)
+if (LRcutOff > 1){
+    LRcutOff <- 1
+}
+
+LRcutOff <- round(LRcutOff, 3)
+## Done                                                                      ##
+###############################################################################
+
 ## Make gene set with Residual marker genes ##
 if (Obio@parameterList$geneIDcolumn != "hgnc_symbol" & Obio@parameterList$geneIDcolumn != "mgi_symbol"){
     refGeneIDcolumn <- "hgnc_symbol"
@@ -4251,23 +3798,17 @@ if (Obio@parameterList$geneIDcolumn != "hgnc_symbol" & Obio@parameterList$geneID
 }
 
 residualClusterMarkers <- list()
-DefaultcutOff <- 1
 
 clusterVec <- names(dfClusterResiduals)
 clusterVec <- clusterVec[clusterVec != "gene"]
 
 for (i in 1:length(clusterVec)){
-    clusterGenes <- as.vector(sort(unique(dfClusterResiduals[dfClusterResiduals[, clusterVec[i]] > DefaultcutOff,"gene"])))
-    if (length(clusterGenes) < 3){
-        usedCutOff <- DefaultcutOff/2
-        clusterGenes <- as.vector(sort(unique(dfClusterResiduals[dfClusterResiduals[, clusterVec[i]] > usedCutOff,"gene"])))
-    } else {
-        usedCutOff <- DefaultcutOff
-    }
+    clusterGenes <- as.vector(sort(unique(dfClusterResiduals[dfClusterResiduals[, clusterVec[i]] > LRcutOff,"gene"])))
+   
     
     if (length(clusterGenes) > 1){
-        residualClusterMarkers[[paste0(clusterVec[[i]], "_Linear_Regression_Markers_", DefaultcutOff)]] <- c(
-            paste0(clusterVec[[i]], "_Linear_Regression_Markers_", gsub("\\.", "_", usedCutOff) , " Experiment ", Obio@parameterList$project_id),
+        residualClusterMarkers[[paste0(clusterVec[[i]], "_Linear_Regression_Markers_", LRcutOff)]] <- c(
+            paste0(clusterVec[[i]], "_Linear_Regression_Markers_", gsub("\\.", "_", LRcutOff) , " Experiment ", Obio@parameterList$project_id),
             clusterGenes
         )
     } 
@@ -4373,7 +3914,7 @@ for (i in 1:length(clusterVec)){
     
     markerVec <- as.vector(dfClusterResiduals[1:10,"gene"])
   
-    dfTempResiduals <- dfClusterResiduals[dfClusterResiduals[,clustCol] > DefaultcutOff, ]
+    dfTempResiduals <- dfClusterResiduals[dfClusterResiduals[,clustCol] > LRcutOff, ]
     highlightGenes <- as.vector(dfTempResiduals[,"gene"])
     
     dfPlot <- dfDataTable[,c("gene", "all", clusterVec[i])]
@@ -4553,8 +4094,25 @@ OsC_HM <- ScaleData(OsC_HM, verbose = FALSE, features=allGenes)
 ## Order Heatmap Genes by cluster similarity
 
 ## For the moment: resetting heatmap list to keep it short ##
+
+## Select heatmap genes ##
+ 
+
+## Make general markers heatmpa ##
+dfGeneralMarkers <- Obio@dataTableList$dfGeneralMarkers 
+dfGeneralMarkersPos <- dfGeneralMarkers[dfGeneralMarkers$avg_diff > 0,]
+
+Nsel <- 1
+
+geneVec <- as.vector(NULL, mode="character")
+while(length(geneVec) < 20 & Nsel < nrow(dfGeneralMarkersPos)){
+    geneVec <-  as.vector(unique(data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(Nsel, avg_diff))[,"gene"]))
+    Nsel <- Nsel + 1
+}
+
+
 Obio@parameterList[["cat2HMplotList"]] <- list()
-Obio@parameterList[["cat2HMplotList"]][["Top5_Cluster_Markers"]] <- as.vector(dfTop5$gene)
+Obio@parameterList[["cat2HMplotList"]][["Top5_Cluster_Markers"]] <- geneVec 
 
 ## Add top transcription factors for each cluster ##
 ## Get transcription factor genes ##
@@ -4584,14 +4142,35 @@ if (queryGS != Obio@parameterList$geneIDcolumn){
     tempVec <- tempVec[tempVec != ""]
 }
 
-dfHMG <- dfGeneralMarkers[dfGeneralMarkers$gene %in% tempVec, ]
+dfHMG <- dfGeneralMarkersPos[dfGeneralMarkersPos$gene %in% tempVec, ]
 dfHMGsel <- data.frame(dfHMG %>% group_by(cluster) %>% top_n(5, avg_diff))
 
-Obio@parameterList[["cat2HMplotList"]][["Top5_TF_Cluster_Markers"]] <- as.vector(unique(dfHMGsel$gene))
-
+if (length(as.vector(unique(dfHMGsel$gene))) > 0){
+    Obio@parameterList[["cat2HMplotList"]][["Top5_TF_Cluster_Markers"]] <- as.vector(unique(dfHMGsel$gene))
+}
 ## Done with translation
   
 
+## Add linear regression heatmap for all genes ##
+
+dfClusterResiduals <- Obio@dataTableList[["dfClusterResiduals"]] 
+
+dfLongResiduals <- data.frame(
+    dfClusterResiduals %>% pivot_longer(!gene, names_to = "cluster", values_to = "residuals")
+)
+
+dfTop5 <- data.frame(dfLongResiduals %>% group_by(cluster) %>%   top_n(5, residuals))
+geneVec <- as.vector(sort(unique(dfTop5$gene)))
+if (length(geneVec) > 0){
+    Obio@parameterList[["cat2HMplotList"]][["Top5_LR_Cluster_Markers"]] <- geneVec
+}
+## Add linear regression heatmap for transcription factors ##
+dfLRsel <- dfLongResiduals[dfLongResiduals$gene %in% tempVec, ]
+dfTop5 <- data.frame(dfLRsel %>% group_by(cluster) %>%   top_n(5, residuals))
+geneVec <- as.vector(sort(unique(dfTop5$gene)))
+if (length(geneVec) > 0){
+    Obio@parameterList[["cat2HMplotList"]][["Top5_LR_TF_Cluster_Markers"]] <- geneVec
+}
 
 
 for (i in 1:length(Obio@parameterList[["cat2HMplotList"]])){
@@ -4905,7 +4484,17 @@ dfLongResiduals <- data.frame(
 ###############################################################################
 
 
-dfLongResiduals <- dfLongResiduals[abs(dfLongResiduals$residuals) > 1, ]
+dfRegMins <- data.frame(dfLongResiduals %>% group_by(cluster) %>%   top_n(10, residuals) %>% summarize(min10 = min(residuals)))
+
+## Select as cut-off: median of all so at least half the cluster have 10 marker genes
+cutOff <- median(dfRegMins$min10)
+if (cutOff > 1){
+    cutOff <- 1
+}
+
+dfLongResiduals <- dfLongResiduals[dfLongResiduals$residuals > cutOff, ]
+
+
 dfLongResiduals$cluster <- gsub("_Residuals", "", dfLongResiduals$cluster)
 
 dfLongResiduals[["join_col"]] <- paste0(
