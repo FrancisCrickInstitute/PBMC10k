@@ -50,6 +50,7 @@ knitr::opts_chunk$set(
 ## libraries ##
 library(tidyverse)
 library(Seurat)
+library(scales)
 
 VersionPdfExt <- paste0(".V", gsub("-", "", Sys.Date()), ".pdf")
 
@@ -119,6 +120,7 @@ if (file.exists(SeuratFN)){
     exit()
 }
 
+row.names(OsC@meta.data) <- OsC@meta.data$cellID
 
 if (Obio@parameterList$scIntegrationMethod == "SCT"){
     resultSlot = "SCT"
@@ -221,27 +223,14 @@ for (i in 1:length(clusterIDs)){
 }
 
 #dfdbTable[["cellID"]] <- paste0(dfdbTable$sampleID, "_Cluster", dfdbTable[, Obio@parameterList$singleCellClusterString]) #row.names(dfdbTable)
-dfdbTable[["sample_id"]] <- gsub("_","", dfdbTable$cellID)
+#dfdbTable[["meta_Mouse"]] <- substr(dfdbTable$cellID, 1, 2)
 
-dfdbTable[["sample_id"]] <- paste0(dfdbTable$sample_id, "_C", dfdbTable[,"seurat_clusters"], "_1")
-
-dfdbTable[["sample_id"]] <- dfdbTable$uniquecellID
-
-dfdbTable[["sample_group"]] <- paste0("Cluster_", dfdbTable[,"seurat_clusters"])
 ## Assign colors ##
-library(scales)
-identities <- levels(OsC@meta.data[,Obio@parameterList$singleCellClusterString])
-sample_group_colors <- hue_pal()(length(identities))
-sample_group <- paste0("Cluster_", identities)
 
-# Create vector of default ggplot2 colors
+dfdbTable[["sample_group"]] <- dfdbTable$clusterName
+dfdbTable[["sample_group"]] <- dfdbTable$clusterName
+dfdbTable[["sample_group_colors"]] <- dfdbTable$clusterColor
 
-dfColor <- data.frame(sample_group, sample_group_colors)
-
-dfdbTable <- merge(dfdbTable, dfColor, by.x = "sample_group",by.y="sample_group")
-names(dfdbTable) <- gsub("PC_", "PC", names(dfdbTable))
-
-names(dfdbTable) <- gsub("[.]", "_", names(dfdbTable))
 
 ###############################################################################
 ## Add Sample and G2M colors if available                                    ##
@@ -283,6 +272,38 @@ if (length(grep("DF_Classification", names(dfdbTable)) > 0)){
 }
 
 ###############################################################################
+## Add additional UMAP annotations
+addFNvec <- c(
+  "../temp/UMAP.regression.coordinates.txt",
+  "../temp/ClusterFinder.output.txt" 
+)
+
+row.names(OsC@meta.data) <- OsC@meta.data$cellID
+
+for (i in 1:length(addFNvec)){
+    if (file.exists(addFNvec[i])){
+        dfAdd <- read.delim(
+            addFNvec[i],
+            header = T, 
+            sep = "\t",
+            stringsAsFactors = F
+        )
+        
+        row.names(dfAdd) <- dfAdd$cellID
+        dfAdd$cellID <- NULL
+        dfAdd <- dfAdd[row.names(dfAdd) %in% OsC@meta.data$cellID,]
+        
+        OsC <- addDf2seuratMetaData(
+            obj = OsC,
+            dfAdd = dfAdd
+        )
+    }
+}
+  
+##
+###############################################################################  
+  
+###############################################################################
 ## Add additonal classifications                                             ##
 
 # dfdbTable[["Sample_Group"]] <- ""
@@ -304,7 +325,7 @@ upload.datatable.to.database(
     dbTableName = Obio@parameterList$PCAdbTableName,
     df.data = dfdbTable,
     db.col.parameter.list = list(
-        "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("cellType","cellIdent","sample_","cellID","orig_ident","old_ident","clustIdent", "hmIdent","sampleID", "clusterName",  "clusterColor", "sampleName", "sampleColor", "CellFromTumor", "Patient", "Region",  "Article_Cell_Type", "Gender","Glia_vs_Neuron", "NitChol_vs_Serotonergic", "Nitrergic_vs_Cholinergic", "Sample_Group"),
+        "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("cellType","cellIdent","sample_","cellID","orig_ident","old_ident","clustIdent", "hmIdent","sampleID", "clusterName",  "clusterColor", "sampleName", "sampleColor", "CellFromTumor", "Patient", "Region",  "Article_Cell_Type", "Gender","Glia_vs_Neuron", "NitChol_vs_Serotonergic", "Nitrergic_vs_Cholinergic", "Sample_Group", "CC_Difference", "meta_", "cluster_sample", "DGE_GliaT_vs_NeuronT"),
        "VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("all","included","Phase", gsub("[.]", "_", Obio@parameterList$singleCellClusterString), "seurat_clusters", "RNA_snn_res"),
         "BIGINT(8) NULL DEFAULT NULL" = c("row_names"),
         "INT(8) NULL DEFAULT NULL" = c("nCount_", "nFeature_","DF_Classification"),
@@ -442,7 +463,7 @@ dbDB <- dbConnect(
 ) 
 
 tryCatch(dbGetQuery(dbDB, query), error = function(c) {
-    c$message <- paste0("Error in ", query, ".")
+    c$message <- stop(paste0("Error in ", query, "."))
   })
 
 
@@ -513,14 +534,19 @@ query <- c(query, query5)
 # 
 # GRANT SELECT on csl_data.p316_rna_seq_table TO csl316data@'10.%';
 # 
-
 ## check if shiny dir exists and get user name and password from there if it does
 if (Obio@dbDetailList$host == "10.27.241.234"){
     shinyBasePath <- "/camp/stp/babs/www/shiny/boeings/"
     FvDir <- paste0("/camp/stp/babs/www/boeings/bioLOGIC/data/", Obio@parameterList$project_id)
 
 } else {
-    shinyBasePath <- "/camp/stp/babs/www/shiny/boeings/external/"
+    if (dir.exists("/camp/stp/babs/www/shiny/boeings/external/")){
+        shinyBasePath <- "/camp/stp/babs/www/shiny/boeings/external/"  
+    } else {
+        shinyBasePath <- "../"
+    }
+    
+  
     FvDir <- paste0("/camp/stp/babs/www/boeings/bioLOGIC_external/data/", Obio@parameterList$project_id)
 
 }
@@ -684,7 +710,7 @@ if (file.exists(FN)){
 write.table(dfID, FN, row.names = F, sep="\t")
 
 ## Copy rest ##
-cpString1 <- paste0("cp /camp/stp/babs/www/shiny/boeings/external/template_sc_app/ui.r ", shinyProjectPath)
+cpString1 <- paste0("cp assets/template_sc_app/ui.r ", shinyProjectPath)
 system(cpString1)
 
 cpString2 <- paste0("cp /camp/stp/babs/www/shiny/boeings/external/template_sc_app/server.r ", shinyProjectPath)
@@ -700,7 +726,9 @@ if (!dir.exists(FvDir)){
     dir.create(FvDir)
 }
 
-FvDir <- paste0("/camp/stp/babs/www/boeings/bioLOGIC_external/data/", Obio@parameterList$project_id, "/html")
+FvDir <- Obio@parameterList$html_local_dir
+#[1] "/camp/stp/babs/working/boeings/P
+#paste0("/camp/stp/babs/www/boeings/bioLOGIC_external/data/", Obio@parameterList$project_id, "/html")
 
 
 if (!dir.exists(FvDir)){
@@ -708,32 +736,6 @@ if (!dir.exists(FvDir)){
 }
 
 
-FvFN <- paste0(FvDir, "/FeatureView.html")
-
-
-sink(FvFN)
-cat('<!DOCTYPE html>');cat("\n");
-cat('<html lang="en">');cat("\n");
-cat('<head>');cat("\n");
-cat('    <meta charset="UTF-8">');cat("\n");
-cat(paste0('<title>',Obio@parameterList$labname,' Lab</title>    <style>'));cat("\n");
-cat('        body {');cat("\n");
-cat('             margin: 0;            /* Reset default margin */');cat("\n");
-cat('         }');cat("\n");
-cat('        iframe {');cat("\n");
-cat('            display: block;       /* iframes are inline by default */');cat("\n");
-cat('            background: #000;');cat("\n");
-cat('            border: none;         /* Reset default border */');cat("\n");
-cat('            height: 100vh;        /* Viewport-relative units */');cat("\n");
-cat('            width: 100vw;');cat("\n");
-cat('        }');cat("\n");
-cat('    </style>');cat("\n");
-cat('</head>');cat("\n");
-cat('<body>');cat("\n");
-cat(paste0('<iframe src="https://shiny-bioinformatics.crick.ac.uk/shiny/boeings/',Obio@parameterList$project_id,'_app/" title="',Obio@parameterList$labname, ' Lab"></iframe>'));cat("\n");
-cat('</body>');cat("\n");
-cat('</html>');cat("\n");
-sink()
 
 ## Feature View Created ##
 
@@ -1730,6 +1732,43 @@ createSettingsFile(
 )
 
 setwd(Obio@parameterList$localWorkDir)
+
+
+createHTMLoutput <- function(FvFN = NULL, Obio = NULL){
+    sink(FvFN)
+    cat('<!DOCTYPE html>');cat("\n");
+    cat('<html lang="en">');cat("\n");
+    cat('<head>');cat("\n");
+    cat('    <meta charset="UTF-8">');cat("\n");
+    cat(paste0('<title>',Obio@parameterList$labname,' Lab</title>    <style>'));cat("\n");
+    cat('        body {');cat("\n");
+    cat('             margin: 0;            /* Reset default margin */');cat("\n");
+    cat('         }');cat("\n");
+    cat('        iframe {');cat("\n");
+    cat('            display: block;       /* iframes are inline by default */');cat("\n");
+    cat('            background: #000;');cat("\n");
+    cat('            border: none;         /* Reset default border */');cat("\n");
+    cat('            height: 100vh;        /* Viewport-relative units */');cat("\n");
+    cat('            width: 100vw;');cat("\n");
+    cat('        }');cat("\n");
+    cat('    </style>');cat("\n");
+    cat('</head>');cat("\n");
+    cat('<body>');cat("\n");
+    cat(paste0('<iframe src="https://shiny-bioinformatics.crick.ac.uk/shiny/boeings/',Obio@parameterList$project_id,'_app/" title="',Obio@parameterList$labname, ' Lab"></iframe>'));cat("\n");
+    cat('</body>');cat("\n");
+    cat('</html>');cat("\n");
+    sink()
+  
+}
+
+createHTMLoutput(
+    FvFN = paste0(FvDir, "FeatureView.html"), 
+    Obio = Obio
+)
+
+
+
+
 ## Done deploying next generation website                                    ##
 ###############################################################################
 

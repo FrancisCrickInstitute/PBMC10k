@@ -1476,14 +1476,14 @@ if (length(grep("sampleName", names(OsC@meta.data))) > 0){
     OsC@meta.data$cluster_sample <- factor(OsC@meta.data$cluster_sample , levels = c(unique(OsC@meta.data$cluster_sample)))
     
     Idents(OsC) <- "cluster_sample"
-    cluster.averages <- AverageExpression(OsC, return.seurat = TRUE, add.ident = "sampleName")
+    cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
     
     
 } else {
     cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
 }
 
-Idents(OsC) <- "sampleName"
+#Idents(OsC) <- "sampleName"
 
 
 ## Retrieved Scaled data ##

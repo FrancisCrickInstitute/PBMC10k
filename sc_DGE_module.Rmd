@@ -278,34 +278,11 @@ DGEtagVec <- as.vector(NULL, mode = "character")
 
 DGEinputList <- list(
   "comp_1" = list(
-      "name"    = "DGE_NicheCT26_vs_DistalCT26",
-      "DGEselCol" = "sampleID",
+      "name"    = "DGE_GliaT_vs_NeuronT",
+      "DGEselCol" = "sampleName",
       "DGEsampleList" = list(
-          "NicheCT26"   = c("NicheCT26"),
-          "DistalCT26" = c("DistalCT26")
-      )
-  ),
-  "comp_2" = list(
-      "name"    = "DGE_Niche4T1_vs_Distal4T1",
-      "DGEselCol" = "sampleID",
-      "DGEsampleList" = list(
-          "Niche4T1"   = c("Niche4T1"),
-          "Distal4T1" = c("Distal4T1")
-      )
-  ),
-  "comp_3" = list(
-      "name"    = "DGE_MetCT26_vs_ParentalCT26",
-      "DGEselCol" = "sampleID",
-      "DGEsampleList" = list(
-          "MetCT26"   = c("MetCT26"),
-          "ParentalCT26" = c("ParentalCT26")
-      )
-  ),"comp_4" = list(
-      "name"    = "DGE_Met4T1_vs_Parental4T1",
-      "DGEselCol" = "sampleID",
-      "DGEsampleList" = list(
-          "Met4T1"   = c("Met4T1"),
-          "Parental4T1" = c("Parental4T1")
+          "NeuronT"   = c("NeuronT"),
+          "GliaT" = c("GliaT")
       )
   )
 )
@@ -584,6 +561,20 @@ for (i in 1:length(DGEtagVec)){
 
 Obio@dataTableList[["DGE_table"]] <- NULL
 Obio@dataTableList[["DGE_table"]] <- dfTemp
+
+## Save DGE table to file ##
+tempDir <- paste0(Obio@parameterList$localWorkDir,"temp")
+            if(!dir.exists(tempDir)){
+                dir.create(tempDir)
+            }
+
+FN <- paste0(Obio@parameterList$localWorkDir, "/temp/DGE.result.table.txt")
+write.table(
+    dfTemp,
+    FN,
+    row.names = F, 
+    sep = "\t"
+)
 
 ## Done adding DGE table                                                     ##
 ###############################################################################

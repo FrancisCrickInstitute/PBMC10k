@@ -460,6 +460,13 @@ Obio <- createAnalysisFolders(
 )
 Obio <- setDataBaseParameters(Obio)
 
+## Create html local
+## Create outputfolders ##
+Obio@parameterList[["html_local_dir"]] <- paste0(Obio@parameterList$localWorkDir,"html_local", "/")
+if (!dir.exists(Obio@parameterList$html_local_dir)){
+    dir.create(Obio@parameterList$html_local_dir)
+}
+
 
 ## Create outputfolders ##
 Obio@parameterList[["reportFigDir"]] <- paste0(Obio@parameterList$localWorkDir,"html_local", "/report_figures/")
@@ -1486,8 +1493,8 @@ dfRes <- merge(
 )
 dfRes[is.na(dfRes)] <- 0
 
-row.names(dfRes) <- dfRes$cellID
-dfRes$cellID <- NULL
+#row.names(dfRes) <- dfRes$cellID
+#dfRes$cellID <- NULL
 
 tempDir <- paste0(Obio@parameterList$localWorkDir,"temp")
             if(!dir.exists(tempDir)){
@@ -1678,7 +1685,7 @@ geneSets <- list()
 for (i in 1:ncol(dfHeatmapGenes)){
     genes <- as.vector(dfHeatmapGenes[2:nrow(dfHeatmapGenes),i])
     genes <- genes[genes %in% rownames(x = OsC@assays$RNA)]
-    geneSets[[names(dfHeatmapGenes)[i]]] <- genes
+    geneSets[[names(dfHeatmapGenes)[i]]] <- unique(genes)
 }
 
 
@@ -1789,7 +1796,7 @@ for (i in 1:length(Obio@parameterList$cat2DplotList)){
     
     legendNote <- paste0(
             " The following genes of this dataset are represented in this figure: ",
-            paste0(sort(Obio@parameterList$cat2DplotList[[i]]), collapse = ", ")
+            paste0(sort(unique(Obio@parameterList$cat2DplotList[[i]])), collapse = ", ")
         )
     
      plotList[[tag]] <- ggplot(data = dfAUC, aes(x=UMAP_1, y=UMAP_2, color = mAUC)
@@ -1820,7 +1827,7 @@ for (i in 1:length(Obio@parameterList$cat2DplotList)){
         figureCount, 
         ":** Category Scatter showing gene category ", 
         HMname, ". ", legendNote, 
-        ". Download a pdf of this figure [here](", FNrel,"). "
+        ". Download a pdf of this figure [here](", FNrel,"). This AUC gene category summmary figure can also be viewed in the FeatureView tab by starting to type Cat_ in the gene search box."
     )
             
             
