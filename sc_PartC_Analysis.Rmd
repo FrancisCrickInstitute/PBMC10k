@@ -136,7 +136,9 @@ if (Obio@parameterList$scIntegrationMethod == "SCT"){
 ###############################################################################
 ## Customization in this project                                             ##
 
-
+OsC@meta.data[["Region"]] <- OsC@meta.data$sampleID
+OsC@meta.data$Region <- gsub("4T1", "", OsC@meta.data$Region )
+OsC@meta.data$Region <- gsub("CT26", "", OsC@meta.data$Region )
 
 
 # ###############################################################################
@@ -210,17 +212,18 @@ dfdbTable <- OsC@meta.data
 clusterIDs <- as.vector(sort(unique(dfdbTable[, "seurat_clusters"])))
 
 
+## Legacy section start ##
 
-for (i in 1:length(clusterIDs)){
-    dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], "uniquecellID"] <- paste0(
-        dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], "sampleID"],
-        "_",
-        "Cluster", 
-        dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], Obio@parameterList$singleCellClusterString],
-        "_", 
-        1:nrow(dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], ] )
-    )
-}
+  # for (i in 1:length(clusterIDs)){
+  #     dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], "uniquecellID"] <- paste0(
+  #         dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], "sampleID"],
+  #         "_",
+  #         "Cluster", 
+  #         dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], Obio@parameterList$singleCellClusterString],
+  #         "_", 
+  #         1:nrow(dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], ] )
+  #     )
+  # }
 
 #dfdbTable[["cellID"]] <- paste0(dfdbTable$sampleID, "_Cluster", dfdbTable[, Obio@parameterList$singleCellClusterString]) #row.names(dfdbTable)
 #dfdbTable[["meta_Mouse"]] <- substr(dfdbTable$cellID, 1, 2)
@@ -230,6 +233,8 @@ for (i in 1:length(clusterIDs)){
 dfdbTable[["sample_group"]] <- dfdbTable$clusterName
 dfdbTable[["sample_group"]] <- dfdbTable$clusterName
 dfdbTable[["sample_group_colors"]] <- dfdbTable$clusterColor
+
+## Add summary ident ##
 
 
 ###############################################################################
@@ -314,8 +319,13 @@ for (i in 1:length(addFNvec)){
 ##
 ###############################################################################
 
-
-
+## Remove unnecessary ##
+pos <- grep("integrated_", names(dfdbTable))
+if (length(pos) > 0){
+    dfdbTable <- dfdbTable[,-pos]
+}
+dfdbTable$old.ident <- NULL
+names(dfdbTable) <- gsub("\\.", "_", names(dfdbTable))
 
 upload.datatable.to.database(
     host = Obio@dbDetailList$host,
@@ -325,7 +335,7 @@ upload.datatable.to.database(
     dbTableName = Obio@parameterList$PCAdbTableName,
     df.data = dfdbTable,
     db.col.parameter.list = list(
-        "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("cellType","cellIdent","sample_","cellID","orig_ident","old_ident","clustIdent", "hmIdent","sampleID", "clusterName",  "clusterColor", "sampleName", "sampleColor", "CellFromTumor", "Patient", "Region",  "Article_Cell_Type", "Gender","Glia_vs_Neuron", "NitChol_vs_Serotonergic", "Nitrergic_vs_Cholinergic", "Sample_Group", "CC_Difference", "meta_", "cluster_sample", "DGE_GliaT_vs_NeuronT"),
+        "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("cellType","cellIdent","sample_","cellID","orig_ident","old_ident","clustIdent", "hmIdent","sampleID", "clusterName", "ClusterName", "ClusterTest",  "clusterColor", "sampleName", "sampleColor", "CellFromTumor", "Patient", "Region",  "Article_Cell_Type", "Gender","Glia_vs_Neuron", "NitChol_vs_Serotonergic", "Nitrergic_vs_Cholinergic", "Sample_Group", "CC_Difference", "meta_", "cluster_sample", "DGE_GliaT_vs_NeuronT"),
        "VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("all","included","Phase", gsub("[.]", "_", Obio@parameterList$singleCellClusterString), "seurat_clusters", "RNA_snn_res"),
         "BIGINT(8) NULL DEFAULT NULL" = c("row_names"),
         "INT(8) NULL DEFAULT NULL" = c("nCount_", "nFeature_","DF_Classification"),
@@ -1319,7 +1329,7 @@ cmd.vec <- upload.datatable.to.database(
         "VARCHAR(1) CHARACTER SET latin1 COLLATE latin1_swedish_ci" = c("ppos", "amino_acid", "charge","known_site"),
         "BIGINT(8) NULL DEFAULT NULL" = c("row_names"),
         "INT(8) NULL DEFAULT NULL" = c("DEseq2Normalized","CoVarOrder","row_id", "cluster_order","cluster_id", "count_cut_off", "^position$", "raw_counts"),
-        "DECIMAL(6,3) NULL DEFAULT NULL" = c("avg_diff_Cluster","add_counts_",  "lg2BaseMean","lg2baseMean","contrast_P_PCA_estimatePCA","^CoVar$","NES", "logFC", "lg2_avg","norm_counts", "intensity", "^int", "iBAQ","^localization_prob$", "stat", "lg10p","contrast_x_", "_AvgExpr$", "_var_std$"),
+        "DECIMAL(6,3) NULL DEFAULT NULL" = c("avg_diff_Cluster","add_counts_",  "lg2BaseMean","lg2baseMean","contrast_P_PCA_estimatePCA","^CoVar$","NES", "logFC", "lg2_avg","norm_counts", "intensity", "^int", "iBAQ","^localization_prob$", "stat", "lg10p","contrast_x_", "_AvgExpr$", "_var_std$", "add_MA_"),
         "DECIMAL(6,5) NULL DEFAULT NULL" = c("r2_PCA","padj", "pvalue","^pep$", "p_value_PCA")
     ),
     new.table = TRUE,
@@ -1731,7 +1741,7 @@ createSettingsFile(
     project_id = Obio@parameterList$project_id
 )
 
-setwd(Obio@parameterList$localWorkDir)
+#setwd(Obio@parameterList$localWorkDir)
 
 
 createHTMLoutput <- function(FvFN = NULL, Obio = NULL){

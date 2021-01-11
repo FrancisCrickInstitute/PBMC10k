@@ -10414,7 +10414,7 @@ DotPlotSB <- function (
     row.names(dfClust) <- dfClust$id
     dfClust$id <- NULL
     
-    if (nrow(dfClust) >=2){
+    if (ncol(dfClust) >=2){
         dfDist <- hclust(d=dist(t(dfClust)), method = "ward.D2")
         orderVec <- names(dfClust)[dfDist$order]
     } else {

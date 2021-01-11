@@ -3380,7 +3380,7 @@ if (length(grep(".gmt$", FNcat)) > 0){
     
 
 for (i in 1:ncol(dfHeatmapGenes)){
-    genes <- as.vector(dfHeatmapGenes[2:nrow(dfHeatmapGenes),i])
+    genes <- unique(as.vector(dfHeatmapGenes[2:nrow(dfHeatmapGenes),i]))
     genes <- genes[genes %in% rownames(x = OsC@assays$RNA)]
     if (length(unique(genes)) < 61 |  (length(unique(genes)) > 0)){
         Obio@parameterList[["cat2DotplotList"]][[names(dfHeatmapGenes)[i]]] <- genes
