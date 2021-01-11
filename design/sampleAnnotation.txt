@@ -1,3 +1,0 @@
-"sampleID"	"sampleName"	"sampleColor"
-"mliGlia"	"GliaT"	"#D3D3D3"
-"mliNeuron"	"NeuronT"	"#00BB00"
