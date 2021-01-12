@@ -61,6 +61,8 @@ XYsel <- c(
   names(dfCoordSel)[grep("UMAP", names(dfCoordSel))],
   names(dfCoordSel)[grep("tSNE", names(dfCoordSel))],
   names(dfCoordSel)[grep("seurat_clusters", names(dfCoordSel))],
+  names(dfCoordSel)[grep("Cluster", names(dfCoordSel))],
+  names(dfCoordSel)[grep("^meta", names(dfCoordSel))],
   names(dfCoordSel)[grep("sub_clusters", names(dfCoordSel))],
   names(dfCoordSel)[grep("PC", names(dfCoordSel))],
   names(dfCoordSel)[grep("DM_Pseudotime", names(dfCoordSel))],
@@ -87,6 +89,8 @@ allColorOptions <- c(
   #  "Norm vs Hyp" = "Norm_Hyp",
   #  "Con Prad AZ" = "Con_Prad_AZ",
     "Cells From Tumor" = "CellFromTumor",
+  names(dfCoordSel)[grep("Cluster", names(dfCoordSel))],
+  names(dfCoordSel)[grep("^meta", names(dfCoordSel))],
     "Patient" = "Patient",
     "Region" = "Region",
     "Article Cell Type" = "Article_Cell_Type",
@@ -124,6 +128,13 @@ splitOptions <- c(
   "Sub-sub Clusters" = "sub_sub_clusters_ExNeurons",
   "SubCluster_2" = "sub_cluster_3",
   "Cell Cycle Phase" = "Phase"
+)
+
+splitAdd <- names(dfCoordSel)[grep("^meta", names(dfCoordSel))]
+names(splitAdd) <- splitAdd 
+splitOptions <- c(
+    splitOptions, 
+    splitAdd
 )
 
 splitOptions <- splitOptions[splitOptions %in% names(dfCoordSel)]
