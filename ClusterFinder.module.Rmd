@@ -147,7 +147,7 @@ if (!("tsne" %in% redVec )){
 OsC_CF <- RunTSNE(OsC_CF, reduction = "pca", dims = 1:20)
 }
 
-OsC_CF <- FindNeighbors(OsC_CF, reduction = "pca", dims = 1:20)
+#OsC_CF <- FindNeighbors(OsC_CF, reduction = "pca", dims = 1:20)
 ```
 
 
@@ -253,7 +253,7 @@ for (i in 1:length(clusterOptionVec)){
     ## Add cluster dendrogram ##
     
     
-    tag <- paste0("Cluster_dendrogram_" , "_",i,"_",gsub("[.]", "_", clusterOptionVec[i]))
+    tag <- paste0("Cluster_dendrogram" , "_",i,"_",gsub("[.]", "_", clusterOptionVec[i]))
     
     Idents(OsC_CF) <- "seurat_clusters"
     OsC_CF <- BuildClusterTree(OsC_CF)
@@ -267,16 +267,8 @@ for (i in 1:length(clusterOptionVec)){
       plot.title = element_text(hjust = 0.5, size = 12)
     ) 
     ## Color by cluster ##
-    h <- sum(c("sampleName", "sampleColor") %in% names(OsC_CF@meta.data))
-    if (h ==2){
-      dfCol <- unique(OsC_CF@meta.data[,c("sampleName", "sampleColor")])
-      colVec <- as.vector(dfCol$sampleColor)
-      names(colVec) <- as.vector(dfCol$sampleName)
-      plotList[[tag]] <- plotList[[tag]] + geom_tiplab(color=colVec
-        ) 
-    } else {
-      plotList[[tag]] <- plotList[[tag]] + geom_tiplab()   
-    }
+    plotList[[tag]] <- plotList[[tag]] + geom_tiplab()   
+    
   ## Done ##
     
     
