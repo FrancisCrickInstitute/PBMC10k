@@ -1680,14 +1680,15 @@ if (length(pos) == 1){
 
 plotSelection <- c(
     names(Obio@databaseTable)[grep("_logFC_",names(Obio@databaseTable))],
-    names(Obio@databaseTable)[grep("contrast_P_PCA_estimatePCA",names(Obio@databaseTable))],
-
+    
     names(Obio@databaseTable)[grep("_lg10p_",names(Obio@databaseTable))],
 
     names(Obio@databaseTable)[grep("lg2BaseMean",names(Obio@databaseTable))],
     names(Obio@databaseTable)[grep("corCoef",names(Obio@databaseTable))],
     names(Obio@databaseTable)[grep("add_counts",names(Obio@databaseTable))],
-    names(Obio@databaseTable)[grep("norm_counts",names(Obio@databaseTable))]
+    names(Obio@databaseTable)[grep("norm_counts",names(Obio@databaseTable))],
+    names(Obio@databaseTable)[grep("contrast_P_PCA_estimatePCA",names(Obio@databaseTable))],
+    names(Obio@databaseTable)[grep("add_MA_cts_MA",names(Obio@databaseTable))]
 )
 
 chunk1 <- plotSelection[grep("_logFC_", plotSelection)]
@@ -1698,7 +1699,7 @@ chunk2b <- chunkh2[!(chunkh2  %in% chunk2a)]
 chnk2c <- plotSelection[grep("_corCoef", plotSelection)]
 
 chunk3 <- plotSelection[grep("_PCA_est", plotSelection)]
-
+chunk3a <- plotSelection[grep("add_MA_cts_MA", plotSelection)]
 chunk4 <- plotSelection[grep("_lg2BaseMean_", plotSelection)]
 
 chunk5 <- sort(plotSelection[grep("Avg_log10_Expr", plotSelection)])
@@ -1713,11 +1714,13 @@ plotSelectionNew <- c(
     chunk1,
     chunk2b,
     chnk2c,
-    chunk3,
     chunk2a,
     chunk4,
     chunk5,
-    chunk6
+    chunk6,
+    chunk3,
+    chunk3a,
+    chunk4
 )
 
 plotAdd <- plotSelection[!(plotSelection %in% plotSelectionNew)]
