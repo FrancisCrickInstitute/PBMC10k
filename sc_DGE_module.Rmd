@@ -682,7 +682,7 @@ for (i in 1:length(DGEtagVec)){
   
   
   freezePane(wb, sheetName ,  firstActiveRow = 2)
-  writeData(wb, 1, dfOutput, startRow = 1, startCol = 1, headerStyle = hs1)
+  writeData(wb, i, dfOutput, startRow = 1, startCol = 1, headerStyle = hs1)
   ## Done adding to Excel workbook ##
   if (i ==1){
     dfTemp <- Obio@dataTableList[[DGEtagVec[i]]]
