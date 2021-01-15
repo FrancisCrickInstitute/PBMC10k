@@ -8,8 +8,7 @@ output:
         toc_depth: 3
         toc_float: true
         css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
-    
-always_allow_html: yes
+
 ---
     
     
@@ -126,8 +125,7 @@ baseFN <- paste0(
 
 
 outPutFN <- paste0(
-     Obio@parameterList$html_local,
-      "report_tables/",
+     Obio@parameterList$reportTableDir,
      baseFN
 )
   
@@ -138,7 +136,7 @@ FNrel <- paste0("report_tables/", baseFN)
 ## Create table link string ##
 tableLink <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameterList$project_id, '/html/', FNrel,' target="_blank">here</a>')  
 
-tableString <- paste0('An Excel table with the DGE results can be downloaded  ',tableLink,'.')
+tableString <- paste0('An Excel table with the DGE results can be downloaded  <a href="https://',urlString,'/mdata/',Obio@parameterList$project_id, '/html/', FNrel,' target="_blank">here</a>.')
 
 
 load(paste0(
@@ -276,13 +274,118 @@ setGeneric(
 DGEtagVec <- as.vector(NULL, mode = "character")
 
 
+
 DGEinputList <- list(
   "comp_1" = list(
-      "name"    = "DGE_GliaT_vs_NeuronT",
-      "DGEselCol" = "sampleName",
+      "name"    = "DGE_Neuron_vs_Glia",
+      "DGEselCol" = "seurat_clusters",
       "DGEsampleList" = list(
-          "NeuronT"   = c("NeuronT"),
-          "GliaT" = c("GliaT")
+          "Neuron"   = c(0,1,3,4,5,6,7,10),
+          "Glia" = c(2)
+      )
+  ),
+  "comp_2" = list(
+      "name"    = "DGE_NeuronsChAT_vs_NeuronsOther",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "NeuronsChAT" = c(0,3,6,7),
+          "NeuronsOther"   = c(1,4,5,10)
+      )
+  ),
+  "comp_3" = list(
+      "name"    = "DGE_Neurons_Nos_vs_Neurons_Other",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "NeuronsNos"   = c(1,5,10),
+          "NeuronsOther" = c(0,3,4,6,7)
+      )
+  ),
+  "comp_4" = list(
+      "name"    = "DGE_Neurons_5HT_vs_Neurons_Other",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "Neurons5HT"   = c(4),
+          "NeuronsOther" = c(0,1,3,5,6,7,10)
+      )
+  ),
+  "comp_5" = list(
+      "name"    = "DGE_Neurons_Chat1_vs_Neurons_ChAT_Other",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "NeuronsChat1"   = c(0),
+          "NeuronsChatOther" = c(3,6,7)
+      )
+  ),
+  "comp_6" = list(
+      "name"    = "DGE_NeuronChat2_vs_Neuron_ChAT_Other",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "NeuronChat2"   = c(3),
+          "NeuronChatOther" = c(0,6,7)
+      )
+  ),
+  "comp_7" = list(
+      "name"    = "DGE_NeuronChat3_vs_Neuron_ChAT_Other",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "NeuronChat3"   = c(6),
+          "NeuronChatOther" = c(0,3,7)
+      )
+  ),
+  "comp_8" = list(
+      "name"    = "DGE_NeuronNos1_vs_Neuron_Nos_Other",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "NeuronNos1"   = c(1),
+          "NeuronNosOther" = c(5,10)
+      )
+  ),
+  "comp_9" = list(
+      "name"    = "DGE_NeuronNos2_vs_Neuron_Nos_Other",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "NeuronNos2"   = c(5),
+          "NeuronNosOther" = c(1,10)
+      )
+  ),
+  "comp_10" = list(
+      "name"    = "DGE_NeuronNos3_vs_Neuron_Nos_Other",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "NeuronNos3"   = c(10),
+          "NeuronNosOther" = c(1,5)
+      )
+  ),
+  "comp_11" = list(
+      "name"    = "DGE_NeuronsNOSChat_vs_ChatOther",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "NeuronsNOSChat"   = c(7),
+          "NeuronChatOther" = c(0,3,6)
+      )
+  ),
+  "comp_12" = list(
+      "name"    = "DGE_NeuronsNOSChat_vs_NeuronsNosOthers",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "NeuronsNOSChat"   = c(7),
+          "NeuronsNosOther" = c(1,5,10)
+      )
+  ),
+  "comp_13" = list(
+      "name"    = "DGE_Neurons5HT_vs_NeuronsNos",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "Neurons5HT"   = c(4),
+          "NeuronsNos" = c(1,5,10)
+      )
+  ),
+  "comp_14" = list(
+      "name"    = "DGE_Neurons5HT_vs_NeuronsChat",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "Neurons5HT"   = c(4),
+          "NeuronsChat" = c(0,3,6,7)
       )
   )
 )
@@ -403,8 +506,10 @@ for (i in 1:length(DGEinputList)){
     dfPlot[dfPlot$Cluster == "", "Cluster"] <- "Rest"
     
     label <- as.vector(gsub("DGE_", "", unlist(DGEinputList[[i]]["name"])))
-    redGroup <- as.vector(unlist(strsplit(label, "_vs_"))[1])
-    blueGroup <- as.vector(unlist(strsplit(label, "_vs_"))[2])
+    
+    
+    redGroup <- names(DGEinputList[[i]]$DGEsampleList)[1] #as.vector(unlist(strsplit(label, "_vs_"))[1])
+    blueGroup <- names(DGEinputList[[i]]$DGEsampleList)[2] #as.vector(unlist(strsplit(label, "_vs_"))[2])
     greyGroup <- "Rest"
     
     ## Assigning colors ##
@@ -412,6 +517,8 @@ for (i in 1:length(DGEinputList)){
     dfCol[dfCol$name == redGroup, "col"] <- "red"
     dfCol[dfCol$name == blueGroup, "col"] <- "blue"
     dfCol[dfCol$name == greyGroup, "col"] <- "grey"
+    colVec <- dfCol$col
+    names(colVec) <- dfCol$name
     
     dfColExtra <- dfCol[dfCol$col == "",]
     if (nrow(dfColExtra) > 0){
@@ -423,9 +530,6 @@ for (i in 1:length(DGEinputList)){
         }
     }
     
-    colVec <- dfCol$col
-    names(colVec) <- dfCol$name
-    
     maxX <- 1.1*max(dfPlot$UMAP_1, na.rm = T)
     minX <- 1.1*min(dfPlot$UMAP_1, na.rm = T)
     maxY <- 1.1*max(dfPlot$UMAP_2, na.rm = T)
@@ -433,16 +537,20 @@ for (i in 1:length(DGEinputList)){
 
     #colVec <- dfPair$sampleColor
     #names(colVec) <- dfPair$sampleName
-
-    dfPlot$Cluster <- factor(dfPlot$Cluster, levels = dfCol$name)
+    levels <- as.vector(dfCol$name)
+    levelsRest <- levels[grep("Rest", levels)]
+    levels <- levels[levels != "Rest"]
+    levels <- c(levels, levelsRest)
+    
+    dfPlot$Cluster <- factor(dfPlot$Cluster, levels = levels)
 
     dotsize  = 1
     if (nrow(dfPlot) > 10000){
-      dotsize  = 0.75
+      dotsize  = 0.5
     } else if (nrow(dfPlot) > 20000){
-      dotsize = 0.5
-    } else if (nrow(dfPlot) > 50000){
       dotsize = 0.25
+    } else if (nrow(dfPlot) > 50000){
+      dotsize = 0.1
     }
 
     plotList[[tag]] <- ggplot(
@@ -540,10 +648,45 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 
 ###############################################################################
 ## Assemble DGE summary table                                                ##
+library(openxlsx)
+wb <- createWorkbook()
+
+hs1 <- createStyle(
+    fontColour = "#ffffff",
+    fgFill = "#000000",
+    halign = "CENTER",
+    textDecoration = "Bold"
+)
 
 for (i in 1:length(DGEtagVec)){
+  ## Add to Excel workbook ##
+  dfOutput <-   Obio@dataTableList[[DGEtagVec[i]]]
+  orderVec <- names(dfOutput)
+  dfOutput[["gene_FeatureViewLink"]] <- paste0(
+      "https://shiny-bioinformatics.crick.ac.uk/shiny/boeings/",
+      Obio@parameterList$project_id,
+      "_app/?gene=",
+      dfOutput$gene
+  )
+  orderVec <- orderVec[orderVec != "gene"]
+  orderVec <- c("gene", "gene_FeatureViewLink", orderVec)
+  dfOutput <- dfOutput[, orderVec]
+  class(dfOutput$gene_FeatureViewLink) <- c(class(dfOutput$gene_FeatureViewLink), "hyperlink")
+  
+  sheetName <- substr(DGEtagVec[i],1,30)
+  
+  addWorksheet(
+      wb, 
+      sheetName = sheetName
+  )
+  
+  
+  freezePane(wb, sheetName ,  firstActiveRow = 2)
+  writeData(wb, 1, dfOutput, startRow = 1, startCol = 1, headerStyle = hs1)
+  ## Done adding to Excel workbook ##
   if (i ==1){
     dfTemp <- Obio@dataTableList[[DGEtagVec[i]]]
+    
   } else {
     dfTemp <- merge(
       dfTemp, 
@@ -557,7 +700,23 @@ for (i in 1:length(DGEtagVec)){
   }
 }
 
+## Save workbook ##
+baseFN <- paste0(
+   Obio@parameterList$project_id, 
+   ".DGE.table.xlsx"
+)
 
+
+outPutFN <- paste0(
+     Obio@parameterList$reportTableDir,
+     baseFN
+)
+
+saveWorkbook(
+        wb,
+        outPutFN ,
+        overwrite = TRUE
+)
 
 Obio@dataTableList[["DGE_table"]] <- NULL
 Obio@dataTableList[["DGE_table"]] <- dfTemp
@@ -733,6 +892,8 @@ dfAllPlots <- Obio@dataTableList[["DGE_table"]]
 
 for (i in 1:length(DGEtagVec)){
     tag <- paste0("Volcano_Plot_", DGEtagVec[i])  
+    label <- gsub("_", " ", tag)
+    
     selVec <- c(
         "gene",
         names(dfAllPlots)[grep(DGEtagVec[i], names(dfAllPlots))]
@@ -815,7 +976,7 @@ for (i in 1:length(DGEtagVec)){
       '**Figure ', 
       figureCount, 
                 ':** ',
-                ' Volcano plot for differential gene expression comparison ',gsub("_", " ", DGEtagVec[i]),'. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>.',
+                ' Volcano plot for differential gene expression comparison ',gsub("_", " ", DGEtagVec[i]),'. Download a pdf of this figure <a href="',FNrel,'" target="_blank">here</a>. ',
                 'An interactive version of this figure can be found ', link, '. ',
                 tableString
             )
@@ -1265,7 +1426,7 @@ cat(paste(knit(text = chnkVec, quiet = T), collapse = '\n'))
 ### End new
 
 
-```{r documentation_saving, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"} 
+```{r documentation_saving, echo=F, eval=TRUE, warning=FALSE, results=F} 
 
 save(Obio, 
      file = paste0(
@@ -1725,7 +1886,7 @@ sessionInfo()
 
 ---
 title: "`r projectParams$title`"
-subtitle:  "`r projectParams$subtitle`"
+subtitle:  Pseudobulk Differential Gene Expression Analyses on Single-cell Results
 author:
     - Bioinformatics: Stefan Boeing^[The Francis Crick Institute, stefan.boeing@crick.ac.uk]
 date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'

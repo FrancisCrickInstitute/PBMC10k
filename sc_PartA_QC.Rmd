@@ -404,8 +404,8 @@ Obio = new(
         "gse.id.vector" = "",
         "addDmaps" = TRUE,
 
-       "lims.id"= as.vector(dfObio$asfID[1]),
-        "asf.id" = as.vector(dfObio$asfID[1]),
+       "lims.id"= as.vector(dfObio$asf.id[1]),
+        "asf.id" = as.vector(dfObio$asf.id[1]),
 
         "machine" = NULL,
         "experiment.type" = projectDetailList$experiment.type,   
@@ -553,7 +553,15 @@ for (i in 1:length(sampleNames)){
                     cmdFN,
                     header = F
                 )
-                cmdDocuVec <- c(cmdDocuVec, as.vector(dfCMD[1,1]))
+                cmdAddVec <- c(
+                        "**names(Obio@sampleDetailList)[i]**",
+                        "/n",
+                        as.vector(dfCMD[1,1]),
+                        "/n",
+                        "/n"
+                        
+                )
+                cmdDocuVec <- c(cmdDocuVec, cmdAddVec)
         }
     }
 }
