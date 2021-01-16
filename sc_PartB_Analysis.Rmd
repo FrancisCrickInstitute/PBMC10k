@@ -3,6 +3,8 @@ output:
     html_document:
         code_folding: hide
         df_print: tibble
+        highlight: default
+        theme: paper
         toc: true
         toc_depth: 5
         toc_float: true
@@ -6281,17 +6283,6 @@ date: 'Compiled: `r format(Sys.Date(), "%B %d, %Y")`'
 
 abstract: |
     "`r projectParams$abstract`"
-
-output: 
-    html_document:
-        code_folding: hide
-        df_print: tibble
-        toc: true
-        toc_depth: 5
-        toc_float: true
-        css: /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css
-
-always_allow_html: yes
 
 
 ---
