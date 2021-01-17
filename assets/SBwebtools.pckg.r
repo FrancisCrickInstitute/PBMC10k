@@ -10486,8 +10486,15 @@ DotPlotSB <- function (
     theme_set(theme_bw())
     
     data.plot$features.plot <- factor(data.plot$features.plot, levels = orderVec)
-    levels <- levels(object@meta.data$clusterName)
+    if (is.factor(object@meta.data$clusterName)){
+        levels <- levels(object@meta.data$clusterName)
+    } else {
+        levels <- unique(object@meta.data$clusterName)
+    }
+    
+    
     data.plot$id <- factor(data.plot$id, levels = levels)
+    data.plot <- na.omit(data.plot)
     
     plot <- ggplot(
         data=data.plot, aes_string(x= "id", y="features.plot")
