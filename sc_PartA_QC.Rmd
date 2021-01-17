@@ -270,7 +270,8 @@ clusterSigEnrichmentList = list(
     "GO-MF" = "mysigdb_c5_MF",
     "Pathways" = "mysigdb_c2_1329_canonical_pathways",
     "Hallmarks" = "mysigdb_h_hallmarks",
-    "Allen_Brain_Atlas" = "Allen_Brain_Atlas"
+    "Allen_Brain_Atlas" = "Allen_Brain_Atlas",
+    "Hallmarks" = "mysigdb_h_hallmarks"
 )
 
     # mysigdb_sc_sig

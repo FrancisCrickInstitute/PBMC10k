@@ -382,7 +382,7 @@ DefaultAssay(OsC) <- "RNA"
 OsC <- FindVariableFeatures(
     object = OsC,
     selection.method = 'vst', 
-    nfeatures = 2000
+    nfeatures = Obio@parameterList$NtopGenes
 )
 
 # Identify the 10 most highly variable genes
@@ -527,7 +527,8 @@ names(dfVarRes) <- gsub(
     "variance.standardized", paste0(tag, "_var_std"), names(dfVarRes)
 )
 
-## Make variation plot for individual samples ##    
+## Make variation plot for individual samples ##   
+if (length(SampleList) > 1){
 for (i in 1:length(SampleList)){
     tag <- paste0("Ind_var_", names(SampleList)[i])
     
@@ -684,6 +685,7 @@ for (i in 1:length(SampleList)){
     dfVarRes[is.na(dfVarRes)] <- 0
     
 }
+} # end if multiple samples
 
 ## Make sure summary goes first ##
 Obio@dataTableList[["dfVariation"]] <- data.frame(NULL)
@@ -716,6 +718,7 @@ if (length(Obio@sampleDetailList) > 1){
     DefaultAssay(OsC) <- "integrated"
 } else {
     Obio@parameterList$singleCellClusterString <- gsub("integrated", "RNA", Obio@parameterList$singleCellClusterString)
+    DefaultAssay(OsC) <- "RNA"
 }
 
 
@@ -742,11 +745,11 @@ OsC <- FindClusters(OsC, resolution = Obio@parameterList$singleCellClusterParame
 
 ## Rational: Run PCA on variable features, then scale data for heatmaps and other applications
 
-if (Obio@parameterList$scIntegrationMethod != "RNA"){
-DefaultAssay(OsC) <- Obio@parameterList$scIntegrationMethod
+if (length(Obio@sampleDetailList) > 1){
+    DefaultAssay(OsC) <- Obio@parameterList$scIntegrationMethod
     allGenes <- rownames(x = OsC@assays[[Obio@parameterList$scIntegrationMethod]])
     OsC <- ScaleData(OsC, verbose = FALSE, features=allGenes)
-}
+} 
 
 DefaultAssay(OsC) <- "RNA"
 allGenes <- rownames(x = OsC@assays$RNA)
@@ -780,8 +783,23 @@ if (file.exists(FNcol)){
     pos2 <- grep("clusterName", names(dfClusterAnnotation))
     pos3 <- grep("clusterColor", names(dfClusterAnnotation))
     
+    ## Check if clusters match ##
+    inClust <- unique(as.vector(dfClusterAnnotation$seurat_clusters))
+    oClust <- unique(as.vector(OsC@meta.data$seurat_clusters))
+    if (length(inClust) == length(intersect(inClust, oClust))){
+      
+    }
+    
     if (length(pos1) != 0 & length(pos2) != 0 & length(pos3) != 0 ){
-        tableValid <- TRUE  
+        ## Check if clusters match ##
+        inClust <- unique(as.vector(dfClusterAnnotation$seurat_clusters))
+        oClust <- unique(as.vector(OsC@meta.data$seurat_clusters))
+        if (length(inClust) == length(intersect(inClust, oClust))){
+            tableValid <- TRUE
+        } else {
+            tableValid <- FALSE
+        }
+          
     } else {
         tableValid <- FALSE
     }
@@ -871,7 +889,14 @@ if (file.exists(FNsample)){
    
     
     if (length(pos1) != 0 & length(pos2) != 0 & length(pos3) != 0){
-        tableValid <- TRUE  
+        ## Check if clusters match ##
+        inClust <- unique(as.vector(dfClusterAnnotation$sampleID))
+        oClust <- unique(as.vector(OsC@meta.data$sampleID))
+        if (length(inClust) == length(intersect(inClust, oClust))){
+            tableValid <- TRUE
+        } else {
+            tableValid <- FALSE
+        }  
     } else {
         tableValid <- FALSE
     }
@@ -938,6 +963,195 @@ OsC <- addDf2seuratMetaData(
 
 ## Done                                                                      ##
 ###############################################################################
+
+
+###############################################################################
+## Find all markers                                                          ##
+DefaultAssay(OsC) <- "RNA"
+Idents(OsC) <- "clusterName"
+
+lgFCthreshold <- 0.25
+
+dfGeneralMarkers <- FindAllMarkers(
+    object = OsC, 
+    only.pos = FALSE, 
+    min.pct = 0.1, 
+    logfc.threshold = lgFCthreshold,
+    test.use = "roc",
+    assay =  "RNA",
+    slot = "data"
+)
+
+if (nrow(dfGeneralMarkers) == 0 | length(unique(dfGeneralMarkers$cluster)) < 2){
+    lgFCthreshold <- 0.00
+dfGeneralMarkers <- FindAllMarkers(
+    object = OsC, 
+    only.pos = FALSE, 
+    min.pct = 0.01, 
+    logfc.threshold = lgFCthreshold,
+    test.use = "roc",
+    assay =  "RNA",
+    slot = "data"
+)
+}
+
+if (nrow(dfGeneralMarkers) > 0 & length(unique(dfGeneralMarkers$cluster)) >  2){
+    dfGeneralMarkers[["direction"]] <- ""
+    dfGeneralMarkers[dfGeneralMarkers$avg_diff >= 0, "direction"] <- "positive"
+    dfGeneralMarkers[dfGeneralMarkers$avg_diff < 0, "direction"] <- "negative"
+    
+    Obio@dataTableList[["dfGeneralMarkers"]] <- dfGeneralMarkers
+    
+    dfGeneralMarkersFilt <- dfGeneralMarkers[dfGeneralMarkers$avg_diff > lgFCthreshold | dfGeneralMarkers$avg_diff < -lgFCthreshold,]
+    Obio@dataTableList[["dfGeneralMarkersFilt"]] <- dfGeneralMarkersFilt
+    
+    dfGeneralMarkersPos <- dfGeneralMarkers[dfGeneralMarkers$direction == "positive", ]
+    dfTop1 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(1, avg_diff))
+    dfTop5 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(5, avg_diff))
+    dfTop10 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(10, avg_diff))
+    dfTop50 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(50, avg_diff))
+    
+    Obio@dataTableList[["dfGeneralMarkersTop10"]] <- dfTop10
+    
+    Obio@dataTableList$referenceList[["Top10clusterMarkers"]] <- as.vector(
+        unique(
+            dfTop10$gene
+        )
+    )
+    
+###############################################################################
+## Upload general markers                                                    ##
+library(tidyverse)
+
+dfDat <- dfGeneralMarkers
+dfDat <- unique(dfGeneralMarkers[,c("gene", "cluster")])
+
+
+if (Obio@parameterList$geneIDcolumn != "hgnc_symbol" & Obio@parameterList$geneIDcolumn != "mgi_symbol"){
+    refGeneIDcolumn <- "hgnc_symbol"
+    dfAnno <- Obio@dfGeneAnnotation
+    dfAnno <- unique(dfAnno[,c("hgnc_symbol",Obio@parameterList$geneIDcolumn )])
+    dfAnno <- dfAnno[dfAnno[,Obio@parameterList$geneIDcolumn] %in% dfDat[,"gene"],]
+    
+    dfDat <- merge(
+        dfDat,
+        dfAnno,
+        by.x = "gene",
+        by.y = Obio@parameterList$geneIDcolumn
+    )
+    dfDat$gene <- NULL
+    names(dfDat) <- gsub("hgnc_symbol", "gene",names(dfDat))
+    
+} else {
+    refGeneIDcolumn <- Obio@parameterList$geneIDcolumn
+}
+
+
+if (ncol(dfDat) > 1){
+  library(dplyr)
+  dfDat <- dfDat %>%
+         group_by(cluster) %>% 
+         mutate(rn = row_number()) %>%
+         ungroup %>%
+         pivot_wider(names_from = cluster, values_from = gene, values_fill = "") %>% dplyr::select(-rn)
+  
+  orderVec <- sort(names(dfDat))
+  dfDat <- data.frame(dfDat[,orderVec])
+  
+  names(dfDat) <- paste0(
+      Obio@parameterList$project_id, 
+      "_Marker_Genes_Cluster_",
+      names(dfDat)
+  )
+  
+  dfDat <- data.frame(dfDat)
+  
+  ## Insert description row ##
+  descriptionRow <- data.frame(dfDat[1,])
+  descriptionRow[1,] <- t(names(dfDat))
+  descriptionRow[1,] <- paste0(descriptionRow[1,], " from Seurat FindAllMarkers.")
+  
+  dfDat <- rbind(
+    descriptionRow, 
+    dfDat
+  )
+  # dfCatRef <- names(dfCatRef)
+  # names(dfCatRef) <- names(dfDat)
+  # 
+  # dfDat <- rbind(
+  #   dfCatRef, 
+  #   dfDat
+  # )
+  
+  #######################################################################
+  ## Upload/update category by category                                ##
+  updatedCatIDs <- as.vector(NULL, mode = "character")
+  updatedCatNames <- as.vector(NULL, mode = "character")
+          
+  for (i in 1:ncol(dfDat)){
+      cat.name <- names(dfDat)[i]
+      cat_type <- paste0("temp_cluster_marker_", Obio@parameterList$project_id)
+              
+      cat.description.text <- as.vector(dfDat[1,i])
+              
+      gene.vec <- as.vector(
+          dfDat[,i]
+      )[2:nrow(dfDat)]
+              
+      gene.vec <- gene.vec[gene.vec != ""]
+      gene.vec <- sort(na.omit(gene.vec))
+              
+      ## Determine if cat exists ##
+              
+              
+      catID <- add.category.to.lab.reference.table.hs(
+          host = Obio@dbDetailList$host,
+          pwd = db.pwd,
+          user = Obio@dbDetailList$db.user,
+          cat.ref.db = Obio@dbDetailList$ref.cat.db,
+          cat.ref.db.table = Obio@parameterList$lab.categories.table,
+          gene.vector = gene.vec,
+          gene.id = refGeneIDcolumn, #options hgnc_symbol, mgi_symbol
+          mm.hs.conversion.file =  paste0(hpc.mount, "Projects/reference_data/20160303.homologene.data.txt"),
+          cat_name = cat.name,
+          cat_type = cat_type,
+          data_source = paste0(Obio@parameterList$labname, " Lab"),
+          comments_1 = "",
+          comments_2 = "",
+          new.lab.category.table = FALSE,
+          cat.description.db  = "internal_categories",
+          cat.description.db.table = "category_description",
+          cat.description.text = cat.description.text,
+          lab.name = Obio@parameterList$labname,
+          replaceExistingCatName = TRUE
+      ) 
+          
+              
+      updatedCatIDs <- c(
+          updatedCatIDs, 
+          catID
+      )    
+      
+      updatedCatNames <- c(
+        updatedCatNames, 
+        cat.name
+      )
+  } ## End dfDat loop
+          
+  dfFAMplotIDs <- data.frame(
+    cat_id = updatedCatIDs, 
+    cat_name = updatedCatNames
+  )    
+}
+        
+## Done uploading general markers                                            ##
+###############################################################################
+
+} else {
+    Obio@dataTableList[["dfGeneralMarkers"]] <- NULL
+}
+
+#############################################################
 
 ```
 
@@ -1462,12 +1676,12 @@ Obio@dataTableList[["dfAvglg10ExprAllScaled"]] <- dfAvgScaledData
 # )
 
 ## Order by Seurat cluster order for now ##
-OsC@meta.data <- OsC@meta.data[order(OsC@meta.data$seurat_clusters),]
+#OsC@meta.data <- OsC@meta.data[order(OsC@meta.data$seurat_clusters),]
 
-OsC@meta.data$clusterName <- factor(OsC@meta.data$clusterName , levels = c(unique(OsC@meta.data$clusterName)))
+#OsC@meta.data$clusterName <- factor(OsC@meta.data$clusterName , levels = c(unique(OsC@meta.data$clusterName)))
 
 Idents(OsC) <- "clusterName"
-Idents(OsC) <- factor(Idents(OsC), levels = unique(levels(OsC)))
+#Idents(OsC) <- factor(Idents(OsC), levels = unique(levels(OsC)))
 
 if (length(grep("sampleName", names(OsC@meta.data))) > 0){
   
@@ -1509,12 +1723,10 @@ Obio@dataTableList[["dfAvglg10ExprByClusterBySampleScaled"]] <- dfAvgScaledData
 ## Average by Cluster                                                        ##
 Idents(OsC) <- "clusterName"
 
-Idents(OsC) <- factor(Idents(OsC), levels = sort(levels(OsC)))
-
 cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
 
 dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
-dfAvgExpr <- dfAvgExpr[,sort(names(dfAvgExpr))]
+dfAvgExpr <- data.frame(dfAvgExpr[,sort(names(dfAvgExpr))])
 
 ###############################################################################
 ## Order average expression by cluster similarity (most variable genes)      ##
@@ -1526,10 +1738,14 @@ features <- VariableFeatures(object = OsC)
 features <- intersect(x = features, y = rownames(x = OsC))
 data.avg <- AverageExpression(object = OsC, assays = assay, 
 features = features, slot = "data", verbose = T)[[1]]
+
+if (ncol(data.avg) > 1){
 data.dist <- dist(x = t(x = data.avg[features, ]))
 dforder <- hclust(d = data.dist)
 orderVec <- names(dfAvgExpr)[dforder$order]
-dfAvgExpr <- dfAvgExpr[,orderVec]
+} else {
+  orderVec <- names(data.avg)
+}
 
 Obio@parameterList[["clusterNameOrder"]] <- orderVec
 
@@ -1560,6 +1776,7 @@ cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
 
 ## Retrieved Scaled data ##
 dfAvgExpr <- data.frame(cluster.averages[["RNA"]]@data)
+dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
 selVec <- names(dfAvgExpr)
 
 
@@ -1572,12 +1789,20 @@ features <- VariableFeatures(object = OsC)
 features <- intersect(x = features, y = rownames(x = OsC))
 data.avg <- AverageExpression(object = OsC, assays = assay, 
 features = features, slot = "data", verbose = T)[[1]]
+
+if (ncol(data.avg) > 1){
 data.dist <- dist(x = t(x = data.avg[features, ]))
 dforder <- hclust(d = data.dist)
 orderVec <- names(dfAvgExpr)[dforder$order]
-dfAvgExpr <- dfAvgExpr[,orderVec]
+} else {
+  orderVec <- names(data.avg)
+}
 
 Obio@parameterList[["sampleIDOrder"]] <- orderVec
+
+dfAvgExpr <- data.frame(dfAvgExpr[,c("gene",orderVec) ])
+
+
 
 ## Reset sample order by clustering ##
 #OsC@meta.data$sampleID
@@ -1585,10 +1810,6 @@ Obio@parameterList[["sampleIDOrder"]] <- orderVec
 ## Done                                                                      ##
 ###############################################################################
 
-dfAvgExpr[["gene"]] <- row.names(dfAvgExpr)
-selVec <- c("gene", selVec)
-
-dfAvgExpr <- dfAvgExpr[,selVec]
 
 
 dfAvgScaledData <- data.frame(cluster.averages[["RNA"]]@scale.data)
@@ -2136,190 +2357,8 @@ figLegend <- paste0(
 ###############################################################################
 
 
-###############################################################################
-## Find all markers                                                          ##
-DefaultAssay(OsC) <- "RNA"
-Idents(OsC) <- "clusterName"
-
-lgFCthreshold <- 0.25
-
-dfGeneralMarkers <- FindAllMarkers(
-    object = OsC, 
-    only.pos = FALSE, 
-    min.pct = 0.1, 
-    logfc.threshold = lgFCthreshold,
-    test.use = "roc",
-    assay =  "RNA",
-    slot = "data"
-)
-
-if (nrow(dfGeneralMarkers) == 0){
-    lgFCthreshold <- 0.00
-dfGeneralMarkers <- FindAllMarkers(
-    object = OsC, 
-    only.pos = FALSE, 
-    min.pct = 0.01, 
-    logfc.threshold = lgFCthreshold,
-    test.use = "roc",
-    assay =  "RNA",
-    slot = "data"
-)
-}
-
-if (nrow(dfGeneralMarkers) > 0){
-    dfGeneralMarkers[["direction"]] <- ""
-    dfGeneralMarkers[dfGeneralMarkers$avg_diff >= 0, "direction"] <- "positive"
-    dfGeneralMarkers[dfGeneralMarkers$avg_diff < 0, "direction"] <- "negative"
-    
-    Obio@dataTableList[["dfGeneralMarkers"]] <- dfGeneralMarkers
-    
-    dfGeneralMarkersFilt <- dfGeneralMarkers[dfGeneralMarkers$avg_diff > lgFCthreshold | dfGeneralMarkers$avg_diff < -lgFCthreshold,]
-    Obio@dataTableList[["dfGeneralMarkersFilt"]] <- dfGeneralMarkersFilt
-    
-    dfGeneralMarkersPos <- dfGeneralMarkers[dfGeneralMarkers$direction == "positive", ]
-    dfTop1 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(1, avg_diff))
-    dfTop5 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(5, avg_diff))
-    dfTop10 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(10, avg_diff))
-    dfTop50 <- data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(50, avg_diff))
-    
-    Obio@dataTableList[["dfGeneralMarkersTop10"]] <- dfTop10
-    
-    Obio@dataTableList$referenceList[["Top10clusterMarkers"]] <- as.vector(
-        unique(
-            dfTop10$gene
-        )
-    )
-} else {
-    Obio@dataTableList[["dfGeneralMarkers"]] <- NULL
-}
-
-#############################################################
-
-###############################################################################
-## Upload general markers                                                    ##
-library(tidyverse)
-
-dfDat <- dfGeneralMarkers
-dfDat <- unique(dfGeneralMarkers[,c("gene", "cluster")])
 
 
-if (Obio@parameterList$geneIDcolumn != "hgnc_symbol" & Obio@parameterList$geneIDcolumn != "mgi_symbol"){
-    refGeneIDcolumn <- "hgnc_symbol"
-    dfAnno <- Obio@dfGeneAnnotation
-    dfAnno <- unique(dfAnno[,c("hgnc_symbol",Obio@parameterList$geneIDcolumn )])
-    dfAnno <- dfAnno[dfAnno[,Obio@parameterList$geneIDcolumn] %in% dfDat[,"gene"],]
-    
-    dfDat <- merge(
-        dfDat,
-        dfAnno,
-        by.x = "gene",
-        by.y = Obio@parameterList$geneIDcolumn
-    )
-    dfDat$gene <- NULL
-    names(dfDat) <- gsub("hgnc_symbol", "gene",names(dfDat))
-    
-} else {
-    refGeneIDcolumn <- Obio@parameterList$geneIDcolumn
-}
-
-
-library(dplyr)
-dfDat <- dfDat %>%
-       group_by(cluster) %>% 
-       mutate(rn = row_number()) %>%
-       ungroup %>%
-       pivot_wider(names_from = cluster, values_from = gene, values_fill = "") %>% dplyr::select(-rn)
-
-orderVec <- sort(names(dfDat))
-dfDat <- dfDat[,orderVec]
-
-names(dfDat) <- paste0(
-    Obio@parameterList$project_id, 
-    "_Marker_Genes_Cluster_",
-    names(dfDat)
-)
-
-dfDat <- data.frame(dfDat)
-
-## Insert description row ##
-descriptionRow <- dfDat[1,]
-descriptionRow[1,] <- t(names(dfDat))
-descriptionRow[1,] <- paste0(descriptionRow[1,], " from Seurat FindAllMarkers.")
-
-dfDat <- rbind(
-  descriptionRow, 
-  dfDat
-)
-# dfCatRef <- names(dfCatRef)
-# names(dfCatRef) <- names(dfDat)
-# 
-# dfDat <- rbind(
-#   dfCatRef, 
-#   dfDat
-# )
-
-#######################################################################
-## Upload/update category by category                                ##
-updatedCatIDs <- as.vector(NULL, mode = "character")
-updatedCatNames <- as.vector(NULL, mode = "character")
-        
-for (i in 1:ncol(dfDat)){
-    cat.name <- names(dfDat)[i]
-    cat_type <- paste0("temp_cluster_marker_", Obio@parameterList$project_id)
-            
-    cat.description.text <- as.vector(dfDat[1,i])
-            
-    gene.vec <- as.vector(
-        dfDat[,i]
-    )[2:nrow(dfDat)]
-            
-    gene.vec <- gene.vec[gene.vec != ""]
-    gene.vec <- sort(na.omit(gene.vec))
-            
-    ## Determine if cat exists ##
-            
-            
-    catID <- add.category.to.lab.reference.table.hs(
-        host = Obio@dbDetailList$host,
-        pwd = db.pwd,
-        user = Obio@dbDetailList$db.user,
-        cat.ref.db = Obio@dbDetailList$ref.cat.db,
-        cat.ref.db.table = Obio@parameterList$lab.categories.table,
-        gene.vector = gene.vec,
-        gene.id = refGeneIDcolumn, #options hgnc_symbol, mgi_symbol
-        mm.hs.conversion.file =  paste0(hpc.mount, "Projects/reference_data/20160303.homologene.data.txt"),
-        cat_name = cat.name,
-        cat_type = cat_type,
-        data_source = paste0(Obio@parameterList$labname, " Lab"),
-        comments_1 = "",
-        comments_2 = "",
-        new.lab.category.table = FALSE,
-        cat.description.db  = "internal_categories",
-        cat.description.db.table = "category_description",
-        cat.description.text = cat.description.text,
-        lab.name = Obio@parameterList$labname,
-        replaceExistingCatName = TRUE
-    ) 
-        
-            
-    updatedCatIDs <- c(
-        updatedCatIDs, 
-        catID
-    )    
-    
-    updatedCatNames <- c(
-      updatedCatNames, 
-      cat.name
-    )
-} ## End dfDat loop
-        
-dfFAMplotIDs <- data.frame(
-  cat_id = updatedCatIDs, 
-  cat_name = updatedCatNames
-)        
-        
-## Done uploading general markers                                            ##
-###############################################################################
 
 if (length(plotList) > 3){
     tabVar <- ".tabset .tabset-fade .tabset-dropdown"
@@ -3425,7 +3464,11 @@ if (queryGS != Obio@parameterList$geneIDcolumn){
 dfHMG <- dfGeneralMarkers[dfGeneralMarkers$gene %in% tempVec, ]
 dfHMGsel <- data.frame(dfHMG %>% group_by(cluster) %>% top_n(5, avg_diff))
 
-Obio@parameterList[["cat2DotplotList"]][["Top5_TF_per_cluster_Markers"]] <- as.vector(unique(dfHMGsel$gene))
+geneVec <- as.vector(unique(dfHMGsel$gene))
+
+if (length(geneVec) > 0){
+    Obio@parameterList[["cat2DotplotList"]][["Top5_TF_per_cluster_Markers"]] <- geneVec
+}
 
 ## Add cluster defining transcription factors to the collection ##
 ## For the dotplot ##
@@ -3621,6 +3664,19 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
         OsC_DP <- OsC
         OsC_DP@meta.data$clusterName <- factor(OsC_DP@meta.data$clusterName, levels = Obio@parameterList[["clusterNameOrder"]])
         
+        dfCol <- unique(OsC_DP@meta.data[,c("clusterName", "clusterColor")])
+        colVec <- as.vector(dfCol$clusterColor)
+        names(colVec) <- dfCol$clusterName
+        textSize <- 20
+        if (length(colVec) > 5){
+            textSize <-10
+        } else if (length(colVec) > 20){
+            textSize <- 7.5
+        } else if (length(colVec) > 40){
+            textSize <- 5
+        }
+
+        
         plotList[[tag]] <- DotPlotSB(
             object = OsC_DP,
             features = dpGenes,
@@ -3629,12 +3685,31 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
             split.by = NULL,
             dot.scale = 4,
             col.min = 0,
-            col.max = 5
-            #assay = "RNA"
-        ) + ggtitle(gsub("_", " ", tag)) + coord_fixed() + coord_flip() + theme_bw() + theme(
+            col.max = 5,
+            assay = "RNA"
+        ) + ggtitle(gsub("_", " ", tag)
+        ) + coord_fixed(
+        #) + coord_flip(
+        ) + theme_bw() + theme(
                 axis.title.y  = element_blank(),
                 axis.title.x  = element_blank()
-        )
+        )  + theme(axis.text.x = element_text(size=rel(textSize), angle = 45, hjust=1, color = colVec))
+        
+        # plotList[[tag]] <- DotPlot(
+        #     object = OsC_DP,
+        #     features = dpGenes,
+        #     #cols = cols,
+        #     group.by = NULL,
+        #     split.by = NULL,
+        #     dot.scale = 4,
+        #     col.min = 0,
+        #     col.max = 5,
+        #     assay = "RNA"
+        # ) + ggtitle(gsub("_", " ", tag)) + coord_fixed() + coord_flip() + theme_bw() + theme(
+        #         axis.title.y  = element_blank(),
+        #         axis.title.x  = element_blank()
+        # )  + theme(axis.text.x = element_text(size=rel(0.5), angle = 45, hjust=1, color = colVec))
+    
         rm(OsC_DP)
         
         FNbase <- paste0(HMname, VersionPdfExt)
@@ -4105,16 +4180,20 @@ dfGeneralMarkers <- Obio@dataTableList$dfGeneralMarkers
 dfGeneralMarkersPos <- dfGeneralMarkers[dfGeneralMarkers$avg_diff > 0,]
 
 Nsel <- 1
+Ncluster <- length(unique(OsC@meta.data$clusterName))
 
 geneVec <- as.vector(NULL, mode="character")
-while(length(geneVec) < 20 & Nsel < nrow(dfGeneralMarkersPos)){
+while(length(geneVec) < 5*Ncluster & Nsel < nrow(dfGeneralMarkersPos)){
     geneVec <-  as.vector(unique(data.frame(dfGeneralMarkersPos %>% group_by(cluster) %>% top_n(Nsel, avg_diff))[,"gene"]))
     Nsel <- Nsel + 1
 }
 
 
 Obio@parameterList[["cat2HMplotList"]] <- list()
-Obio@parameterList[["cat2HMplotList"]][["Top5_Cluster_Markers"]] <- geneVec 
+
+if (length(geneVec) > 0){
+    Obio@parameterList[["cat2HMplotList"]][["Top5_Cluster_Markers"]] <- geneVec 
+}
 
 ## Add top transcription factors for each cluster ##
 ## Get transcription factor genes ##
@@ -4162,14 +4241,14 @@ dfLongResiduals <- data.frame(
 )
 
 dfTop5 <- data.frame(dfLongResiduals %>% group_by(cluster) %>%   top_n(5, residuals))
-geneVec <- as.vector(sort(unique(dfTop5$gene)))
+geneVec <- as.vector(unique(dfTop5$gene))
 if (length(geneVec) > 0){
     Obio@parameterList[["cat2HMplotList"]][["Top5_LR_Cluster_Markers"]] <- geneVec
 }
 ## Add linear regression heatmap for transcription factors ##
 dfLRsel <- dfLongResiduals[dfLongResiduals$gene %in% tempVec, ]
 dfTop5 <- data.frame(dfLRsel %>% group_by(cluster) %>%   top_n(5, residuals))
-geneVec <- as.vector(sort(unique(dfTop5$gene)))
+geneVec <- as.vector(unique(dfTop5$gene))
 if (length(geneVec) > 0){
     Obio@parameterList[["cat2HMplotList"]][["Top5_LR_TF_Cluster_Markers"]] <- geneVec
 }
@@ -4343,9 +4422,24 @@ if (length(dpGenes) >= 50){
 tag <- paste0("Dotplot_", "Var_Genes")
 textSize <- 5
 
+dfCol <- unique(OsC@meta.data[,c("clusterName", "clusterColor")])
+colVec <- as.vector(dfCol$clusterColor)
+names(colVec) <- dfCol$clusterName
+textSize <- 2
+if (length(colVec) > 5){
+    textSize <-1
+} else if (length(colVec) > 20){
+    textSize <- 0.75
+} else if (length(colVec) > 40){
+    textSize <- 0.5
+}
+
+OsC@meta.data$clusterName <- factor(OsC@meta.data$clusterName, levels = Obio@parameterList[["clusterNameOrder"]])
+
 plotList[[tag]] <- DotPlotSB(
         object = OsC,
         features = dpGenes,
+        assay = "RNA",
         #cols = cols,
         group.by = NULL,
         split.by = NULL,
@@ -4355,8 +4449,27 @@ plotList[[tag]] <- DotPlotSB(
     ) + ggtitle(gsub("_", "", tag)
     ) + xlab(""
     ) + coord_fixed(
-    #) + coord_flip(
-    ) + theme_bw() 
+    # ) + coord_flip(
+    ) + theme_bw() +
+  theme(axis.text.x = element_text(size=rel(textSize), angle = 45, hjust=1, color = colVec))
+
+# plotList[[tag]] <- DotPlot(
+#         object = OsC,
+#         features = dpGenes,
+#         assay = "RNA",
+#         #cols = cols,
+#         group.by = NULL,
+#         split.by = NULL,
+#         dot.scale = 4,
+#         col.min = 0,
+#         col.max = 5
+#     ) + ggtitle(gsub("_", "", tag)
+#     ) + xlab(""
+#     ) + coord_fixed(
+#     #) + coord_flip(
+#     ) + theme_bw() +
+#   theme(axis.text.x = element_text(size=rel(0.5), angle = 45, hjust=1, color = colVec))
+#     
     
 
 ## Save to file ##
@@ -4561,11 +4674,24 @@ chnkVec <- as.vector(NULL, mode="character")
 linkGeneView <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/gene-view" target = "_blank">GeneView</a>')
 linkFeatureView <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameterList$project_id,'/html/FeatureView.html" target="_blank">FeatureView</a>')
 
+## Save workbook ##
+    baseFN <- paste0(
+       Obio@parameterList$project_id, 
+       ".Cluster.marker.table.xlsx"
+    )
+    FNtabrel <- paste0("report_figures/", baseFN)
+
+    tablink <- paste0('An Excel table containing the cluster marker genes can be downloaded <a href = "',FNtabrel,'">here</a>. ')
+
 #for (i in 1:length(tabClusters)){
     #tabLegend = paste0("**Table: ** Positive and negative marker genes for ", tabClusters[i])
     tabLegend = paste0("**Table: ** Positive and negative cluster-defining marker genes. Perc_Cells_Expr: Percentage of total cells expressing gene X. Enr in Cluster: Enrichment of gene X in cluster Y. To collapse the table to one particular cluster, type the name of the cluster in the search box.",
-    "Use the ",linkGeneView," or ",linkFeatureView," functionalities to examine individual genes in more detail. "                   
+    "Use the ",linkGeneView," or ",linkFeatureView," functionalities to examine individual genes in more detail. ",tablink                   
     )
+    
+    
+    
+    
     #dfTempDat <- dfDat[dfDat$cluster == tabClusters[i],]
     dfTempDat <- dfDat
     
@@ -4595,6 +4721,7 @@ linkFeatureView <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameter
     orderVec <- c('gene','ClusterName','DGE_avg_diff','DGE_power','LinearReg_Residuals','uniqueMarker','Cluster','Perc_Cells_Expr')
     orderVec <- orderVec[orderVec %in% names(dfTempDat)]
     dfTempDat <- dfTempDat[,orderVec]
+    dfOutput <- dfTempDat
     
     dfTempDat$gene <- paste0('<a href="https://',urlString,'/',Obio@parameterList$project_id,'/gene-view?query=',dfTempDat$gene,'&exact=TRUE" target="_blank">', dfTempDat$gene, '</a>')
     
@@ -4615,6 +4742,55 @@ linkFeatureView <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameter
         )
 #}
 
+##############################################################################
+## Create marker gene table Excel                                           ##
+###############################################################################
+## Assemble DGE summary table                                                ##
+library(openxlsx)
+wb <- createWorkbook()
+
+hs1 <- createStyle(
+    fontColour = "#ffffff",
+    fgFill = "#000000",
+    halign = "CENTER",
+    textDecoration = "Bold"
+)
+
+sheetName <- "Cluster_Marker_Genes"
+  
+  addWorksheet(
+      wb, 
+      sheetName = sheetName
+  )
+  
+  
+  freezePane(wb, sheetName ,  firstActiveRow = 2)
+  writeData(wb, 1, dfOutput, startRow = 1, startCol = 1, headerStyle = hs1)
+  ## Done adding to Excel workbook ##
+  
+
+
+## Save workbook ##
+baseFN <- paste0(
+   Obio@parameterList$project_id, 
+   ".Cluster.marker.table.xlsx"
+)
+FNtabrel <- paste0("report_figures/", baseFN)
+
+outPutFN <- paste0(
+     Obio@parameterList$reportTableDir,
+     baseFN
+)
+
+saveWorkbook(
+        wb,
+        outPutFN ,
+        overwrite = TRUE
+)
+    
+## Done creating marker gene table                                          ##
+##############################################################################
+    
 ## Done creating one table per cluster                                      ##
 ##############################################################################
 ```
@@ -6082,7 +6258,8 @@ if (Obio@parameterList$addDmaps){
         )+ geom_point( 
             shape = 16,
             size = as.numeric(dotsize)
-        ) + xlab("PC1") + ylab("PC2") + scale_color_gradient2(
+        ) + xlab("PC1") + ylab("PC2") + scale_color_gradient(
+            "Pseudotime",
             low="#ff6600", 
             high=dotcolor #, 
             #limits=c(0,maxExpr)
