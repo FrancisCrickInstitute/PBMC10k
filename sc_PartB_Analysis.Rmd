@@ -4192,7 +4192,7 @@ while(length(geneVec) < 5*Ncluster & Nsel < nrow(dfGeneralMarkersPos)){
 Obio@parameterList[["cat2HMplotList"]] <- list()
 
 if (length(geneVec) > 0){
-    Obio@parameterList[["cat2HMplotList"]][["Top5_Cluster_Markers"]] <- geneVec 
+    Obio@parameterList[["cat2HMplotList"]][["Top_Cluster_Markers"]] <- geneVec 
 }
 
 ## Add top transcription factors for each cluster ##
@@ -4227,7 +4227,7 @@ dfHMG <- dfGeneralMarkersPos[dfGeneralMarkersPos$gene %in% tempVec, ]
 dfHMGsel <- data.frame(dfHMG %>% group_by(cluster) %>% top_n(5, avg_diff))
 
 if (length(as.vector(unique(dfHMGsel$gene))) > 0){
-    Obio@parameterList[["cat2HMplotList"]][["Top5_TF_Cluster_Markers"]] <- as.vector(unique(dfHMGsel$gene))
+    Obio@parameterList[["cat2HMplotList"]][["Top_TF_Cluster_Markers"]] <- as.vector(unique(dfHMGsel$gene))
 }
 ## Done with translation
   
@@ -4241,16 +4241,19 @@ dfLongResiduals <- data.frame(
 )
 
 dfTop5 <- data.frame(dfLongResiduals %>% group_by(cluster) %>%   top_n(5, residuals))
+dfTop5 <- dfTop5[order(dfTop5$cluster),]
 geneVec <- as.vector(unique(dfTop5$gene))
 if (length(geneVec) > 0){
-    Obio@parameterList[["cat2HMplotList"]][["Top5_LR_Cluster_Markers"]] <- geneVec
+    Obio@parameterList[["cat2HMplotList"]][["Top_LR_Cluster_Markers"]] <- geneVec
 }
 ## Add linear regression heatmap for transcription factors ##
 dfLRsel <- dfLongResiduals[dfLongResiduals$gene %in% tempVec, ]
 dfTop5 <- data.frame(dfLRsel %>% group_by(cluster) %>%   top_n(5, residuals))
+dfTop5 <- dfTop5[order(dfTop5$cluster),]
+
 geneVec <- as.vector(unique(dfTop5$gene))
 if (length(geneVec) > 0){
-    Obio@parameterList[["cat2HMplotList"]][["Top5_LR_TF_Cluster_Markers"]] <- geneVec
+    Obio@parameterList[["cat2HMplotList"]][["Top_LR_TF_Cluster_Markers"]] <- geneVec
 }
 
 
