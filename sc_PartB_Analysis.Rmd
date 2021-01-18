@@ -3667,13 +3667,14 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
         dfCol <- unique(OsC_DP@meta.data[,c("clusterName", "clusterColor")])
         colVec <- as.vector(dfCol$clusterColor)
         names(colVec) <- dfCol$clusterName
-        textSize <- 20
+      
+        textSize <- 2
         if (length(colVec) > 5){
-            textSize <-10
+            textSize <-1
         } else if (length(colVec) > 20){
-            textSize <- 7.5
+            textSize <- 0.75
         } else if (length(colVec) > 40){
-            textSize <- 5
+            textSize <- 0.5
         }
 
         
