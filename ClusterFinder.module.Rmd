@@ -334,8 +334,8 @@ selVec <- c(
 )
 
 dfMeta <- dfMeta[,selVec]
-names(dfMeta) <- gsub(tagString, "_snn_res_", "ClusterTestRes_",names(dfMeta))
-names(dfMeta) <- gsub(tagString, "_rnn_res_", "ClusterTestRes_",names(dfMeta))
+names(dfMeta) <- gsub(paste0(tagString, "_snn_res_"), "ClusterTestRes_",names(dfMeta))
+names(dfMeta) <- gsub(paste0(tagString, "_rnn_res_"), "ClusterTestRes_",names(dfMeta))
 
 tempDir <- paste0(Obio@parameterList$localWorkDir,"temp")
             if(!dir.exists(tempDir)){

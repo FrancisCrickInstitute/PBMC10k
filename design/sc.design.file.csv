@@ -30,11 +30,11 @@ catRefFile,/camp/stp/babs/working/boeings/Projects/pachnisv/song.chng/330_10xscR
 scIntegrationMethod,SCT,,,"# ""SCT"" or ""standard"""
 ,,,,
 Sample Parameters,,,,
-sampleName,mliGlia,mliNeuron,,
+sampleName,Glia,Neuron,,
 limsID,SCP1038,SCP1038,,
 type,TenX,TenX,,"# type must be in c(""TenX"", ""matrixFiles"", ""loomFiles"", ""hdf5Files"")"
 gene.column,1,1,,# default 2
-path,/camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/FASTQ_files/mliNeuron/outs/filtered_feature_bc_matrix,/camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/FASTQ_files/mliNeuron/outs/filtered_feature_bc_matrix,,# path to input file
+path,/camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/FASTQ_files/mliGlia/outs/filtered_feature_bc_matrix,/camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/FASTQ_files/mliNeuron/outs/filtered_feature_bc_matrix,,# path to input file
 singleCellSeuratMtCutoff,10,10,,
 SeuratNrnaMaxFeatures,10000,10000,,
 SeuratNrnaMinFeatures,1000,1000,,
