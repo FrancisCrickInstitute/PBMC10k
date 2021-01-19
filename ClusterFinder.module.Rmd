@@ -120,9 +120,14 @@ if (length(Obio@sampleDetailList) > 1){
     DefaultAssay(OsC_CF) <- "integrated"
 } else {
     Obio@parameterList$singleCellClusterString <- gsub("integrated", "RNA", Obio@parameterList$singleCellClusterString)
+    DefaultAssay(OsC_CF) <- "RNA"
 }
 
-
+OsC_CF <- FindVariableFeatures(
+    object = OsC_CF,
+    selection.method = 'vst', 
+    nfeatures = Obio@parameterList$NtopGenes
+)
 # Run the standard workflow for visualization and clustering
 ## This will scale on the most variable features only
 OsC_CF <- ScaleData(OsC_CF, verbose = FALSE)
@@ -149,15 +154,19 @@ if (!("tsne" %in% redVec )){
 OsC_CF <- RunTSNE(OsC_CF, reduction = "pca", dims = 1:20)
 }
 
-#OsC_CF <- FindNeighbors(OsC_CF, reduction = "pca", dims = 1:20)
+
+OsC_CF <- FindNeighbors(OsC_CF, reduction = "pca", dims = 1:20)
 ```
 
 
 ```{r populate_expr_database_1, eval=TRUE, echo=F, results=F}
 if (length(Obio@sampleDetailList) > 1){
     DefaultAssay(OsC_CF) <- "integrated"
+    tagString <- "integrated"
 } else {
-    Obio@parameterList$singleCellClusterString <- gsub("integrated", "RNA", Obio@parameterList$singleCellClusterString)
+    Obio@parameterList$singleCellClusterString <- gsub("integrated", "RNA", pattern = Obio@parameterList$singleCellClusterString)
+    DefaultAssay(OsC_CF) <- "RNA"
+    tagString <- "RNA"
 }
 
 
@@ -217,7 +226,7 @@ for (i in 1:length(clusterOptionVec)){
     ## with split by sample ##
     tag <- paste0("Clusterplot_by_sample",  "_",i,"_", gsub("[.]", "_", clusterOptionVec[i]))
     
-    plotList[[tag]] <- DimPlot(OsC_CF, reduction = reductionVec[j], group.by = gsub("\\.", "_", paste0("integrated_snn_res.", clusterOptionVec[i])),label = TRUE, split.by = "sampleID")
+    plotList[[tag]] <- DimPlot(OsC_CF, reduction = reductionVec[j], group.by = gsub("\\.", "_", paste0(tagString , "_snn_res.", clusterOptionVec[i])),label = TRUE, split.by = "sampleID")
     
     
     ## Save to file ##
@@ -325,8 +334,8 @@ selVec <- c(
 )
 
 dfMeta <- dfMeta[,selVec]
-names(dfMeta) <- gsub("integrated_snn_res_", "ClusterTestRes_",names(dfMeta))
-names(dfMeta) <- gsub("integrated_rnn_res_", "ClusterTestRes_",names(dfMeta))
+names(dfMeta) <- gsub(tagString, "_snn_res_", "ClusterTestRes_",names(dfMeta))
+names(dfMeta) <- gsub(tagString, "_rnn_res_", "ClusterTestRes_",names(dfMeta))
 
 tempDir <- paste0(Obio@parameterList$localWorkDir,"temp")
             if(!dir.exists(tempDir)){

@@ -1696,7 +1696,10 @@ geneSets <- list()
 for (i in 1:ncol(dfHeatmapGenes)){
     genes <- as.vector(dfHeatmapGenes[2:nrow(dfHeatmapGenes),i])
     genes <- genes[genes %in% rownames(x = OsC@assays$RNA)]
-    geneSets[[names(dfHeatmapGenes)[i]]] <- unique(genes)
+    
+    if (length(unique(genes) > 0)){
+        geneSets[[names(dfHeatmapGenes)[i]]] <- unique(genes)
+    }
 }
 
 

@@ -276,7 +276,6 @@ setGeneric(
 DGEtagVec <- as.vector(NULL, mode = "character")
 
 
-
 DGEinputList <- list(
   "comp_1" = list(
       "name"    = "DGE_Neuron_vs_Glia",
@@ -389,10 +388,72 @@ DGEinputList <- list(
           "Neurons5HT"   = c(4),
           "NeuronsChat" = c(0,3,6,7)
       )
-  )
+  ),
+  "comp_15" = list(
+      "name"    = "DGE_Chat1_vs_OtherUMAPChAT",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "Chat1"   = c(0),
+          "OtherUMAPChAT" = c(3,6)
+      )
+  ),
+  "comp_16" = list(
+      "name"    = "DGE_Chat2_vs_OtherUMAPChAT",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "Chat2"   = c(3),
+          "OtherUMAPChAT" = c(0,6)
+      )
+  ),
+  "comp_17" = list(
+      "name"    = "DGE_Chat3_vs_OtherUMAPChAT",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "Chat3"   = c(0),
+          "OtherUMAPChAT" = c(3,6)
+      )
+  ),
+  "comp_18" = list(
+      "name"    = "DGE_NOS1_vs_OtherUMAPNOS",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "NOS1"   = c(1),
+          "OtherUMAPNOS" = c(5,7,10)
+      )
+  ),
+  "comp_19" = list(
+      "name"    = "DGE_NOS2_vs_OtherUMAPNOS",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "NOS2"   = c(2),
+          "OtherUMAPNOS" = c(1,7,10)
+      )
+  ),
+  "comp_20" = list(
+      "name"    = "DGE_NOS3_vs_OtherUMAPNOS",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "NOS3"   = c(10),
+          "OtherUMAPNOS" = c(1,5,7)
+      )
+  ),
+  "comp_21" = list(
+      "name"    = "DGE_C5HT_vs_UMAPNOS",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "C5HT"   = c(4),
+          "UMAPNOS" = c(1,5,7,10)
+      )
+  ),
+  "comp_22" = list(
+      "name"    = "DGE_C5HT_vs_UMAPChAT",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "C5HT"   = c(4),
+          "UMAPChAT" = c(0,3,6)
+      )
+  ) 
 )
-
-
 
 
 
@@ -1250,8 +1311,8 @@ for (j in 1:length(DGEtagVec)){
             }
             if (nrow(dfTempEnriched) > 0){
                 dfTempEnriched[["direction"]] <- "positive"
-                dfTempEnriched[["log10FDR"]] <- -1*log10(dfTempEnriched$p.adjust)
-                dfTempEnriched <- dfTempEnriched[order(dfTempEnriched$log10FDR, decreasing = T),]
+                dfTempEnriched[["log10FDR"]] <- log10(dfTempEnriched$p.adjust)
+                dfTempEnriched <- dfTempEnriched[order(dfTempEnriched$log10FDR, decreasing = F),]
                 dfTempEnriched <- na.omit(dfTempEnriched)
                 
                 if (nrow(dfTempEnriched) > topMaxCat){
@@ -1291,8 +1352,8 @@ for (j in 1:length(DGEtagVec)){
             }
             if (nrow(dfTempEnrichedNeg) > 0){
                 dfTempEnrichedNeg[["direction"]] <- "negative"
-                dfTempEnrichedNeg[["log10FDR"]] <- log10(dfTempEnrichedNeg$p.adjust)
-                dfTempEnrichedNeg <- dfTempEnrichedNeg[order(dfTempEnrichedNeg$log10FDR, decreasing = F),]
+                dfTempEnrichedNeg[["log10FDR"]] <- -1*log10(dfTempEnrichedNeg$p.adjust)
+                dfTempEnrichedNeg <- dfTempEnrichedNeg[order(dfTempEnrichedNeg$log10FDR, decreasing = T),]
                 dfTempEnrichedNeg <- na.omit(dfTempEnrichedNeg)
                 
                 if (nrow(dfTempEnrichedNeg) > topMaxCat){
@@ -1827,13 +1888,22 @@ save(OsC,
 
 
 ```{r create_report_params, eval=T, results="asis"}
+documentationParams <- list(
+
+    "title" = "Pseudobulk Differential Gene Expression Analysis",
+    "subtitle" =  "",
+    "abstract" = ""
+
+)
+
+Obio@parameterList$lims.id <- "SC19235"
 
 ## Try to retrieve project data from db ##
 library(RMySQL)
 db.pwd2 <- "_asf_"
 db.user2 <- "asf"
 host2 <- "ms1.thecrick.org"
-projectParams <- Obio@documentationParams
+projectParams <- documentationParams
 
 tryCatch({
     dbDB = dbConnect(drv = RMySQL::MySQL(), user = db.user2, password = db.pwd2, host = host2, dbname = "asf");

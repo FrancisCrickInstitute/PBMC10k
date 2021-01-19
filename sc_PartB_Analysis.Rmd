@@ -786,9 +786,7 @@ if (file.exists(FNcol)){
     ## Check if clusters match ##
     inClust <- unique(as.vector(dfClusterAnnotation$seurat_clusters))
     oClust <- unique(as.vector(OsC@meta.data$seurat_clusters))
-    if (length(inClust) == length(intersect(inClust, oClust))){
-      
-    }
+    
     
     if (length(pos1) != 0 & length(pos2) != 0 & length(pos3) != 0 ){
         ## Check if clusters match ##
@@ -871,7 +869,7 @@ OsC <- addDf2seuratMetaData(
 
 ###############################################################################
 ## Add custom sample annotation if specified                                 ##
-FNsample <- paste0(Obio@parameterList$localWorkDir, "customSampleAnnotation.txt")
+FNsample <- paste0(getwd(), "/design/customSampleAnnotation.txt")
 tableValid <- FALSE
 
 if (file.exists(FNsample)){
@@ -3664,7 +3662,13 @@ for (i in 1:length(Obio@parameterList$cat2DotplotList)){
         OsC_DP <- OsC
         OsC_DP@meta.data$clusterName <- factor(OsC_DP@meta.data$clusterName, levels = Obio@parameterList[["clusterNameOrder"]])
         
-        dfCol <- unique(OsC_DP@meta.data[,c("clusterName", "clusterColor")])
+        
+        
+        dfCol <- unique(OsC@meta.data[,c("clusterName", "clusterColor")])
+if(!is.null(Obio@parameterList$clusterNameOrder)){
+    row.names(dfCol) <- dfCol$clusterName
+    dfCol <- dfCol[Obio@parameterList$clusterNameOrder,]
+}
         colVec <- as.vector(dfCol$clusterColor)
         names(colVec) <- dfCol$clusterName
       
@@ -4427,6 +4431,11 @@ tag <- paste0("Dotplot_", "Var_Genes")
 textSize <- 5
 
 dfCol <- unique(OsC@meta.data[,c("clusterName", "clusterColor")])
+if(!is.null(Obio@parameterList$clusterNameOrder)){
+    row.names(dfCol) <- dfCol$clusterName
+    dfCol <- dfCol[Obio@parameterList$clusterNameOrder,]
+}
+
 colVec <- as.vector(dfCol$clusterColor)
 names(colVec) <- dfCol$clusterName
 textSize <- 2

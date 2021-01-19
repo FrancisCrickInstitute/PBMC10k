@@ -141,44 +141,7 @@ if (Obio@parameterList$scIntegrationMethod == "SCT"){
 
 # ###############################################################################
 # ## Load extra annotation data                                                ##
-FN <- "/camp/stp/babs/working/boeings/Projects/swantonc/dhruva.biswas/335_CSL_DB_scRNA_seq_lung_tumor_microenvironment_EMTAB6653/basedata/MetaData.txt"
-#
-dfExtra <- read.delim(
-    FN,
-    header = T,
-    sep = "\t",
-    stringsAsFactors = F
-)
-
-dfExtra <- dfExtra[dfExtra$cell %in% row.names(OsC@meta.data),]
-
-names(dfExtra) <- gsub("^cluster$", "meta_Article_Cluster", names(dfExtra))
-names(dfExtra) <- gsub("^CellType$", "meta_Article_Cell_Type", names(dfExtra))
-names(dfExtra) <- gsub("^CellType$", "meta_Article_Cell_Type", names(dfExtra))
-names(dfExtra) <- gsub("^CellType$", "meta_Article_Cell_Type", names(dfExtra))
-
-dfExtra[["meta_Patient"]] <- sapply(dfExtra$Patient_piece, function(x) unlist(strsplit(x, "_"))[1])
-dfExtra$meta_Patient <- paste0("P", dfExtra$meta_Patient)
-dfExtra$CellFromTumor <- as.character(dfExtra$CellFromTumor)
-dfExtra$CellFromTumor[dfExtra$CellFromTumor == "TRUE"] <- "Tumor"
-dfExtra$CellFromTumor[dfExtra$CellFromTumor == "FALSE"] <- "Non-Tumor"
-#
-names(dfExtra) <- gsub("CellFromTumor", "meta_CellFromTumor", names(dfExtra))
-names(dfExtra) <- gsub("Annotation", "meta_Article_CellType_Annotation", names(dfExtra))
-#
-#
-row.names(dfExtra) <- dfExtra$cell
-
-selVec <- names(dfExtra)[grep("meta_", names(dfExtra))]
-dfAdd <- dfExtra[,selVec]
-
-OsC <- addDf2seuratMetaData(
-            obj = OsC,
-            dfAdd = dfAdd
-        )
-
-# FN <- "/camp/stp/babs/working/boeings/Projects/leys/joan.manils/383_SLL_JM_singleCellRNASeq_PatSkinDisease_EGAS00001002927/basedfExtra[["meta_Region"]] <- sapply(dfExtra$Patient_piece, function(x) unlist(strsplit(x, "_"))[2])
-#data/publication_celldata_extraCol_selection.txt"
+# FN <- "/camp/stp/babs/working/boeings/Projects/leys/joan.manils/383_SLL_JM_singleCellRNASeq_PatSkinDisease_EGAS00001002927/basedata/publication_celldata_extraCol_selection.txt"
 # 
 # dfExtra <- read.delim(
 #     FN,
@@ -237,32 +200,64 @@ OsC <- addDf2seuratMetaData(
 
 
 
-dfdbTable <- OsC@meta.data
+
 #dfdbTable[["cellID"]] <- row.names(dfdbTable)  
 # if (is.null(dfdbTable)){
 #     dfdbTable <- OsC@meta.data
 # }
 
 
-clusterIDs <- as.vector(sort(unique(dfdbTable[, "seurat_clusters"])))
-
-
-
-for (i in 1:length(clusterIDs)){
-    dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], "uniquecellID"] <- paste0(
-        dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], "sampleID"],
-        "_",
-        "Cluster", 
-        dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], Obio@parameterList$singleCellClusterString],
-        "_", 
-        1:nrow(dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], ] )
-    )
-}
+# clusterIDs <- as.vector(sort(unique(dfdbTable[, "seurat_clusters"])))
+# 
+# 
+# 
+# for (i in 1:length(clusterIDs)){
+#     dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], "uniquecellID"] <- paste0(
+#         dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], "sampleID"],
+#         "_",
+#         "Cluster", 
+#         dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], Obio@parameterList$singleCellClusterString],
+#         "_", 
+#         1:nrow(dfdbTable[dfdbTable[, "hmIdent"] == clusterIDs[i], ] )
+#     )
+# }
 
 #dfdbTable[["cellID"]] <- paste0(dfdbTable$sampleID, "_Cluster", dfdbTable[, Obio@parameterList$singleCellClusterString]) #row.names(dfdbTable)
 #dfdbTable[["meta_Mouse"]] <- substr(dfdbTable$cellID, 1, 2)
 
 ## Assign colors ##
+
+
+###############################################################################
+## Add additional UMAP annotations
+addFNvec <- c(
+  "../temp/UMAP.regression.coordinates.txt",
+  "../temp/ClusterFinder.output.txt" 
+)
+
+row.names(OsC@meta.data) <- OsC@meta.data$cellID
+
+for (i in 1:length(addFNvec)){
+    if (file.exists(addFNvec[i])){
+        dfAdd <- read.delim(
+            addFNvec[i],
+            header = T, 
+            sep = "\t",
+            stringsAsFactors = F
+        )
+        
+        row.names(dfAdd) <- dfAdd$cellID
+        dfAdd$cellID <- NULL
+        dfAdd <- dfAdd[row.names(dfAdd) %in% OsC@meta.data$cellID,]
+        
+        OsC <- addDf2seuratMetaData(
+            obj = OsC,
+            dfAdd = dfAdd
+        )
+    }
+}
+
+dfdbTable <- OsC@meta.data  
 
 dfdbTable[["sample_group"]] <- dfdbTable$clusterName
 dfdbTable[["sample_group"]] <- dfdbTable$clusterName
@@ -308,35 +303,6 @@ if (length(grep("DF_Classification", names(dfdbTable)) > 0)){
     ########################
 }
 
-###############################################################################
-## Add additional UMAP annotations
-addFNvec <- c(
-  "../temp/UMAP.regression.coordinates.txt",
-  "../temp/ClusterFinder.output.txt" 
-)
-
-row.names(OsC@meta.data) <- OsC@meta.data$cellID
-
-for (i in 1:length(addFNvec)){
-    if (file.exists(addFNvec[i])){
-        dfAdd <- read.delim(
-            addFNvec[i],
-            header = T, 
-            sep = "\t",
-            stringsAsFactors = F
-        )
-        
-        row.names(dfAdd) <- dfAdd$cellID
-        dfAdd$cellID <- NULL
-        dfAdd <- dfAdd[row.names(dfAdd) %in% OsC@meta.data$cellID,]
-        
-        OsC <- addDf2seuratMetaData(
-            obj = OsC,
-            dfAdd = dfAdd
-        )
-    }
-}
-  
 ##
 ###############################################################################  
   
@@ -350,7 +316,6 @@ for (i in 1:length(addFNvec)){
 
 ##
 ###############################################################################
-
 
 pos <- grep("integrated_", names(dfdbTable))
 if (length(pos) > 0){
@@ -366,7 +331,7 @@ upload.datatable.to.database(
     dbTableName = Obio@parameterList$PCAdbTableName,
     df.data = dfdbTable,
     db.col.parameter.list = list(
-        "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("cellType","cellIdent","sample_","cellID","orig_ident","old_ident","clustIdent", "hmIdent","sampleID", "clusterName",  "clusterColor", "sampleName", "sampleColor", "CellFromTumor", "Patient", "Region",  "Article_Cell_Type", "Gender","Glia_vs_Neuron", "NitChol_vs_Serotonergic", "Nitrergic_vs_Cholinergic", "Sample_Group", "CC_Difference", "meta_", "cluster_sample", "DGE_GliaT_vs_NeuronT", "^Cluster"),
+        "VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("cellType","cellIdent","sample_","cellID","orig_ident","old_ident","clustIdent", "hmIdent","sampleID", "clusterName",  "^ClusterName","clusterColor", "ClusterTestRes","sampleName", "sampleColor", "CellFromTumor", "Patient", "Region",  "Article_Cell_Type", "Gender","Glia_vs_Neuron", "NitChol_vs_Serotonergic", "Nitrergic_vs_Cholinergic", "Sample_Group", "CC_Difference", "meta_", "cluster_sample", "DGE_GliaT_vs_NeuronT"),
        "VARCHAR(10) CHARACTER SET utf8 COLLATE utf8_general_ci" = c("all","included","Phase", gsub("[.]", "_", Obio@parameterList$singleCellClusterString), "seurat_clusters", "RNA_snn_res"),
         "BIGINT(8) NULL DEFAULT NULL" = c("row_names"),
         "INT(8) NULL DEFAULT NULL" = c("nCount_", "nFeature_","DF_Classification"),
