@@ -7,11 +7,14 @@
 
 
 ###############################################################################
-##                                                                           ##       
+##  Load required packages                                                   ##       
 library(shiny)
 library(ggplot2)
 library(RMySQL)
 library(DT)
+library(colourpicker)
+## To be added soon
+#library(colourpicker)
 ##                                                                           ##
 ###############################################################################
 
@@ -52,54 +55,82 @@ dfCoordSel[["all"]] <- "all"
 ##                                                                           ##       
 
 
-conditionVec <- unique(sort(dfCoordSel$sampleID))
+conditionVec <- unique(sort(dfCoordSel$sampleName))
 
 Nsamples <- length(conditionVec)
 
 
-XYsel <- c(
-  names(dfCoordSel)[grep("UMAP", names(dfCoordSel))],
-  names(dfCoordSel)[grep("tSNE", names(dfCoordSel))],
-  names(dfCoordSel)[grep("seurat_clusters", names(dfCoordSel))],
-  names(dfCoordSel)[grep("Cluster", names(dfCoordSel))],
-  names(dfCoordSel)[grep("^meta", names(dfCoordSel))],
-  names(dfCoordSel)[grep("sub_clusters", names(dfCoordSel))],
-  names(dfCoordSel)[grep("PC", names(dfCoordSel))],
-  names(dfCoordSel)[grep("DM_Pseudotime", names(dfCoordSel))],
-  names(dfCoordSel)[grep("DF_Classification", names(dfCoordSel))],
-  names(dfCoordSel)[grep("nCount", names(dfCoordSel))],
-  names(dfCoordSel)[grep("nFeatures", names(dfCoordSel))],
-  names(dfCoordSel)[grep("percent", names(dfCoordSel))],
-  #names(dfCoordSel)[grep("Con_Prad_AZ", names(dfCoordSel))],
-  #names(dfCoordSel)[grep("Norm_Hyp", names(dfCoordSel))],
-  names(dfCoordSel)[grep("Gender", names(dfCoordSel))],
-  names(dfCoordSel)[grep("CellFromTumor", names(dfCoordSel))],
-  names(dfCoordSel)[grep("Patient", names(dfCoordSel))],
-  names(dfCoordSel)[grep("Region", names(dfCoordSel))],
-  names(dfCoordSel)[grep("Article_Cell_Type", names(dfCoordSel))]
+allOptions <- names(dfCoordSel)
+rmNameVec <-c(
+    "^DC",
+    "uniquecellID",
+    "hmIdent",
+    "old_ident",
+    "cellID", 
+    "sample_group",
+    "DF_pANN",
+    "clusterColor",
+    "sampleColor",
+    "clustIdent",
+    "G2M_Score",
+    "DM_Pseudotime",
+    "^Sub_clusters_ExNeurons$",
+    "sample_group_colors",
+    "row_names",
+    "sampleID"
 )
+
+rmVec <- as.vector(NULL, mode = "numeric")
+for (i in 1:length(rmNameVec)){
+    rmVec <- c(
+        rmVec,
+        grep(rmNameVec[i], names(dfCoordSel))
+    )
+}
+
+XYsel <- allOptions
+if (length(rmVec) > 0){
+    XYsel <- XYsel[-rmVec]
+}
+
+## Reorder
+XYsel <- c(
+    XYsel[grep("UMAP_", XYsel)],
+    XYsel[grep("tSNE_", XYsel)],
+    XYsel[grep("sampleName", XYsel)],
+    XYsel[grep("clusterName", XYsel)],
+    XYsel[grep("ClusterTame", XYsel)],
+    XYsel[grep("ClusterTest", XYsel)],
+    XYsel[grep("PC_", XYsel)],
+    XYsel[grep("DM_Pseudotime", XYsel)],
+    XYsel[grep("meta_", XYsel)],
+    #XYsel[grep("DF_Classification", XYsel)],
+    XYsel[grep("nCount", XYsel)],
+    XYsel[grep("nFeatures", XYsel)],
+    XYsel[grep("nCount", XYsel)],
+    XYsel[grep("percent", XYsel)],
+    XYsel[grep("nCount", XYsel)],
+    XYsel[grep("nCount", XYsel)]
+)
+
+
 
 ## Get color selection ##
 allColorOptions <- c(
     #"Log10 Expresson" = "lg10Expr",
-    "DM Pseudotime"  = "DM_Pseudotime",
-    "SampleID" = "sampleID",
+    #"DM Pseudotime"  = "DM_Pseudotime",
+    "Sample" = "sampleName",
+    "Cluster" = "clusterName",
+    "Subcluster" = "subClusterName",
    # "WT vs. IDH" = "WT_IDH",
     "Gender" = "Gender",
   #  "Norm vs Hyp" = "Norm_Hyp",
   #  "Con Prad AZ" = "Con_Prad_AZ",
     "Cells From Tumor" = "CellFromTumor",
-  names(dfCoordSel)[grep("Cluster", names(dfCoordSel))],
-  names(dfCoordSel)[grep("^meta", names(dfCoordSel))],
     "Patient" = "Patient",
     "Region" = "Region",
     "Article Cell Type" = "Article_Cell_Type",
     "Doublet Classification" = "DF_Classification" ,
-    "Cluster" = "seurat_clusters",
-    "Subclusters T-Cell" = "sub_clusters_T_cells",
-    "Sub-clusters Ex Neurons" = "sub_clusters_ExNeurons",
-    "Sub-sub Clusters" = "sub_sub_clusters_ExNeurons",
-    "SubCluster_2" = "sub_cluster_3",
     "nCount_RNA" = "nCount_RNA",
     "nFeature_RNA" = "nFeature_RNA",
     "percent_mt" = "percent_mt",
@@ -109,8 +140,25 @@ allColorOptions <- c(
     "Uniform" = "all"
 )
 
+colAddvec <- c(
+  XYsel[grep("ClusterTest", XYsel)],
+  XYsel[grep("meta_", XYsel)]
+)
+
+names(colAddvec) <- colAddvec
+
+allColorOptions <- c(
+    allColorOptions, 
+    colAddvec
+)
+
+
+
+
 splitOptions <- c(
-  "SampleID" = "sampleID",
+  "Sample" = "sampleName",
+  "Cluster" = "clusterName",
+  "SubCluster" = "subClusterName",
   "Patient" = "Patient",
   "Gender" = "Gender",
   #"Norm vs Hyp" = "Norm_Hyp",
@@ -118,23 +166,12 @@ splitOptions <- c(
   "Cells From Tumor" = "CellFromTumor",
   "Region" = "Region",
   "Article Cell Type" = "Article_Cell_Type",
-  "Doublet Classification" = "DF_Classification" ,
+  #"Doublet Classification" = "DF_Classification" ,
   "None" = "all",
   "WT vs. IDH" = "WT_IDH",
   "Gender" = "Gender",
   "Doublet Classification" = "DF_Classification" ,
-  "Cluster" = "seurat_clusters",
-  "Sub-clusters Ex Neurons" = "sub_clusters_ExNeurons",
-  "Sub-sub Clusters" = "sub_sub_clusters_ExNeurons",
-  "SubCluster_2" = "sub_cluster_3",
   "Cell Cycle Phase" = "Phase"
-)
-
-splitAdd <- names(dfCoordSel)[grep("^meta", names(dfCoordSel))]
-names(splitAdd) <- splitAdd 
-splitOptions <- c(
-    splitOptions, 
-    splitAdd
 )
 
 splitOptions <- splitOptions[splitOptions %in% names(dfCoordSel)]
@@ -230,17 +267,10 @@ header.append('<div style=\"float:left\"><ahref=\"URL\"><img src=\"assets/images
                         choices = allColorOptions,
                         selected = names(allColorOptions)[1]),
             
-            
-            selectInput("dotcolor", 
-                        label = "Choose dot colorscale",
-                        choices =c("Darkblue" = "darkblue","Red" = "red","Orange" = "orange", "Green" =  "#009900"),
-                        selected = "darkblue"),
-            
-            selectInput("lowColor",
-                        label = "Choose low colorscale",
-                        choices =c("Grey" = "#D3D3D3", "White" = "white","Orange" = "orange", "Green" =  "#009900"),
-                        selected = "#D3D3D3"),
-            
+            ## To be added soon
+            #colourInput("dotcolor", "Choose dot colorscale", "darkblue"),
+            colourInput("dotcolor", "Select colour", "darkblue"),
+            colourInput("lowColor", "Select colour", "#D3D3D3"),
             selectInput("background",
                         label = "Select Background",
                         choices =c("Grey" = "grey", "White" = "white","Minimal" = "minimal", "Plain" =  "plain"),

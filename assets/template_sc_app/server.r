@@ -98,7 +98,7 @@ plot_overlay_server <- function(
             }
             
         } else {
-          df$Dcolor[df$Dcolor == ""] <- NA
+          df$Dcolor[df$Dcolor == ""] <- "Rest"
           df$Dcolor <- factor(df$Dcolor)
         }     
       
@@ -113,18 +113,54 @@ plot_overlay_server <- function(
         
         if (is.numeric( df$Dcolor )){
             if (minExpr < 0){
-              p <- p + scale_color_gradient2(low= lowColor, mid = "white", high= dotcolor, midpoint = 0, limits=c(minExpr,maxExpr)
+              p <- p + scale_color_gradient2("Expr",low= lowColor, mid = "white", high= dotcolor, midpoint = 0, limits=c(minExpr,maxExpr)
               )
-            } else {
-              p <- p + scale_color_gradient(low= lowColor, high= dotcolor, limits=c(minExpr,maxExpr)
+              
+             } else {
+              p <- p + scale_color_gradient("Expr",low= lowColor, high= dotcolor, limits=c(minExpr,maxExpr)
               )
             }
             
         } else if (colorBy == "DF_Classification" & length(unique(df$Dcolor)) == 2) {
-            p <- p + scale_colour_manual(values = c("red","black"))
+            p <- p + scale_colour_manual("Doublet Class",values = c("red","black")
+            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = 5))
+            )
         } else if (colorBy == "all") {
-            p <- p + scale_colour_manual(values = c("black"))
-        } 
+            p <- p + scale_colour_manual("All",values = c("black")
+            ) + guides(col = guide_legend(override.aes = list(shape = 16, size = 5))
+            )
+        }  else if (colorBy == "clusterName"){
+          dfCol <- unique(df[,c("clusterName", "clusterColor")])
+          colVec <- dfCol$clusterCol
+          names(colVec) <- dfCol$clusterName
+          colVec <- colVec[colVec != ""]
+        
+          
+          p <- p + scale_colour_manual("Cluster Names" ,values = colVec
+          ) + guides(col = guide_legend(override.aes = list(shape = 16, size = 5))
+          )
+        } else if (colorBy == "subClusterName"){  
+          df$subClusterName <- gsub("^$", "Rest",df$subClusterName)
+          dfCol <- unique(df[,c("subClusterName", "subClusterColor")])
+          dfCol[dfCol$subClusterName == "Rest", "subClusterColor"] <- "#d3d3d3"
+          colVec <- dfCol$subClusterColor
+          names(colVec) <- dfCol$subClusterName
+         
+          colVec <- colVec[colVec != ""]
+          p <- p + scale_colour_manual("Sub-cluster Names" ,values = colVec
+          ) + guides(col = guide_legend(override.aes = list(shape = 16, size = 5))
+          )
+          
+        } else if (colorBy == "sampleName"){  
+          dfCol <- unique(df[,c("sampleName", "sampleColor")])
+          colVec <- dfCol$sampleColor
+          names(colVec) <- dfCol$sampleName
+          colVec <- colVec[colVec != ""]
+          p <- p + scale_colour_manual("Sample Names" ,values = colVec
+          ) + guides(col = guide_legend(override.aes = list(shape = 16, size = 5))
+          )
+          
+        }
         
         if (!is.numeric(df$x_axis)){
             p <- p + geom_jitter(height = 0) 
@@ -377,7 +413,7 @@ shinyServer(
           
           
           
-          # if (input$x_axis == "seurat_clusters"){
+          # if (input$x_axis == "clusterName"){
           #     clusters <- sort(unique(dfTemp[,input$x_axis]))
           #     
           #     dfTemp[["x_axis"]] <- dfTemp[,paste0( input$x_axis, "_number")]
@@ -394,22 +430,32 @@ shinyServer(
           }
           
           dfTemp[["y_axis"]] <- dfTemp[,input$y_axis]
-          clusterColorColName <- "seurat_clusters"
-          levels <- 
-          dfTemp[["Cluster"]] <- factor(dfTemp[,clusterColorColName], levels = sort(unique(dfTemp[,clusterColorColName])))   
-          dfTemp$seurat_clusters <- as.numeric(dfTemp$seurat_clusters)
+          # clusterColorColName <- "clusterName"
+          # dfCol <- unique(dfTemp[,c("clusterName", "clusterColor")])
+          # colVec <- dfCol$clusterColor
+          # names(colVec) <- dfCol$clusterName
+          # 
+          # subClusterColorColName <- "subClusterName"
+          # dfCol <- unique(dfTemp[,c("subClusterName", "subClusterColor")])
+          # sColVec <- dfCol$subClusterColor
+          # names(sColVec) <- dfCol$subClusterName
+          # sColVec <- sColVec[sColVec != ""]
+          # 
+          # levels <- 
+          # dfTemp[["Cluster"]] <- factor(dfTemp[,clusterColorColName], levels = sort(unique(dfTemp[,clusterColorColName])))   
+          # #dfTemp$clusterName <- as.numeric(dfTemp$clusterName)
           
           
-          if (input$colorBy == "lg10Expr"){
-              selVec <- unique(c( "gene", "lg10Expr", "x_axis", "y_axis", "Dcolor", "cellID", "sampleID", input$splitByColumn))
-          } else {
-              selVec <- unique(c( "gene", "lg10Expr", "x_axis", "y_axis", "Dcolor", "cellID", "sampleID", input$colorBy, input$splitByColumn))
-          }
+          # if (input$colorBy == "lg10Expr"){
+          #     selVec <- unique(c( "gene", "lg10Expr", "x_axis", "y_axis", "Dcolor", "cellID", "sampleID", input$splitByColumn))
+          # } else {
+          #     selVec <- unique(c( "gene", "lg10Expr", "x_axis", "y_axis", "Dcolor", "cellID", "sampleID", input$colorBy, input$splitByColumn))
+          # }
+          # 
           
           
           
-          
-          dfTemp <- dfTemp[,selVec]  
+          #dfTemp <- dfTemp[,selVec]  
           dfTemp <- dfTemp[(dfTemp$x_axis != 0 | dfTemp$y_axis != 0),] 
           dfTemp
       })
