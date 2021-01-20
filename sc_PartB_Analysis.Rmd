@@ -4692,7 +4692,7 @@ linkFeatureView <- paste0('<a href="https://',urlString,'/mdata/',Obio@parameter
        Obio@parameterList$project_id, 
        ".Cluster.marker.table.xlsx"
     )
-    FNtabrel <- paste0("report_figures/", baseFN)
+    FNtabrel <- paste0("report_tables/", baseFN)
 
     tablink <- paste0('An Excel table containing the cluster marker genes can be downloaded <a href = "',FNtabrel,'">here</a>. ')
 
@@ -4788,7 +4788,7 @@ baseFN <- paste0(
    Obio@parameterList$project_id, 
    ".Cluster.marker.table.xlsx"
 )
-FNtabrel <- paste0("report_figures/", baseFN)
+FNtabrel <- paste0("report_tables/", baseFN)
 
 outPutFN <- paste0(
      Obio@parameterList$reportTableDir,
