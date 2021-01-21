@@ -330,8 +330,9 @@ if (length(SampleList) > 1){
     OsC <- SampleList[[1]]
 }
 
+Idents(OsC) <- "sampleID"
 Idents(OsC) <- factor(Idents(OsC), levels = names(Obio@sampleDetailList))
-OsC@meta.data$sampleID <- factor(OsC@meta.data$sampleID, levels = names(Obio@sampleDetailList))
+#OsC@meta.data$sampleID <- factor(OsC@meta.data$sampleID, levels = names(Obio@sampleDetailList))
 
 OsC@meta.data[["cellID"]] <- row.names(OsC@meta.data)
 
@@ -1687,9 +1688,11 @@ if (length(grep("sampleName", names(OsC@meta.data))) > 0){
         OsC@meta.data$clusterName, "_", OsC@meta.data$sampleName
     )
     
-    OsC@meta.data$cluster_sample <- factor(OsC@meta.data$cluster_sample , levels = c(unique(OsC@meta.data$cluster_sample)))
-    
     Idents(OsC) <- "cluster_sample"
+    Idents(OsC) <- factor(Idents(OsC), levels = c(unique(OsC@meta.data$cluster_sample)))
+    #OsC@meta.data$cluster_sample <- factor(OsC@meta.data$cluster_sample , levels = c(unique(OsC@meta.data$cluster_sample)))
+    
+    #Idents(OsC) <- "cluster_sample"
     cluster.averages <- AverageExpression(OsC, return.seurat = TRUE)
     
     
@@ -4451,7 +4454,11 @@ if (length(colVec) > 5){
 }
 
 
-OsC@meta.data$clusterName <- factor(OsC@meta.data$clusterName, levels = Obio@parameterList[["clusterNameOrder"]])
+Idents(OsC) <- "clusterName"
+Idents(OsC) <- factor(Idents(OsC), levels = Obio@parameterList[["clusterNameOrder"]])
+
+#OsC@meta.data$clusterName <- factor(OsC@meta.data$clusterName, levels = #Obio@parameterList[["clusterNameOrder"]])
+
 
 plotList[[tag]] <- DotPlotSB(
         object = OsC,
@@ -4469,7 +4476,7 @@ plotList[[tag]] <- DotPlotSB(
     # ) + coord_flip(
     ) + theme_bw() +
   theme(axis.text.x = element_text(size=rel(textSize), angle = 45, hjust=1, color = colVec))
-rm(OsC2)
+
 # plotList[[tag]] <- DotPlot(
 #         object = OsC,
 #         features = dpGenes,
