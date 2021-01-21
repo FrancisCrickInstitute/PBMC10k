@@ -1,3 +1,2 @@
 "sampleID"	"sampleName"	"sampleColor"
-"Glia"	"Glia"	"#F8766D"
-"Neuron"	"Neuron"	"#00BFC4"
+"Neuron"	"Neuron"	"#F8766D"

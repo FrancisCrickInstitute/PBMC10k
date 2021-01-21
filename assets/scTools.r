@@ -1299,6 +1299,8 @@ setGeneric(
                 vars.to.regress = vars.to.regress,
                 features = row.names(SampleList[[i]])
             )
+            
+            Idents(SampleList[[i]]) <- "sampleID"
 
         }
         return(SampleList)
@@ -1525,6 +1527,10 @@ setGeneric(
         SampleList[[i]]@meta.data[SampleList[[i]]@meta.data$percent_mt > obj@sampleDetailList[[i]]$singleCellSeuratMtCutoff  ,"selected"] <- ""
         SampleList[[i]]@meta.data[SampleList[[i]]@meta.data$nFeature_RNA > obj@sampleDetailList[[i]]$SeuratNrnaMaxFeatures  ,"selected"] <- ""
         SampleList[[i]]@meta.data[SampleList[[i]]@meta.data$nFeature_RNA < obj@sampleDetailList[[i]]$SeuratNrnaMinFeatures  ,"selected"] <- ""
+        
+        ## Reset identity 
+        Idents(SampleList[[sampleID]]) <- "sampleID"
+        
     }
     return(SampleList)
 
