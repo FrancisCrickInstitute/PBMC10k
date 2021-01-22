@@ -1299,8 +1299,6 @@ setGeneric(
                 vars.to.regress = vars.to.regress,
                 features = row.names(SampleList[[i]])
             )
-            
-            Idents(SampleList[[i]]) <- "sampleID"
 
         }
         return(SampleList)
@@ -1527,10 +1525,6 @@ setGeneric(
         SampleList[[i]]@meta.data[SampleList[[i]]@meta.data$percent_mt > obj@sampleDetailList[[i]]$singleCellSeuratMtCutoff  ,"selected"] <- ""
         SampleList[[i]]@meta.data[SampleList[[i]]@meta.data$nFeature_RNA > obj@sampleDetailList[[i]]$SeuratNrnaMaxFeatures  ,"selected"] <- ""
         SampleList[[i]]@meta.data[SampleList[[i]]@meta.data$nFeature_RNA < obj@sampleDetailList[[i]]$SeuratNrnaMinFeatures  ,"selected"] <- ""
-        
-        ## Reset identity 
-        Idents(SampleList[[sampleID]]) <- "sampleID"
-        
     }
     return(SampleList)
 
@@ -1955,9 +1949,10 @@ setGeneric(
         sampleNames <- as.vector(names(obj@sampleDetailList))
         
         ## Calculate cell cycle scores for each individual sample ##
-        Idents(SampleList[[sampleNames[i]]]) <- "sampleID"
+       
         
         for (i in 1:length(sampleNames)){
+            Idents(SampleList[[sampleNames[i]]]) <- "sampleID"
             # Create our Seurat object and complete the initalization steps
             SampleList[[sampleNames[i]]] <- CellCycleScoring(
                 SampleList[[sampleNames[i]]], 
@@ -2135,10 +2130,11 @@ setGeneric(
         sampleNames <- as.vector(names(obj@sampleDetailList))
         
         ## Calculate cell cycle scores for each individual sample ##
-        Idents(SampleList[[sampleNames[i]]]) <- "sampleID"
+        
         
         for (i in 1:length(sampleNames)){
             # Create our Seurat object and complete the initalization steps
+            Idents(SampleList[[sampleNames[i]]]) <- "sampleID"
             SampleList[[sampleNames[i]]] <- CellCycleScoring(
                 SampleList[[sampleNames[i]]], 
                 s.features = s.genes, 
