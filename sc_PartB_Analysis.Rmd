@@ -431,7 +431,8 @@ dfVar[["Type"]] <- "Standard"
 dfVar[dfVar$gene %in% OsC@assays$RNA@var.features, "Type"] <- "Most Variable"
 
 dfVar[["text"]] <- ""
-dfVar[dfVar$gene %in% as.vector(Obio@dataTableList$referenceList[[label30]]), "text"] <- Obio@dataTableList$referenceList[label30]
+
+dfVar[dfVar$gene %in% as.vector(Obio@dataTableList$referenceList[[label30]]), "text"] <- dfVar[dfVar$gene %in% as.vector(Obio@dataTableList$referenceList[[label30]]), "gene"]
 
 #dotsize <- 0.5
 
@@ -585,7 +586,7 @@ for (i in 1:length(SampleList)){
     dfVar[dfVar$gene %in% SampleList[[i]]@assays$RNA@var.features, "Type"] <- "Most Variable"
 
     dfVar[["text"]] <- ""
-    dfVar[dfVar$gene %in% as.vector(Obio@dataTableList$referenceList[[label30]]), "text"] <- Obio@dataTableList$referenceList[label30]
+    dfVar[dfVar$gene %in% as.vector(Obio@dataTableList$referenceList[[label30]]), "text"] <- dfVar[dfVar$gene %in% as.vector(Obio@dataTableList$referenceList[[label30]]), "gene"]
 
     # dotsize <- 0.5
 
@@ -6245,35 +6246,15 @@ if (Obio@parameterList$addDmaps){
     
     ## Add to table ##
     df$cellID <- row.names(dfPCA)
-    dfdbTable <- OsC@meta.data
     
-    dfdbTable$row_names <- NULL
-    dfdbTable$DC1 <- NULL
-    dfdbTable$DC3 <- NULL
-    dfdbTable$DC2 <- NULL
-    dfdbTable$DM_Pseudotime <- NULL
-    dfdbTable <- unique(dfdbTable)
-    
-    ###############################################################################
-    ## Add pseudotime components                                                 ##
-    #dim(dfdbTable)
-    
-    dfdbTable[["cellID"]] <- row.names(dfdbTable)
-    
-    dfdbTable <- merge(
-      dfdbTable, 
-      df, 
-      by.x = "cellID",
-      by.y = "cellID"
+    ## add here ##
+    OsC <- addDf2seuratMetaData(
+      obj = OsC, 
+      dfAdd = df
     )
     
-    #dim(dfdbTable)
-    
-    ## Add to Seurat object ##
-    OsC@meta.data <- dfdbTable
-    
     ## Create Pseudotime plot ##
-    dfTemp <- dfdbTable
+    dfTemp <- OsC@meta.data
     #dotsize <- 0.5
     dotcolor <- "darkblue"
     tag <- "PC1PC2all"
