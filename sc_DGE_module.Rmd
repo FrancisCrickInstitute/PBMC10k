@@ -276,11 +276,19 @@ setGeneric(
 DGEtagVec <- as.vector(NULL, mode = "character")
 DGEinputList <- list(
   "comp_1" = list(
-      "name"    = "DGE_Glia_vs_Neuron",
-      "DGEselCol" = "sampleID",
+      "name"    = "DGE_DZ_vs_LZ_FDC",
+      "DGEselCol" = "seurat_clusters",
       "DGEsampleList" = list(
-          "Glia"   = c("mliGlia"),
-          "Neuron" = c("mliNeuron")
+          "DZ"   = c(4),
+          "LZ" = c(8)
+      )
+  ),
+  "comp_2" = list(
+      "name"    = "DGE_B_cells_1_vs_B_cells_2",
+      "DGEselCol" = "seurat_clusters",
+      "DGEsampleList" = list(
+          "B_cells_1"   = c(0),
+          "B_cells_2" = c(5)
       )
   )
 )
@@ -813,6 +821,14 @@ for (i in 1:length(DGEtagVec)){
     dfPlot[["X"]] <- dfPlot[,grep("_logFC", names(dfPlot))]
     dfPlot[["Y"]] <- dfPlot[,grep("_lg10p_", names(dfPlot))]
     
+    if (max(dfPlot$Y) > 250){
+        yInc <- 50
+    } else if (max(dfPlot$Y) > 50){
+        yInc <- 10
+    } else {
+        yInc <- 5
+    }
+    
     dotsize  = 1.25
     if (nrow(dfPlot) > 10000){
       dotsize  = 1
@@ -846,7 +862,7 @@ for (i in 1:length(DGEtagVec)){
       ) + ggtitle(paste0("Volcano Plot for DGE Comparison ", gsub("_", " ", label))
       ) + ylim(logFClims, -1 * logFClims
       ) + scale_color_manual("DGE Status" ,values = colVec
-      ) + scale_y_continuous(breaks=c(seq(0,400,50))
+      ) + scale_y_continuous(breaks=c(seq(0,400, yInc))
       ) + scale_x_continuous(breaks=c(seq(-400,400,2))
       )
 

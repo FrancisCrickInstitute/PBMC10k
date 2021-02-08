@@ -139,8 +139,7 @@ The following object is masked from 'package:Seurat':
     Assays
 
 Quitting from lines 44-528 (sc_DGE_module.Rmd) 
-Error in `contrasts<-`(`*tmp*`, value = contr.funs[1 + isOF[nn]]) : 
-  contrasts can be applied only to factors with 2 or more levels
-Calls: <Anonymous> ... convert_chr_vec_to_model_matrix -> <Anonymous> -> contrasts<-
+Error in gzfile(file) : invalid 'description' argument
+Calls: <Anonymous> ... withCallingHandlers -> withVisible -> eval -> eval -> load -> gzfile
 
 Execution halted
