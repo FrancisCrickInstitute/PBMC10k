@@ -379,6 +379,21 @@ if (length(pos) > 0) {
 ## Done                                                                      ##
 ###############################################################################
 
+###############################################################################
+## Add ADT counts                                                            ##
+pos <- grep("dfResADT", names(Obio@dataTableList))
+
+if (length(pos) > 0) {
+    dfCat <- Obio@dataTableList$dfResADT
+ 
+    names(dfCat) <- gsub("cellID", "condition", names(dfCat))
+    dfCat <- dfCat[dfCat$expr != 0,]
+    dfCat <- dfCat[,names(dfExpr)]
+    dfExpr <- rbind(dfExpr, dfCat)
+}
+
+## Done adding ADT counts                                                    ##
+###############################################################################
 
 #Obio@dataTableList[["dfExpr"]] <- dfExpr
 dfIDTable <- dfExpr
@@ -434,6 +449,21 @@ if (length(pos) > 0) {
 ## Done                                                                      ##
 ###############################################################################
 
+###############################################################################
+## Add ADT counts                                                            ##
+pos <- grep("dfResADT", names(Obio@dataTableList))
+
+if (length(pos) > 0) {
+    dfCat <- Obio@dataTableList$dfResADT
+ 
+    names(dfCat) <- gsub("cellID", "condition", names(dfCat))
+    dfCat <- dfCat[dfCat$expr != 0,]
+    dfCat <- dfCat[,names(dfExpr)]
+    dfExpr <- rbind(dfExpr, dfCat)
+}
+
+## Done adding ADT counts                                                    ##
+###############################################################################
 
 names(dfExpr) <- gsub("condition", "cellID", names(dfExpr))
 names(dfExpr) <- gsub("expr", "lg10Expr", names(dfExpr))
