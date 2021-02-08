@@ -6386,7 +6386,7 @@ upload.datatable.to.database <- function(
                 ), 
                 ". Datatable not uploaded to database.")
         )
-        return(not.assigned)
+        stop(not.assigned)
     }
     
     
