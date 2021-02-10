@@ -1152,7 +1152,8 @@ if (ncol(dfDat) > 1){
           
   dfFAMplotIDs <- data.frame(
     cat_id = updatedCatIDs, 
-    cat_name = updatedCatNames
+    cat_name = updatedCatNames,
+    stringsAsFactors = F
   )    
 }
         
@@ -3830,7 +3831,7 @@ for (i in 1:length(clusterVec)){
   
   
   residuals <- round(clusterFit$residuals, 3)
-  dfTempResiduals <- data.frame(dfDataTable$gene, residuals)
+  dfTempResiduals <- data.frame(dfDataTable$gene, residuals, stringsAsFactors = F)
   names(dfTempResiduals) <- c("gene", paste0(clusterVec[i], "_Residuals"))
   
   if (i ==1){
@@ -3964,7 +3965,7 @@ for (i in 1:length(residualClusterMarkers)){
     )
 } ## End dfDat loop
 
-dfCatNameLR <- data.frame(catID = updatedCatIDs, cat_name= updatedCatNames)
+dfCatNameLR <- data.frame(catID = updatedCatIDs, cat_name= updatedCatNames, stringsAsFactors = F)
 
 Obio@dataTableList[["residualClusterMarkers"]] <- residualClusterMarkers
 
