@@ -343,8 +343,7 @@ shinyServer(
       #   names(dfCoordSel)
       # })
       
-      dfCoordSel$cellID <- gsub("[.]", "-", dfCoordSel$cellID)
-      dfCoordSel$cellID <- gsub("-", "_", dfCoordSel$cellID)
+      
       
       dfCoordSel
       
@@ -382,7 +381,6 @@ shinyServer(
       names(dfExprSel) <- gsub("condition", "cellID", names(dfExprSel))
       names(dfExprSel) <- gsub("^expr$", "lg10Expr", names(dfExprSel))
       dfExprSel$cellID <- gsub("[.]", "-", dfExprSel$cellID)
-      dfExprSel$cellID <- gsub("-", "_", dfExprSel$cellID)
       dfExprSel$cellID <- gsub("^X", "", dfExprSel$cellID)
       dfExprSel
     })
