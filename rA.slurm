@@ -255,6 +255,7 @@ List of 4
  $ warning: logi FALSE
  $ results: symbol F
 
+Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
 Calculating gene variances
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
@@ -267,28 +268,29 @@ Loading required package: DBI
 Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric
 To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'
 This message will be shown once per session
-11:16:21 UMAP embedding parameters a = 0.9922 b = 1.112
-11:16:21 Read 1938 rows and found 20 numeric columns
-11:16:21 Using Annoy for neighbor search, n_neighbors = 30
-11:16:21 Building Annoy index with metric = cosine, n_trees = 50
+11:14:40 UMAP embedding parameters a = 0.9922 b = 1.112
+11:14:40 Read 3837 rows and found 20 numeric columns
+11:14:40 Using Annoy for neighbor search, n_neighbors = 30
+11:14:40 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:16:21 Writing NN index file to temp file /tmp/slurm_20454929/RtmpzMeFX4/file1418877cb124c
-11:16:21 Searching Annoy index using 1 thread, search_k = 3000
-11:16:22 Annoy recall = 100%
-11:16:22 Commencing smooth kNN distance calibration using 1 thread
-11:16:24 Initializing from normalized Laplacian + noise
-11:16:24 Commencing optimization for 500 epochs, with 73768 positive edges
+11:14:41 Writing NN index file to temp file /tmp/slurm_21271346/RtmpuQjsGY/file80e34f0e9be1
+11:14:41 Searching Annoy index using 1 thread, search_k = 3000
+11:14:43 Annoy recall = 100%
+11:14:45 Commencing smooth kNN distance calibration using 1 thread
+11:14:51 Initializing from normalized Laplacian + noise
+11:14:51 Commencing optimization for 500 epochs, with 155766 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:16:32 Optimization finished
+11:15:09 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
+Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
 Calculating gene variances
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
@@ -297,23 +299,23 @@ Calculating feature variances of standardized and clipped values
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:18:07 UMAP embedding parameters a = 0.9922 b = 1.112
-11:18:07 Read 1938 rows and found 20 numeric columns
-11:18:07 Using Annoy for neighbor search, n_neighbors = 30
-11:18:07 Building Annoy index with metric = cosine, n_trees = 50
+11:19:04 UMAP embedding parameters a = 0.9922 b = 1.112
+11:19:04 Read 5041 rows and found 20 numeric columns
+11:19:04 Using Annoy for neighbor search, n_neighbors = 30
+11:19:04 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:18:08 Writing NN index file to temp file /tmp/slurm_20454929/RtmpzMeFX4/file1418811cd3183
-11:18:08 Searching Annoy index using 1 thread, search_k = 3000
-11:18:09 Annoy recall = 100%
-11:18:09 Commencing smooth kNN distance calibration using 1 thread
-11:18:11 Initializing from normalized Laplacian + noise
-11:18:11 Commencing optimization for 500 epochs, with 73768 positive edges
+11:19:06 Writing NN index file to temp file /tmp/slurm_21271346/RtmpuQjsGY/file80e317d6b1ec
+11:19:06 Searching Annoy index using 1 thread, search_k = 3000
+11:19:08 Annoy recall = 100%
+11:19:11 Commencing smooth kNN distance calibration using 1 thread
+11:19:16 Initializing from normalized Laplacian + noise
+11:19:17 Commencing optimization for 500 epochs, with 210776 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:18:19 Optimization finished
+11:19:39 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
@@ -511,16 +513,16 @@ The following object is masked from 'package:DESeq2':
     vst
 
 Calculating cell attributes for input UMI matrix
-Variance stabilizing transformation of count matrix of size 18438 by 2584
+Variance stabilizing transformation of count matrix of size 15897 by 5116
 Model formula is y ~ log_umi
 Get Negative Binomial regression parameters per gene
-Using 2000 genes, 2584 cells
-Found 8 outliers - those will be ignored in fitting/regularization step
+Using 2000 genes, 5116 cells
+Found 11 outliers - those will be ignored in fitting/regularization step
 
-Second step: Get residuals using fitted parameters for 18438 genes
-Computing corrected count matrix for 18438 genes
+Second step: Get residuals using fitted parameters for 15897 genes
+Computing corrected count matrix for 15897 genes
 Calculating gene attributes
-Wall clock passed: Time difference of 2.932424 mins
+Wall clock passed: Time difference of 5.975206 mins
 Determine variable features
 Set 3000 variable features
 Place corrected count matrix in counts slot
@@ -528,51 +530,51 @@ Centering data matrix
   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%  |                                                                              |===================================                                   |  50%  |                                                                              |====================================================                  |  75%  |                                                                              |======================================================================| 100%
 Set default assay to SCT
 PC_ 1 
-Positive:  Nmu, Cdh8, Calb2, Mgat4c, Cpne4, Ngfr, Zfp804a, Robo2, Cbln2, Dgkg 
-	   Grp, Efr3a, Calcb, Cntnap2, Tmeff2, Gm21847, Ntrk3, Kcnb2, Grin3a, Rab27b 
-	   Pcdh10, Cntn5, Gpr149, Ano2, Ccbe1, Myl1, Htr3a, Cdh6, Nrxn3, Vgll3 
-Negative:  Nos1, Cacnb2, Epha5, Galntl6, Pde1c, Tenm2, Kcnab1, Col25a1, Ndst4, Grid2 
-	   Syn3, Kcnip4, Lrrc4c, Lrp1b, Fat3, Grik2, Nrg3, Pcdh7, Zfp536, Pcdh15 
-	   Lrrtm3, Csmd3, Kirrel3, Synpr, Unc5d, Olfm3, Kcnd2, Hmcn1, Ryr2, Gria1 
+Positive:  Malat1, Cxcl10, Ly6a, Fcgr2b, Fabp4, Igfbp7, Aqp1, Cxcl9, Gpihbp1, Ctsl 
+	   Gja4, Csf2rb2, Stab1, Stab2, Lyve1, Xist, Car4, Egfl7, Cd36, Plpp1 
+	   Bmp2, Ctla2a, Cd55, Cldn5, Klf2, Vcam1, Ehd3, F2r, Flt4, Plpp3 
+Negative:  Apoc1, Fabp1, Apoa2, Wfdc21, Mt1, Orm1, Ttr, Mt2, Apoc3, Saa1 
+	   Alb, Apoa1, Apoc4, Cdo1, Saa2, Hp, Bhmt, Ttc36, Chchd10, Hpd 
+	   Trf, Fgb, Hmgcs2, Hpx, Ass1, Stard10, Aldob, Fbp1, Scp2, Gnmt 
 PC_ 2 
-Positive:  Nos1, Dgkb, Rgs6, Hmcn1, Kcnab1, Gfra1, Cmah, Slc44a5, Etv1, Cacnb2 
-	   Vip, Thsd7a, Dpp10, Vwa5b1, Thsd7b, Cadps2, Rarb, Alcam, Creb5, Lrrc4c 
-	   Ntrk3, Unc13c, Slc4a4, Col25a1, Cdh12, Ass1, Stxbp6, Bves, Epha5, A330015K06Rik 
-Negative:  Pde4b, Unc5d, Bnc2, Tac1, Fam19a2, Fam19a1, Alk, Lrp1b, Grm7, Gpc6 
-	   Rbfox1, Kctd8, Pld5, Pcdh7, Grik1, Penk, Ptprt, Dock10, Stxbp5l, Gm20754 
-	   Olfm3, Stac, Skap1, Lingo2, Nxph1, Kctd16, Tox, Meis1, Cdh18, Gfra2 
+Positive:  Tyrobp, Cd74, Wfdc17, Lgals3, H2-Aa, H2-Ab1, H2-Eb1, Laptm5, Ctss, Ctsc 
+	   Crip1, Ccl6, Aif1, Cebpb, Fcgr4, Mpeg1, Ifi27l2a, Cybb, Cd52, C1qa 
+	   C1qc, Rac2, Ccl24, H2-DMa, H2-DMb1, Fcgr3, C1qb, Csf1r, Cd53, AW112010 
+Negative:  Gja4, Cd36, Fcgr2b, Aqp1, Stab1, Csf2rb2, Stab2, Fabp4, Fabp5, Gpihbp1 
+	   Car4, Cd55, Bmp2, Cldn5, Ehd3, Cyp4b1, Lyve1, Egfl7, Flt4, Igfbp7 
+	   Mt1, Ackr1, Fabp1, Adam23, Lrg1, Ctla2a, Plpp3, F2r, Cxcl9, Ly6a 
 PC_ 3 
-Positive:  Ptprt, Galntl6, Tshz2, Gm26883, Rbfox1, Nlgn1, Alk, Ptprd, Cpne4, Ccbe1 
-	   Ntrk3, Nrxn3, Pcdh7, Dlgap2, Chsy3, Grik1, Frmd4b, Epha6, Plcxd3, St6galnac3 
-	   Pcdh9, Cdh8, Dcc, B3galt1, Nmu, Cdc14a, Dgkg, Cntnap2, Nfib, Fhit 
-Negative:  Ntng1, Vip, Nsg1, Penk, Cd24a, Skap1, Nefl, Tac1, Serpini1, Pbx3 
-	   Asic2, Col25a1, Egfem1, Kirrel3, Gng2, Stac, Tm4sf4, Ebf1, Pcp4l1, L3mbtl4 
-	   Slc18a2, Chrm3, Htr2b, Sgcz, Tnr, Nos1, Grid1, Dlc1, Pde1a, Syt4 
+Positive:  Wfdc17, Ctss, Tyrobp, Ccl6, Aif1, Ccl24, C1qb, C1qa, C1qc, Csf1r 
+	   Cybb, Ly86, Mpeg1, Cd5l, mt-Nd3, Fcgr4, mt-Nd1, Laptm5, Fcgr3, Lst1 
+	   Cfp, mt-Co1, Vsig4, Clec4f, mt-Nd5, Itgal, Cd300c2, Mafb, Cd53, Cd52 
+Negative:  Dcn, Bgn, Serping1, Cxcl12, Rarres2, Ifitm1, Sod3, Colec11, Col14a1, Ecm1 
+	   Col1a2, Col3a1, Cd63, Steap4, Fn1, Mustn1, Rgs5, Ramp1, Reln, Rbp1 
+	   Tnfrsf11b, Colec10, Col6a1, Tmem176a, Lum, Cp, Postn, Gdf2, Tgfbi, Pdgfra 
 PC_ 4 
-Positive:  Cntn5, Prkg1, Pde1c, Col25a1, Lingo2, Grm7, Tenm2, Kctd8, Dock10, Unc5d 
-	   Kirrel3, Tac1, Syn3, Ptprz1, Ndst4, Col27a1, Ntrk2, Kctd16, Dgkg, Ntrk3 
-	   Kcnt2, Fras1, Dlgap1, Plcb1, Cntnap2, Epha5, Zfp804a, Dach1, Nhs, Dmd 
-Negative:  Vip, Ptprt, Galntl6, Alk, Chsy3, Pcdh7, Rbfox1, Tshz2, Gm26883, Plcxd3 
-	   Dbh, Dkk3, Fam19a2, S100a6, Ntng1, Ptprm, Tmem132c, Nefl, Gm26905, Rpl9-ps6 
-	   Cdc14a, Grik1, Gfra2, Nrp1, Rps8, Sdk2, Adamts1, Arhgap24, Tmsb4x, Fgfr1 
+Positive:  Dcn, Cxcl12, Sod3, Colec11, Serping1, Steap4, Tgfbi, Ifi27l2a, Rgs5, Col14a1 
+	   Mustn1, Rarres2, Ifitm1, Bgn, Colec10, Reln, Lrat, Gdf2, Postn, mt-Nd1 
+	   Lum, Col1a2, mt-Nd2, mt-Nd3, Col3a1, mt-Nd4, Tnfrsf11b, mt-Co3, Ecm1, mt-Co1 
+Negative:  Hmgb2, Stmn1, Top2a, Birc5, Ube2c, Cks1b, Cdk1, Prc1, Nusap1, Ccna2 
+	   Ccnb2, Cenpf, Pttg1, Mki67, Cenpa, Pclaf, Gapdh, Cks2, Lgals1, Tuba1c 
+	   Rrm2, Cdca8, Cd9, Racgap1, Tpx2, H2afz, Vim, Ube2s, Fam64a, Hmgn2 
 PC_ 5 
-Positive:  Tac1, Unc5d, Gda, Dock10, Kctd8, Lingo2, Prkcb, Ndst4, Nxph1, Galntl6 
-	   Olfm3, Ntrk2, Grm7, S100a6, Synpr, Crispld1, Rgs4, Prkg1, Epha5, Tox 
-	   Calcrl, Olfm1, Pcsk1n, Col25a1, Ptprz1, Lrp1b, Tmsb4x, Lrrc7, Sphkap, Csmd3 
-Negative:  Ntng1, Kcnh7, Csmd1, Pcdh7, Trps1, Sgcz, Tmeff2, Klhl1, March1, Ano5 
-	   Cdh18, Dlc1, Tnr, Kif26b, Hs6st3, Pbx3, Enox1, Gng2, Fam19a2, Nxph2 
-	   Serpini1, Pde4b, Sez6l, Kcnb2, Slc17a6, Skap1, Galnt18, Nefl, Tmtc2, Pcp4l1 
+Positive:  Cxcl10, Mt1, Fabp5, Malat1, Ly6a, Cxcl9, Gja4, Csf2rb2, Fcgr2b, Cd36 
+	   Car4, Fabp4, Prdx1, Mt2, Hpgd, Iigp1, Cyb5a, Aqp1, Fabp1, Vcam1 
+	   Igfbp7, Cd55, Gpihbp1, Stab2, Ehd3, Ctsl, Dbi, Lifr, Apoc1, Ftl1 
+Negative:  mt-Atp6, mt-Cytb, mt-Co3, mt-Co2, mt-Nd2, mt-Nd4, mt-Nd3, mt-Co1, mt-Nd1, mt-Nd4l 
+	   mt-Nd5, mt-Atp8, mt-Nd6, C3, Hpx, Top2a, Birc5, Alb, Ube2c, Stmn1 
+	   Fgb, Cks1b, Hmgb2, Cdk1, Hp, Fga, Prc1, Ccna2, Nusap1, Cenpf 
 Calculating cell attributes for input UMI matrix
-Variance stabilizing transformation of count matrix of size 18438 by 2584
+Variance stabilizing transformation of count matrix of size 15566 by 6721
 Model formula is y ~ log_umi
 Get Negative Binomial regression parameters per gene
-Using 2000 genes, 2584 cells
-Found 4 outliers - those will be ignored in fitting/regularization step
+Using 2000 genes, 6721 cells
+Found 6 outliers - those will be ignored in fitting/regularization step
 
-Second step: Get residuals using fitted parameters for 18438 genes
-Computing corrected count matrix for 18438 genes
+Second step: Get residuals using fitted parameters for 15566 genes
+Computing corrected count matrix for 15566 genes
 Calculating gene attributes
-Wall clock passed: Time difference of 2.747097 mins
+Wall clock passed: Time difference of 6.583907 mins
 Determine variable features
 Set 3000 variable features
 Place corrected count matrix in counts slot
@@ -580,40 +582,40 @@ Centering data matrix
   |                                                                              |                                                                      |   0%  |                                                                              |==================                                                    |  25%  |                                                                              |===================================                                   |  50%  |                                                                              |====================================================                  |  75%  |                                                                              |======================================================================| 100%
 Set default assay to SCT
 PC_ 1 
-Positive:  Nos1, Cacnb2, Galntl6, Pde1c, Epha5, Kcnab1, Tenm2, Col25a1, Ndst4, Grid2 
-	   Lrp1b, Pcdh7, Kcnip4, Fat3, Syn3, Lrrc4c, Grik2, Nrg3, Unc5d, Lrrtm3 
-	   Kirrel3, Csmd3, Olfm3, Gria1, Zfp536, Bnc2, Pcdh15, Kcnd2, Slc44a5, Synpr 
-Negative:  Nmu, Cdh8, Calb2, Mgat4c, Cpne4, Ngfr, Robo2, Zfp804a, Cbln2, Dgkg 
-	   Efr3a, Grp, Tmeff2, Calcb, Ntrk3, Cntnap2, Kcnb2, Grin3a, Gm21847, Pcdh10 
-	   Cntn5, Gpr149, Rab27b, Ccbe1, Myl1, Ano2, Cdh6, 6330403A02Rik, Htr3a, Nrxn3 
+Positive:  Hpx, Alb, Fgb, Fgg, Apoa1, Hp, Ahsg, Fga, Serpina1c, C3 
+	   Saa1, Lcn2, Trf, Kng1, Gc, Saa2, Serpina1b, Serpina1a, Serpina3k, Orm1 
+	   Ambp, Itih4, Ttr, Orm2, Cp, Apoh, Apcs, Vtn, Hamp, Apob 
+Negative:  Malat1, Igfbp7, Clec4g, Fcgr2b, Aqp1, Ly6a, Fabp4, Il6st, Serpina3g, Eng 
+	   Sparc, Dnase1l3, Stab1, Egfl7, Stab2, Tmsb4x, Ctsl, Ptprb, Ramp2, Cd55 
+	   Maf, Csf2rb2, Gpihbp1, Esam, Cd36, Gpr182, Plpp1, Kdr, Bmp2, Gatm 
 PC_ 2 
-Positive:  Nos1, Dgkb, Rgs6, Kcnab1, Hmcn1, Gfra1, Cmah, Slc44a5, Etv1, Vip 
-	   Thsd7a, Cacnb2, Dpp10, Cadps2, Thsd7b, Rarb, Vwa5b1, Creb5, Alcam, Unc13c 
-	   Slc4a4, Ntrk3, Lrrc4c, Col25a1, Ass1, Cdh12, Bves, Gria3, Pde1a, Stxbp6 
-Negative:  Pde4b, Unc5d, Bnc2, Tac1, Lrp1b, Fam19a1, Alk, Fam19a2, Grm7, Gpc6 
-	   Pld5, Kctd8, Pcdh7, Rbfox1, Grik1, Ptprt, Penk, Dock10, Stxbp5l, Olfm3 
-	   Cdh18, Nxph1, Skap1, Stac, Gm20754, Tox, Meis1, Gfra2, Lingo2, Kctd16 
+Positive:  Igfbp7, Clec4g, Aqp1, Hpx, Fcgr2b, Alb, Il6st, Fgb, Eng, Fabp4 
+	   Stab1, Ly6a, Sparc, Fgg, Stab2, Egfl7, Dnase1l3, Fga, Ctsl, Ahsg 
+	   Ptprb, Apoa1, Itih4, Kng1, Hp, Ramp2, Gc, C3, Cd55, Gpihbp1 
+Negative:  Tyrobp, Wfdc17, Tmsb4x, Ctss, Lgals3, Cd74, H2-Aa, Ccl6, Laptm5, H2-Eb1 
+	   C1qb, H2-Ab1, C1qa, C1qc, Aif1, Fcgr4, Ctsc, Cyba, Cybb, Ccl24 
+	   Lst1, Cd5l, Fcer1g, Fcgr3, Cd52, Csf1r, Vsig4, Clec4f, Ifi27l2a, Cfp 
 PC_ 3 
-Positive:  Ntng1, Vip, Nsg1, Penk, Cd24a, Skap1, Tac1, Nefl, Serpini1, Asic2 
-	   Col25a1, Pbx3, Egfem1, Gng2, Kirrel3, Tm4sf4, Slc18a2, Ebf1, Htr2b, Stac 
-	   Syt4, Nos1, Pcp4l1, Kctd12, L3mbtl4, Chrm3, Ret, Slitrk4, Gpx3, Etv1 
-Negative:  Ptprt, Galntl6, Tshz2, Gm26883, Rbfox1, Nlgn1, Alk, Ntrk3, Pcdh7, Cpne4 
-	   Ptprd, Ccbe1, Nrxn3, Chsy3, Dlgap2, Frmd4b, Grik1, Pcdh9, Epha6, St6galnac3 
-	   Cdh8, Dcc, Plcxd3, B3galt1, Nmu, Cdc14a, Dgkg, Mgat4c, Fhit, Nfib 
+Positive:  mt-Nd2, mt-Nd1, mt-Nd4, mt-Nd3, mt-Nd5, mt-Nd4l, mt-Atp8, mt-Cytb, mt-Atp6, mt-Co2 
+	   mt-Co1, mt-Co3, mt-Nd6, Akr1c6, Glul, Rgn, Gstm1, Gsta3, Oat, Pcp4l1 
+	   Pebp1, Cyb5a, Car2, Fabp5, Gstp1, Car3, Gnmt, Gstm2, Akr1c20, Hmgb3 
+Negative:  Hpx, Alb, Fgb, Fga, Fgg, C3, Itih4, Cp, Ahsg, Kng1 
+	   Gc, Hp, Apob, Apoa1, Trf, Ambp, Fn1, Pzp, Itih3, Serpina1c 
+	   Serpina1a, Apoh, Vtn, Malat1, Lcn2, Serpina1b, Serpina3k, C4b, Cfh, Plg 
 PC_ 4 
-Positive:  Cntn5, Pde1c, Col25a1, Prkg1, Tenm2, Lingo2, Grm7, Dock10, Kctd8, Kirrel3 
-	   Unc5d, Syn3, Ptprz1, Kcnt2, Ntrk3, Dgkg, Ntrk2, Tac1, Col27a1, Plcb1 
-	   Ndst4, Nhs, Dlgap1, Spock3, Cntnap2, Robo2, Plcl1, Kctd16, Dach1, Dmd 
-Negative:  Ptprt, Vip, Galntl6, Chsy3, Alk, Gm26883, Tshz2, Plcxd3, Rbfox1, S100a6 
-	   Dkk3, Rpl9-ps6, Pcdh7, Gm26905, Ptprm, Dbh, Tmem132c, Cdc14a, Fam19a2, Grik1 
-	   Gfra2, Rps8, Rps23, Prdx6, Xist, Rps29, Rps27rt, Muc3, Pcsk1n, Adamts1 
+Positive:  mt-Nd1, mt-Nd4, mt-Nd2, mt-Nd3, mt-Nd5, mt-Nd4l, mt-Atp8, mt-Cytb, Cp, C3 
+	   Itih4, mt-Co1, Apob, Fn1, mt-Atp6, mt-Co2, Fga, mt-Co3, C4b, Pzp 
+	   Cfh, Itih3, Alb, Plg, Hc, Serpina3n, mt-Nd6, Hpx, Pigr, Fgb 
+Negative:  Akr1c6, Bhmt, Glul, Rgn, Gsta3, Fabp1, Saa2, Gstm1, Cdo1, Gnmt 
+	   Hpd, Ass1, Cyb5a, Wfdc21, Saa1, Ttc36, Fbp1, Oat, Scp2, Dbi 
+	   Ttr, Fabp5, Dnajc12, Hamp, Rida, Pebp1, Ddt, Mt2, Chchd10, Acaa2 
 PC_ 5 
-Positive:  Ntng1, Csmd1, Kcnh7, Pcdh7, Trps1, March1, Sgcz, Klhl1, Tmeff2, Ano5 
-	   Cdh18, Tnr, Enox1, Dlc1, Kif26b, Fam19a2, Gng2, Pbx3, Serpini1, Hs6st3 
-	   Nefl, Alk, Nxph2, Pde4b, Sez6l, Slc17a6, Pcp4l1, Plxna4, Galnt18, Tmtc2 
-Negative:  Tac1, Unc5d, Gda, Dock10, Lingo2, Kctd8, Ndst4, Olfm3, Grm7, Ntrk2 
-	   Prkcb, Prkg1, Nxph1, Epha5, Galntl6, Synpr, Rgs4, Calcrl, Crispld1, Col25a1 
-	   Ptprz1, Tox, Pde1c, Col27a1, Lrp1b, Olfm1, Csmd3, S100a6, Bnc2, Htr2b 
+Positive:  C1qa, C1qc, Cd5l, C1qb, Clec4f, Vsig4, Sdc3, Ccl24, H2-Aa, H2-Ab1 
+	   Ctsb, Cd74, H2-Eb1, Aif1, Slc40a1, Lgmn, Fcna, Csf1r, Timd4, Mafb 
+	   Psap, Cfp, Folr2, C6, H2-DMb1, Adgre1, Marco, Hmox1, Cd163, Ear2 
+Negative:  Ifitm1, Coro1a, S100a6, S100a11, Alox5ap, Pglyrp1, Cd52, Anxa1, S100a9, Lsp1 
+	   S100a8, Rac2, Srgn, Plac8, Selplg, BC100530, Anxa2, Ltb, Ifitm6, Mcemp1 
+	   Stfa2l1, Hmgb2, Retnlg, Asprv1, Ncf4, Slpi, Tmsb10, Slfn1, Csf3r, Arhgdib 
   |                                                                              |................................................                      |  68%
    inline R code fragments
 
@@ -689,6 +691,8 @@ List of 3
  $ echo   : symbol T
  $ results: symbol F
 
+Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
+Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
 
 Attaching package: 'future'
 
@@ -717,32 +721,34 @@ Calculating feature variances of standardized and clipped values
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:28:12 UMAP embedding parameters a = 0.9922 b = 1.112
+11:41:05 UMAP embedding parameters a = 0.9922 b = 1.112
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-11:28:12 Read 3716 rows and found 20 numeric columns
-11:28:12 Using Annoy for neighbor search, n_neighbors = 30
+11:41:05 Read 7117 rows and found 20 numeric columns
+11:41:05 Using Annoy for neighbor search, n_neighbors = 30
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-11:28:12 Building Annoy index with metric = cosine, n_trees = 50
+11:41:05 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:28:13 Writing NN index file to temp file /tmp/slurm_20454929/RtmpzMeFX4/file1418877bbc658
-11:28:13 Searching Annoy index using 30 threads, search_k = 3000
-11:28:13 Annoy recall = 100%
-11:28:15 Commencing smooth kNN distance calibration using 30 threads
-11:28:18 Initializing from normalized Laplacian + noise
-11:28:18 Commencing optimization for 500 epochs, with 145026 positive edges
+11:41:07 Writing NN index file to temp file /tmp/slurm_21271346/RtmpuQjsGY/file80e3152be553
+11:41:07 Searching Annoy index using 30 threads, search_k = 3000
+11:41:08 Annoy recall = 100%
+11:41:13 Commencing smooth kNN distance calibration using 30 threads
+11:41:20 Initializing from normalized Laplacian + noise
+11:41:21 Commencing optimization for 500 epochs, with 289362 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:28:32 Optimization finished
+11:41:52 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
+Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
+Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
 
 Attaching package: 'future'
 
@@ -771,32 +777,34 @@ Calculating feature variances of standardized and clipped values
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:32:12 UMAP embedding parameters a = 0.9922 b = 1.112
+11:48:48 UMAP embedding parameters a = 0.9922 b = 1.112
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-11:32:12 Read 3716 rows and found 20 numeric columns
-11:32:12 Using Annoy for neighbor search, n_neighbors = 30
+11:48:48 Read 7117 rows and found 20 numeric columns
+11:48:48 Using Annoy for neighbor search, n_neighbors = 30
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-11:32:12 Building Annoy index with metric = cosine, n_trees = 50
+11:48:48 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:32:13 Writing NN index file to temp file /tmp/slurm_20454929/RtmpzMeFX4/file1418819f8b44e
-11:32:13 Searching Annoy index using 30 threads, search_k = 3000
-11:32:13 Annoy recall = 100%
-11:32:15 Commencing smooth kNN distance calibration using 30 threads
-11:32:18 Initializing from normalized Laplacian + noise
-11:32:18 Commencing optimization for 500 epochs, with 145456 positive edges
+11:48:51 Writing NN index file to temp file /tmp/slurm_21271346/RtmpuQjsGY/file80e337330f75
+11:48:51 Searching Annoy index using 30 threads, search_k = 3000
+11:48:51 Annoy recall = 100%
+11:48:56 Commencing smooth kNN distance calibration using 30 threads
+11:49:02 Initializing from normalized Laplacian + noise
+11:49:02 Commencing optimization for 500 epochs, with 292872 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:32:33 Optimization finished
+11:49:33 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
+Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
+Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
 
 Attaching package: 'future'
 
@@ -825,32 +833,34 @@ Calculating feature variances of standardized and clipped values
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:36:34 UMAP embedding parameters a = 0.9922 b = 1.112
+11:57:01 UMAP embedding parameters a = 0.9922 b = 1.112
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-11:36:34 Read 3716 rows and found 20 numeric columns
-11:36:34 Using Annoy for neighbor search, n_neighbors = 30
+11:57:01 Read 7117 rows and found 20 numeric columns
+11:57:01 Using Annoy for neighbor search, n_neighbors = 30
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-11:36:34 Building Annoy index with metric = cosine, n_trees = 50
+11:57:01 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:36:35 Writing NN index file to temp file /tmp/slurm_20454929/RtmpzMeFX4/file141881d4f7058
-11:36:35 Searching Annoy index using 30 threads, search_k = 3000
-11:36:36 Annoy recall = 100%
-11:36:37 Commencing smooth kNN distance calibration using 30 threads
-11:36:40 Initializing from normalized Laplacian + noise
-11:36:40 Commencing optimization for 500 epochs, with 145838 positive edges
+11:57:03 Writing NN index file to temp file /tmp/slurm_21271346/RtmpuQjsGY/file80e35b2ee665
+11:57:03 Searching Annoy index using 30 threads, search_k = 3000
+11:57:03 Annoy recall = 100%
+11:57:07 Commencing smooth kNN distance calibration using 30 threads
+11:57:12 Initializing from normalized Laplacian + noise
+11:57:13 Commencing optimization for 500 epochs, with 291784 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:36:55 Optimization finished
+11:57:43 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
+Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
+Warning: Feature names cannot have underscores ('_'), replacing with dashes ('-')
 
 Attaching package: 'future'
 
@@ -879,27 +889,27 @@ Calculating feature variances of standardized and clipped values
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:41:02 UMAP embedding parameters a = 0.9922 b = 1.112
+12:04:40 UMAP embedding parameters a = 0.9922 b = 1.112
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-11:41:02 Read 3716 rows and found 20 numeric columns
-11:41:02 Using Annoy for neighbor search, n_neighbors = 30
+12:04:40 Read 7117 rows and found 20 numeric columns
+12:04:40 Using Annoy for neighbor search, n_neighbors = 30
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-11:41:02 Building Annoy index with metric = cosine, n_trees = 50
+12:04:40 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:41:03 Writing NN index file to temp file /tmp/slurm_20454929/RtmpzMeFX4/file14188c510391
-11:41:03 Searching Annoy index using 30 threads, search_k = 3000
-11:41:03 Annoy recall = 100%
-11:41:05 Commencing smooth kNN distance calibration using 30 threads
-11:41:08 Initializing from normalized Laplacian + noise
-11:41:09 Commencing optimization for 500 epochs, with 145026 positive edges
+12:04:43 Writing NN index file to temp file /tmp/slurm_21271346/RtmpuQjsGY/file80e3184c9a8a
+12:04:43 Searching Annoy index using 30 threads, search_k = 3000
+12:04:43 Annoy recall = 100%
+12:04:47 Commencing smooth kNN distance calibration using 30 threads
+12:04:54 Initializing from normalized Laplacian + noise
+12:04:55 Commencing optimization for 500 epochs, with 289362 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-11:41:24 Optimization finished
+12:05:26 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
@@ -954,7 +964,7 @@ List of 2
 
 output file: sc_PartA_QC.knit.md
 
-/camp/apps/eb/dev/software/Anaconda2/2019.10/bin/pandoc +RTS -K512m -RTS sc_PartA_QC.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output /camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/workdir/html_local/sc_PartA_QC.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 5 --variable toc_float=1 --variable toc_selectors=h1,h2,h3,h4,h5 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --css /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css --variable 'theme:paper' --include-in-header /tmp/slurm_20454929/RtmpzMeFX4/rmarkdown-str1418815c1330e.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
+/camp/apps/eb/dev/software/Anaconda2/2019.10/bin/pandoc +RTS -K512m -RTS sc_PartA_QC.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output /camp/stp/babs/working/boeings/Projects/malanchii/nicolas.rabas/422_scRNAseq_liver_4T1/workdir/html_local/sc_PartA_QC.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 5 --variable toc_float=1 --variable toc_selectors=h1,h2,h3,h4,h5 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --css /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css --variable 'theme:paper' --include-in-header /tmp/slurm_21271346/RtmpuQjsGY/rmarkdown-str80e34ea6d168.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
 
-Output created: /camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/workdir/html_local/sc_PartA_QC.html
+Output created: /camp/stp/babs/working/boeings/Projects/malanchii/nicolas.rabas/422_scRNAseq_liver_4T1/workdir/html_local/sc_PartA_QC.html
 There were 50 or more warnings (use warnings() to see the first 50)
