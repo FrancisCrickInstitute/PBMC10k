@@ -170,26 +170,8 @@ List of 4
  $ warning: logi FALSE
  $ results: symbol F
 
-
-Attaching package: 'future'
-
-The following object is masked from 'package:SummarizedExperiment':
-
-    values
-
-The following object is masked from 'package:GenomicRanges':
-
-    values
-
-The following object is masked from 'package:IRanges':
-
-    values
-
-The following object is masked from 'package:S4Vectors':
-
-    values
-
-Warning: Adding a command log without an assay associated with it
+Warning: The following features are not present in the object: MLF1IP, not searching for symbol synonyms
+Warning: The following features are not present in the object: FAM64A, HN1, not searching for symbol synonyms
   |                                                                              |.........                                                             |  13%
   ordinary text without R code
 
@@ -211,46 +193,12 @@ Calculating feature variances of standardized and clipped values
 **************************************************|
 Finished averaging RNA for cluster all
 Finished averaging SCT for cluster all
-Finished averaging integrated for cluster all
+Performing log-normalization
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
 Centering and scaling data matrix
-Calculating gene variances
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Calculating feature variances of standardized and clipped values
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Calculating gene variances
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Calculating feature variances of standardized and clipped values
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Finished averaging RNA for cluster Glia
-Finished averaging SCT for cluster Glia
-Centering and scaling data matrix
-Calculating gene variances
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Calculating feature variances of standardized and clipped values
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Calculating gene variances
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Calculating feature variances of standardized and clipped values
-0%   10   20   30   40   50   60   70   80   90   100%
-[----|----|----|----|----|----|----|----|----|----|
-**************************************************|
-Finished averaging RNA for cluster Neuron
-Finished averaging SCT for cluster Neuron
-Centering and scaling data matrix
+  |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |====                                                                  |   6%  |                                                                              |======                                                                |   9%  |                                                                              |========                                                              |  12%  |                                                                              |==========                                                            |  15%  |                                                                              |============                                                          |  18%  |                                                                              |==============                                                        |  21%  |                                                                              |================                                                      |  24%  |                                                                              |===================                                                   |  26%  |                                                                              |=====================                                                 |  29%  |                                                                              |=======================                                               |  32%  |                                                                              |=========================                                             |  35%  |                                                                              |===========================                                           |  38%  |                                                                              |=============================                                         |  41%  |                                                                              |===============================                                       |  44%  |                                                                              |=================================                                     |  47%  |                                                                              |===================================                                   |  50%  |                                                                              |=====================================                                 |  53%  |                                                                              |=======================================                               |  56%  |                                                                              |=========================================                             |  59%  |                                                                              |===========================================                           |  62%  |                                                                              |=============================================                         |  65%  |                                                                              |===============================================                       |  68%  |                                                                              |=================================================                     |  71%  |                                                                              |===================================================                   |  74%  |                                                                              |======================================================                |  76%  |                                                                              |========================================================              |  79%  |                                                                              |==========================================================            |  82%  |                                                                              |============================================================          |  85%  |                                                                              |==============================================================        |  88%  |                                                                              |================================================================      |  91%  |                                                                              |==================================================================    |  94%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
   |                                                                              |...........                                                           |  15%
    inline R code fragments
 
@@ -276,23 +224,23 @@ List of 4
 Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric
 To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'
 This message will be shown once per session
-12:25:36 UMAP embedding parameters a = 0.9922 b = 1.112
-12:25:36 Read 3716 rows and found 20 numeric columns
-12:25:36 Using Annoy for neighbor search, n_neighbors = 30
-12:25:36 Building Annoy index with metric = cosine, n_trees = 50
+09:35:24 UMAP embedding parameters a = 0.9922 b = 1.112
+09:35:24 Read 9200 rows and found 20 numeric columns
+09:35:24 Using Annoy for neighbor search, n_neighbors = 30
+09:35:24 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-12:25:37 Writing NN index file to temp file /tmp/slurm_20455263/RtmpH70PoT/filef7ab609bc3a5
-12:25:37 Searching Annoy index using 30 threads, search_k = 3000
-12:25:37 Annoy recall = 100%
-12:25:39 Commencing smooth kNN distance calibration using 30 threads
-12:25:41 Initializing from normalized Laplacian + noise
-12:25:41 Commencing optimization for 500 epochs, with 145026 positive edges
+09:35:27 Writing NN index file to temp file /tmp/slurm_21298657/RtmpZqpQFQ/file29ef72c19244
+09:35:27 Searching Annoy index using 1 thread, search_k = 3000
+09:35:31 Annoy recall = 100%
+09:35:33 Commencing smooth kNN distance calibration using 1 thread
+09:35:36 Initializing from normalized Laplacian + noise
+09:35:37 Commencing optimization for 500 epochs, with 396298 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-12:25:55 Optimization finished
+09:36:16 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
@@ -309,22 +257,21 @@ The following object is masked from 'package:readr':
 
     col_factor
 
-Calculating cluster C7
+Calculating cluster DC
+Calculating cluster Mono_2
+Calculating cluster T_killer
+Calculating cluster MK
+Calculating cluster T_cell
+Calculating cluster Memory_1
+Calculating cluster Mono_1
 Calculating cluster C11
-Calculating cluster C8
-Calculating cluster C10
-Calculating cluster C6
+Calculating cluster Bcells_2
+Calculating cluster Memory_2
+Calculating cluster Bcells_1
+Calculating cluster NK
+Calculating cluster Mono_3
 Calculating cluster C12
-Calculating cluster C2
-Calculating cluster C0
-Calculating cluster C9
-Calculating cluster C15
-Calculating cluster C1
-Calculating cluster C3
-Calculating cluster C5
-Calculating cluster C14
-Calculating cluster C4
-Calculating cluster C13
+Calculating cluster Bcells_3
   |                                                                              |..............                                                        |  20%
   ordinary text without R code
 
@@ -360,179 +307,108 @@ List of 4
 
 Finished averaging RNA for cluster all
 Finished averaging SCT for cluster all
-Finished averaging integrated for cluster all
+Performing log-normalization
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
 Centering and scaling data matrix
-Finished averaging RNA for cluster C7_Glia
-Finished averaging RNA for cluster C11_Glia
-Finished averaging RNA for cluster C8_Glia
-Finished averaging RNA for cluster C10_Glia
-Finished averaging RNA for cluster C6_Glia
-Finished averaging RNA for cluster C12_Glia
-Finished averaging RNA for cluster C2_Glia
-Finished averaging RNA for cluster C0_Glia
-Finished averaging RNA for cluster C9_Glia
-Finished averaging RNA for cluster C15_Glia
-Finished averaging RNA for cluster C1_Glia
-Finished averaging RNA for cluster C3_Glia
-Finished averaging RNA for cluster C5_Glia
-Finished averaging RNA for cluster C14_Glia
-Finished averaging RNA for cluster C4_Glia
-Finished averaging RNA for cluster C13_Glia
-Finished averaging RNA for cluster C7_Neuron
-Finished averaging RNA for cluster C11_Neuron
-Finished averaging RNA for cluster C8_Neuron
-Finished averaging RNA for cluster C10_Neuron
-Finished averaging RNA for cluster C6_Neuron
-Finished averaging RNA for cluster C12_Neuron
-Finished averaging RNA for cluster C2_Neuron
-Finished averaging RNA for cluster C0_Neuron
-Finished averaging RNA for cluster C9_Neuron
-Finished averaging RNA for cluster C15_Neuron
-Finished averaging RNA for cluster C1_Neuron
-Finished averaging RNA for cluster C3_Neuron
-Finished averaging RNA for cluster C5_Neuron
-Finished averaging RNA for cluster C14_Neuron
-Finished averaging RNA for cluster C4_Neuron
-Finished averaging RNA for cluster C13_Neuron
-Finished averaging SCT for cluster C7_Glia
-Finished averaging SCT for cluster C11_Glia
-Finished averaging SCT for cluster C8_Glia
-Finished averaging SCT for cluster C10_Glia
-Finished averaging SCT for cluster C6_Glia
-Finished averaging SCT for cluster C12_Glia
-Finished averaging SCT for cluster C2_Glia
-Finished averaging SCT for cluster C0_Glia
-Finished averaging SCT for cluster C9_Glia
-Finished averaging SCT for cluster C15_Glia
-Finished averaging SCT for cluster C1_Glia
-Finished averaging SCT for cluster C3_Glia
-Finished averaging SCT for cluster C5_Glia
-Finished averaging SCT for cluster C14_Glia
-Finished averaging SCT for cluster C4_Glia
-Finished averaging SCT for cluster C13_Glia
-Finished averaging SCT for cluster C7_Neuron
-Finished averaging SCT for cluster C11_Neuron
-Finished averaging SCT for cluster C8_Neuron
-Finished averaging SCT for cluster C10_Neuron
-Finished averaging SCT for cluster C6_Neuron
-Finished averaging SCT for cluster C12_Neuron
-Finished averaging SCT for cluster C2_Neuron
-Finished averaging SCT for cluster C0_Neuron
-Finished averaging SCT for cluster C9_Neuron
-Finished averaging SCT for cluster C15_Neuron
-Finished averaging SCT for cluster C1_Neuron
-Finished averaging SCT for cluster C3_Neuron
-Finished averaging SCT for cluster C5_Neuron
-Finished averaging SCT for cluster C14_Neuron
-Finished averaging SCT for cluster C4_Neuron
-Finished averaging SCT for cluster C13_Neuron
-Finished averaging integrated for cluster C7_Glia
-Finished averaging integrated for cluster C11_Glia
-Finished averaging integrated for cluster C8_Glia
-Finished averaging integrated for cluster C10_Glia
-Finished averaging integrated for cluster C6_Glia
-Finished averaging integrated for cluster C12_Glia
-Finished averaging integrated for cluster C2_Glia
-Finished averaging integrated for cluster C0_Glia
-Finished averaging integrated for cluster C9_Glia
-Finished averaging integrated for cluster C15_Glia
-Finished averaging integrated for cluster C1_Glia
-Finished averaging integrated for cluster C3_Glia
-Finished averaging integrated for cluster C5_Glia
-Finished averaging integrated for cluster C14_Glia
-Finished averaging integrated for cluster C4_Glia
-Finished averaging integrated for cluster C13_Glia
-Finished averaging integrated for cluster C7_Neuron
-Finished averaging integrated for cluster C11_Neuron
-Finished averaging integrated for cluster C8_Neuron
-Finished averaging integrated for cluster C10_Neuron
-Finished averaging integrated for cluster C6_Neuron
-Finished averaging integrated for cluster C12_Neuron
-Finished averaging integrated for cluster C2_Neuron
-Finished averaging integrated for cluster C0_Neuron
-Finished averaging integrated for cluster C9_Neuron
-Finished averaging integrated for cluster C15_Neuron
-Finished averaging integrated for cluster C1_Neuron
-Finished averaging integrated for cluster C3_Neuron
-Finished averaging integrated for cluster C5_Neuron
-Finished averaging integrated for cluster C14_Neuron
-Finished averaging integrated for cluster C4_Neuron
-Finished averaging integrated for cluster C13_Neuron
+  |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |====                                                                  |   6%  |                                                                              |======                                                                |   9%  |                                                                              |========                                                              |  12%  |                                                                              |==========                                                            |  15%  |                                                                              |============                                                          |  18%  |                                                                              |==============                                                        |  21%  |                                                                              |================                                                      |  24%  |                                                                              |===================                                                   |  26%  |                                                                              |=====================                                                 |  29%  |                                                                              |=======================                                               |  32%  |                                                                              |=========================                                             |  35%  |                                                                              |===========================                                           |  38%  |                                                                              |=============================                                         |  41%  |                                                                              |===============================                                       |  44%  |                                                                              |=================================                                     |  47%  |                                                                              |===================================                                   |  50%  |                                                                              |=====================================                                 |  53%  |                                                                              |=======================================                               |  56%  |                                                                              |=========================================                             |  59%  |                                                                              |===========================================                           |  62%  |                                                                              |=============================================                         |  65%  |                                                                              |===============================================                       |  68%  |                                                                              |=================================================                     |  71%  |                                                                              |===================================================                   |  74%  |                                                                              |======================================================                |  76%  |                                                                              |========================================================              |  79%  |                                                                              |==========================================================            |  82%  |                                                                              |============================================================          |  85%  |                                                                              |==============================================================        |  88%  |                                                                              |================================================================      |  91%  |                                                                              |==================================================================    |  94%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
+Finished averaging RNA for cluster DC_PBMC10X
+Finished averaging RNA for cluster Mono_2_PBMC10X
+Finished averaging RNA for cluster T_killer_PBMC10X
+Finished averaging RNA for cluster MK_PBMC10X
+Finished averaging RNA for cluster T_cell_PBMC10X
+Finished averaging RNA for cluster Memory_1_PBMC10X
+Finished averaging RNA for cluster Mono_1_PBMC10X
+Finished averaging RNA for cluster C11_PBMC10X
+Finished averaging RNA for cluster Bcells_2_PBMC10X
+Finished averaging RNA for cluster Memory_2_PBMC10X
+Finished averaging RNA for cluster Bcells_1_PBMC10X
+Finished averaging RNA for cluster NK_PBMC10X
+Finished averaging RNA for cluster Mono_3_PBMC10X
+Finished averaging RNA for cluster C12_PBMC10X
+Finished averaging RNA for cluster Bcells_3_PBMC10X
+Finished averaging SCT for cluster DC_PBMC10X
+Finished averaging SCT for cluster Mono_2_PBMC10X
+Finished averaging SCT for cluster T_killer_PBMC10X
+Finished averaging SCT for cluster MK_PBMC10X
+Finished averaging SCT for cluster T_cell_PBMC10X
+Finished averaging SCT for cluster Memory_1_PBMC10X
+Finished averaging SCT for cluster Mono_1_PBMC10X
+Finished averaging SCT for cluster C11_PBMC10X
+Finished averaging SCT for cluster Bcells_2_PBMC10X
+Finished averaging SCT for cluster Memory_2_PBMC10X
+Finished averaging SCT for cluster Bcells_1_PBMC10X
+Finished averaging SCT for cluster NK_PBMC10X
+Finished averaging SCT for cluster Mono_3_PBMC10X
+Finished averaging SCT for cluster C12_PBMC10X
+Finished averaging SCT for cluster Bcells_3_PBMC10X
+Performing log-normalization
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
 Centering and scaling data matrix
-Finished averaging RNA for cluster C7
+  |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |====                                                                  |   6%  |                                                                              |======                                                                |   9%  |                                                                              |========                                                              |  12%  |                                                                              |==========                                                            |  15%  |                                                                              |============                                                          |  18%  |                                                                              |==============                                                        |  21%  |                                                                              |================                                                      |  24%  |                                                                              |===================                                                   |  26%  |                                                                              |=====================                                                 |  29%  |                                                                              |=======================                                               |  32%  |                                                                              |=========================                                             |  35%  |                                                                              |===========================                                           |  38%  |                                                                              |=============================                                         |  41%  |                                                                              |===============================                                       |  44%  |                                                                              |=================================                                     |  47%  |                                                                              |===================================                                   |  50%  |                                                                              |=====================================                                 |  53%  |                                                                              |=======================================                               |  56%  |                                                                              |=========================================                             |  59%  |                                                                              |===========================================                           |  62%  |                                                                              |=============================================                         |  65%  |                                                                              |===============================================                       |  68%  |                                                                              |=================================================                     |  71%  |                                                                              |===================================================                   |  74%  |                                                                              |======================================================                |  76%  |                                                                              |========================================================              |  79%  |                                                                              |==========================================================            |  82%  |                                                                              |============================================================          |  85%  |                                                                              |==============================================================        |  88%  |                                                                              |================================================================      |  91%  |                                                                              |==================================================================    |  94%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
+Finished averaging RNA for cluster DC
+Finished averaging RNA for cluster Mono_2
+Finished averaging RNA for cluster T_killer
+Finished averaging RNA for cluster MK
+Finished averaging RNA for cluster T_cell
+Finished averaging RNA for cluster Memory_1
+Finished averaging RNA for cluster Mono_1
 Finished averaging RNA for cluster C11
-Finished averaging RNA for cluster C8
-Finished averaging RNA for cluster C10
-Finished averaging RNA for cluster C6
+Finished averaging RNA for cluster Bcells_2
+Finished averaging RNA for cluster Memory_2
+Finished averaging RNA for cluster Bcells_1
+Finished averaging RNA for cluster NK
+Finished averaging RNA for cluster Mono_3
 Finished averaging RNA for cluster C12
-Finished averaging RNA for cluster C2
-Finished averaging RNA for cluster C0
-Finished averaging RNA for cluster C9
-Finished averaging RNA for cluster C15
-Finished averaging RNA for cluster C1
-Finished averaging RNA for cluster C3
-Finished averaging RNA for cluster C5
-Finished averaging RNA for cluster C14
-Finished averaging RNA for cluster C4
-Finished averaging RNA for cluster C13
-Finished averaging SCT for cluster C7
+Finished averaging RNA for cluster Bcells_3
+Finished averaging SCT for cluster DC
+Finished averaging SCT for cluster Mono_2
+Finished averaging SCT for cluster T_killer
+Finished averaging SCT for cluster MK
+Finished averaging SCT for cluster T_cell
+Finished averaging SCT for cluster Memory_1
+Finished averaging SCT for cluster Mono_1
 Finished averaging SCT for cluster C11
-Finished averaging SCT for cluster C8
-Finished averaging SCT for cluster C10
-Finished averaging SCT for cluster C6
+Finished averaging SCT for cluster Bcells_2
+Finished averaging SCT for cluster Memory_2
+Finished averaging SCT for cluster Bcells_1
+Finished averaging SCT for cluster NK
+Finished averaging SCT for cluster Mono_3
 Finished averaging SCT for cluster C12
-Finished averaging SCT for cluster C2
-Finished averaging SCT for cluster C0
-Finished averaging SCT for cluster C9
-Finished averaging SCT for cluster C15
-Finished averaging SCT for cluster C1
-Finished averaging SCT for cluster C3
-Finished averaging SCT for cluster C5
-Finished averaging SCT for cluster C14
-Finished averaging SCT for cluster C4
-Finished averaging SCT for cluster C13
-Finished averaging integrated for cluster C7
-Finished averaging integrated for cluster C11
-Finished averaging integrated for cluster C8
-Finished averaging integrated for cluster C10
-Finished averaging integrated for cluster C6
-Finished averaging integrated for cluster C12
-Finished averaging integrated for cluster C2
-Finished averaging integrated for cluster C0
-Finished averaging integrated for cluster C9
-Finished averaging integrated for cluster C15
-Finished averaging integrated for cluster C1
-Finished averaging integrated for cluster C3
-Finished averaging integrated for cluster C5
-Finished averaging integrated for cluster C14
-Finished averaging integrated for cluster C4
-Finished averaging integrated for cluster C13
+Finished averaging SCT for cluster Bcells_3
+Performing log-normalization
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
 Centering and scaling data matrix
-Finished averaging RNA for cluster C7
+  |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |====                                                                  |   6%  |                                                                              |======                                                                |   9%  |                                                                              |========                                                              |  12%  |                                                                              |==========                                                            |  15%  |                                                                              |============                                                          |  18%  |                                                                              |==============                                                        |  21%  |                                                                              |================                                                      |  24%  |                                                                              |===================                                                   |  26%  |                                                                              |=====================                                                 |  29%  |                                                                              |=======================                                               |  32%  |                                                                              |=========================                                             |  35%  |                                                                              |===========================                                           |  38%  |                                                                              |=============================                                         |  41%  |                                                                              |===============================                                       |  44%  |                                                                              |=================================                                     |  47%  |                                                                              |===================================                                   |  50%  |                                                                              |=====================================                                 |  53%  |                                                                              |=======================================                               |  56%  |                                                                              |=========================================                             |  59%  |                                                                              |===========================================                           |  62%  |                                                                              |=============================================                         |  65%  |                                                                              |===============================================                       |  68%  |                                                                              |=================================================                     |  71%  |                                                                              |===================================================                   |  74%  |                                                                              |======================================================                |  76%  |                                                                              |========================================================              |  79%  |                                                                              |==========================================================            |  82%  |                                                                              |============================================================          |  85%  |                                                                              |==============================================================        |  88%  |                                                                              |================================================================      |  91%  |                                                                              |==================================================================    |  94%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
+Finished averaging RNA for cluster DC
+Finished averaging RNA for cluster Mono_2
+Finished averaging RNA for cluster T_killer
+Finished averaging RNA for cluster MK
+Finished averaging RNA for cluster T_cell
+Finished averaging RNA for cluster Memory_1
+Finished averaging RNA for cluster Mono_1
 Finished averaging RNA for cluster C11
-Finished averaging RNA for cluster C8
-Finished averaging RNA for cluster C10
-Finished averaging RNA for cluster C6
+Finished averaging RNA for cluster Bcells_2
+Finished averaging RNA for cluster Memory_2
+Finished averaging RNA for cluster Bcells_1
+Finished averaging RNA for cluster NK
+Finished averaging RNA for cluster Mono_3
 Finished averaging RNA for cluster C12
-Finished averaging RNA for cluster C2
-Finished averaging RNA for cluster C0
-Finished averaging RNA for cluster C9
-Finished averaging RNA for cluster C15
-Finished averaging RNA for cluster C1
-Finished averaging RNA for cluster C3
-Finished averaging RNA for cluster C5
-Finished averaging RNA for cluster C14
-Finished averaging RNA for cluster C4
-Finished averaging RNA for cluster C13
-Finished averaging RNA for cluster Glia
-Finished averaging RNA for cluster Neuron
-Finished averaging SCT for cluster Glia
-Finished averaging SCT for cluster Neuron
-Finished averaging integrated for cluster Glia
-Finished averaging integrated for cluster Neuron
+Finished averaging RNA for cluster Bcells_3
+Finished averaging RNA for cluster PBMC10X
+Finished averaging SCT for cluster PBMC10X
+Performing log-normalization
+0%   10   20   30   40   50   60   70   80   90   100%
+[----|----|----|----|----|----|----|----|----|----|
+**************************************************|
 Centering and scaling data matrix
-Finished averaging RNA for cluster Glia
-Finished averaging RNA for cluster Neuron
+  |                                                                              |                                                                      |   0%  |                                                                              |==                                                                    |   3%  |                                                                              |====                                                                  |   6%  |                                                                              |======                                                                |   9%  |                                                                              |========                                                              |  12%  |                                                                              |==========                                                            |  15%  |                                                                              |============                                                          |  18%  |                                                                              |==============                                                        |  21%  |                                                                              |================                                                      |  24%  |                                                                              |===================                                                   |  26%  |                                                                              |=====================                                                 |  29%  |                                                                              |=======================                                               |  32%  |                                                                              |=========================                                             |  35%  |                                                                              |===========================                                           |  38%  |                                                                              |=============================                                         |  41%  |                                                                              |===============================                                       |  44%  |                                                                              |=================================                                     |  47%  |                                                                              |===================================                                   |  50%  |                                                                              |=====================================                                 |  53%  |                                                                              |=======================================                               |  56%  |                                                                              |=========================================                             |  59%  |                                                                              |===========================================                           |  62%  |                                                                              |=============================================                         |  65%  |                                                                              |===============================================                       |  68%  |                                                                              |=================================================                     |  71%  |                                                                              |===================================================                   |  74%  |                                                                              |======================================================                |  76%  |                                                                              |========================================================              |  79%  |                                                                              |==========================================================            |  82%  |                                                                              |============================================================          |  85%  |                                                                              |==============================================================        |  88%  |                                                                              |================================================================      |  91%  |                                                                              |==================================================================    |  94%  |                                                                              |====================================================================  |  97%  |                                                                              |======================================================================| 100%
+Finished averaging RNA for cluster PBMC10X
   |                                                                              |..................                                                    |  26%
   ordinary text without R code
 
@@ -570,22 +446,21 @@ The following object is masked from 'package:tidyr':
 
     expand
 
-Finished averaging RNA for cluster C7
+Finished averaging RNA for cluster DC
+Finished averaging RNA for cluster Mono_2
+Finished averaging RNA for cluster T_killer
+Finished averaging RNA for cluster MK
+Finished averaging RNA for cluster T_cell
+Finished averaging RNA for cluster Memory_1
+Finished averaging RNA for cluster Mono_1
 Finished averaging RNA for cluster C11
-Finished averaging RNA for cluster C8
-Finished averaging RNA for cluster C10
-Finished averaging RNA for cluster C6
+Finished averaging RNA for cluster Bcells_2
+Finished averaging RNA for cluster Memory_2
+Finished averaging RNA for cluster Bcells_1
+Finished averaging RNA for cluster NK
+Finished averaging RNA for cluster Mono_3
 Finished averaging RNA for cluster C12
-Finished averaging RNA for cluster C2
-Finished averaging RNA for cluster C0
-Finished averaging RNA for cluster C9
-Finished averaging RNA for cluster C15
-Finished averaging RNA for cluster C1
-Finished averaging RNA for cluster C3
-Finished averaging RNA for cluster C5
-Finished averaging RNA for cluster C14
-Finished averaging RNA for cluster C4
-Finished averaging RNA for cluster C13
+Finished averaging RNA for cluster Bcells_3
   |                                                                              |...................                                                   |  28%
    inline R code fragments
 
@@ -643,24 +518,23 @@ List of 4
  $ warning: logi FALSE
  $ results: logi FALSE
 
-Warning: The following features are not present in the object: MCM5, PCNA, TYMS, FEN1, MCM2, MCM4, RRM1, UNG, GINS2, MCM6, CDCA7, DTL, PRIM1, UHRF1, MLF1IP, HELLS, RFC2, RPA2, NASP, RAD51AP1, GMNN, WDR76, SLBP, CCNE2, UBR7, POLD3, MSH2, ATAD2, RAD51, RRM2, CDC45, CDC6, EXO1, TIPIN, DSCC1, BLM, CASP8AP2, USP1, CLSPN, POLA1, CHAF1B, BRIP1, E2F8, not searching for symbol synonyms
-Warning: The following features are not present in the object: HMGB2, CDK1, NUSAP1, UBE2C, BIRC5, TPX2, TOP2A, NDC80, CKS2, NUF2, CKS1B, MKI67, TMPO, CENPF, TACC3, FAM64A, SMC4, CCNB2, CKAP2L, CKAP2, AURKB, BUB1, KIF11, ANP32E, TUBB4B, GTSE1, KIF20B, HJURP, CDCA3, HN1, CDC20, TTK, CDC25C, KIF2C, RANGAP1, NCAPD2, DLGAP5, CDCA2, CDCA8, ECT2, KIF23, HMMR, AURKA, PSRC1, ANLN, LBR, CKAP5, CENPE, CTCF, NEK2, G2E3, GAS2L3, CBX5, CENPA, not searching for symbol synonyms
-Finished averaging RNA for cluster C7
+Warning: The following features are not present in the object: MLF1IP, not searching for symbol synonyms
+Warning: The following features are not present in the object: FAM64A, HN1, not searching for symbol synonyms
+Finished averaging RNA for cluster DC
+Finished averaging RNA for cluster Mono_2
+Finished averaging RNA for cluster T_killer
+Finished averaging RNA for cluster MK
+Finished averaging RNA for cluster T_cell
+Finished averaging RNA for cluster Memory_1
+Finished averaging RNA for cluster Mono_1
 Finished averaging RNA for cluster C11
-Finished averaging RNA for cluster C8
-Finished averaging RNA for cluster C10
-Finished averaging RNA for cluster C6
+Finished averaging RNA for cluster Bcells_2
+Finished averaging RNA for cluster Memory_2
+Finished averaging RNA for cluster Bcells_1
+Finished averaging RNA for cluster NK
+Finished averaging RNA for cluster Mono_3
 Finished averaging RNA for cluster C12
-Finished averaging RNA for cluster C2
-Finished averaging RNA for cluster C0
-Finished averaging RNA for cluster C9
-Finished averaging RNA for cluster C15
-Finished averaging RNA for cluster C1
-Finished averaging RNA for cluster C3
-Finished averaging RNA for cluster C5
-Finished averaging RNA for cluster C14
-Finished averaging RNA for cluster C4
-Finished averaging RNA for cluster C13
+Finished averaging RNA for cluster Bcells_3
   |                                                                              |...........................                                           |  38%
    inline R code fragments
 
@@ -753,6 +627,32 @@ List of 4
  $ warning: logi FALSE
  $ results: symbol F
 
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
+Scale for 'fill' is already present. Adding another scale for 'fill', which
+will replace the existing scale.
 Scale for 'fill' is already present. Adding another scale for 'fill', which
 will replace the existing scale.
 Scale for 'fill' is already present. Adding another scale for 'fill', which
@@ -855,45 +755,6 @@ The following object is masked from 'package:stringr':
 
     boundary
 
---> No gene can be mapped....
---> Expected input gene ID: Egr2,Adam28,Nmbr,Hdc,Mep1a,C5ar1
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Cxcl10,Egr2,Spib,Ffar2,Slc12a1,Cd69
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Adrb2,Adamdec1,Hesx1,Cd22,Slc15a3,Blk
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Dhrs11,Ccl19,Cxcl10,Fzd2,Zbtb32,Cxcr5
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Tec,Cxcl10,Arhgap22,Ccl20,Dpep2,Myb
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Pla2g7,Ccl19,Socs1,Ccl20,Ccl1,Gm2564
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Adam9,Vcam1,Pvrl3,Actc1,Inpp4b,H2-DMa
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Bank1,Mmp12,Chil1,Paqr5,Cd68,Gipr
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Hpgds,Il1b,Ms4a3,Epn2,Il18r1,Cd79b
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Gfi1,Dpep2,Map3k13,Myb,Cxcl2,H2-Ob
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Sept8,Ccl20,Fcgr2b,Tnfaip6,Reps2,Alox15
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Bmp2k,Kynu,Cd79a,Gpr97,Mmp12,Fam65b
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Il18r1,Msc,Ccl1,Gm2564,St3gal6,5031414D18Rik
---> return NULL...
   |                                                                              |............................................                          |  63%
    inline R code fragments
 
@@ -1036,42 +897,6 @@ List of 4
  $ warning: logi FALSE
  $ results: symbol F
 
---> No gene can be mapped....
---> Expected input gene ID: Siglec1,Rasgrp2,Pla2g7,Kynu,Cd69,P2rx1
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: P2ry13,H2-Ob,Ralgps2,Mxd1,Tcl1,Dapk2
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Dennd5b,Stap1,Cd80,Hhex,Ltb,Tnfaip6
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Cma1,Fcer1a,Gm13309,Socs1,Etv3,Ralgps2
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Alox15,Cd79a,Rgs1,Ralgps2,Ear11,Rasgrp2
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Blk,Il1a,Lamp3,LOC100043918,Siglec1,Stap1
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Pla2g7,Slc12a8,Gpr183,Fcer1a,Rrp12,Ms4a1
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Il2ra,Hesx1,Ptgir,Cxcl10,Ccl19,Ms4a6d
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Cr2,Cyp27a1,Rassf4,Tlr8,Stap1,Fes
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Clec7a,Gfi1,Tnip3,Cma1,Padi4,Gm12407
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: LOC100043921,Gipr,Gm2457,Arrb1,Hhex,Ms4a3
---> return NULL...
---> No gene can be mapped....
---> Expected input gene ID: Cd68,Ccl2,Rasgrp2,Rgs13,Ifi44l,Cd22
---> return NULL...
   |                                                                              |............................................................          |  86%
    inline R code fragments
 
@@ -1166,7 +991,7 @@ List of 3
 
 output file: sc_PartB_Analysis.knit.md
 
-/camp/apps/eb/dev/software/Anaconda2/2019.10/bin/pandoc +RTS -K512m -RTS sc_PartB_Analysis.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output /camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/workdir/html_local/sc_PartB_Analysis.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 5 --variable toc_float=1 --variable toc_selectors=h1,h2,h3,h4,h5 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --css /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css --variable 'theme:paper' --include-in-header /tmp/slurm_20455263/RtmpH70PoT/rmarkdown-strf7ab69a142fa.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
+/camp/apps/eb/dev/software/Anaconda2/2019.10/bin/pandoc +RTS -K512m -RTS sc_PartB_Analysis.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output /camp/stp/babs/working/boeings/Projects/boeings/stefan.boeing/426_scRNAseq_PBMC_10k/workdir/html_local/sc_PartB_Analysis.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 5 --variable toc_float=1 --variable toc_selectors=h1,h2,h3,h4,h5 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --css /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css --variable 'theme:paper' --include-in-header /tmp/slurm_21298657/RtmpZqpQFQ/rmarkdown-str29ef3c51ffea.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
 
-Output created: /camp/stp/babs/working/boeings/Projects/pachnisv/yuuki.obata/409_sc_RNA_seq_enteric_glia_neuron_Regev_SC1038/workdir/html_local/sc_PartB_Analysis.html
+Output created: /camp/stp/babs/working/boeings/Projects/boeings/stefan.boeing/426_scRNAseq_PBMC_10k/workdir/html_local/sc_PartB_Analysis.html
 There were 50 or more warnings (use warnings() to see the first 50)

@@ -557,11 +557,11 @@ for (i in 1:length(sampleNames)){
                     header = F
                 )
                 cmdAddVec <- c(
-                        "**names(Obio@sampleDetailList)[i]**",
-                        "/n",
+                        paste0("**",names(Obio@sampleDetailList)[i],"**"),
+                        "\n",
                         as.vector(dfCMD[1,1]),
-                        "/n",
-                        "/n"
+                        "\n",
+                        "\n"
                         
                 )
                 cmdDocuVec <- c(cmdDocuVec, cmdAddVec)

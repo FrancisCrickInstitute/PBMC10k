@@ -162,23 +162,23 @@ Calculating feature variances of standardized and clipped values
 Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric
 To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'
 This message will be shown once per session
-12:13:31 UMAP embedding parameters a = 0.9922 b = 1.112
-12:13:31 Read 7117 rows and found 20 numeric columns
-12:13:31 Using Annoy for neighbor search, n_neighbors = 30
-12:13:31 Building Annoy index with metric = cosine, n_trees = 50
+04:55:17 UMAP embedding parameters a = 0.9922 b = 1.112
+04:55:17 Read 9200 rows and found 20 numeric columns
+04:55:17 Using Annoy for neighbor search, n_neighbors = 30
+04:55:17 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-12:13:34 Writing NN index file to temp file /tmp/slurm_21271820/RtmpidmQY8/filee3743da80a62
-12:13:34 Searching Annoy index using 1 thread, search_k = 3000
-12:13:36 Annoy recall = 100%
-12:13:37 Commencing smooth kNN distance calibration using 1 thread
-12:13:39 Initializing from normalized Laplacian + noise
-12:13:39 Commencing optimization for 500 epochs, with 291476 positive edges
+04:55:20 Writing NN index file to temp file /tmp/slurm_21297026/RtmpTEBlIK/file2e95509c793
+04:55:20 Searching Annoy index using 1 thread, search_k = 3000
+04:55:23 Annoy recall = 100%
+04:55:24 Commencing smooth kNN distance calibration using 1 thread
+04:55:26 Initializing from normalized Laplacian + noise
+04:55:27 Commencing optimization for 500 epochs, with 396298 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-12:14:11 Optimization finished
+04:56:04 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
   |                                                                              |...................................                                   |  50%
@@ -194,17 +194,17 @@ List of 3
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
 Registered S3 method overwritten by 'treeio':
   method     from
   root.phylo ape 
@@ -234,342 +234,322 @@ The following object is masked from 'package:tidyr':
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
+Finished averaging RNA for cluster 11
+Finished averaging RNA for cluster 12
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
-Finished averaging integrated for cluster 11
-Finished averaging integrated for cluster 12
-Finished averaging integrated for cluster 13
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
+Finished averaging RNA for cluster 11
+Finished averaging RNA for cluster 12
+Finished averaging RNA for cluster 13
+Finished averaging RNA for cluster 14
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
-Finished averaging integrated for cluster 11
-Finished averaging integrated for cluster 12
-Finished averaging integrated for cluster 13
-Finished averaging integrated for cluster 14
-Finished averaging integrated for cluster 15
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
+Finished averaging RNA for cluster 11
+Finished averaging RNA for cluster 12
+Finished averaging RNA for cluster 13
+Finished averaging RNA for cluster 14
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
-Finished averaging integrated for cluster 11
-Finished averaging integrated for cluster 12
-Finished averaging integrated for cluster 13
-Finished averaging integrated for cluster 14
-Finished averaging integrated for cluster 15
-Finished averaging integrated for cluster 16
-Finished averaging integrated for cluster 17
-Finished averaging integrated for cluster 18
-Finished averaging integrated for cluster 19
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
+Finished averaging RNA for cluster 11
+Finished averaging RNA for cluster 12
+Finished averaging RNA for cluster 13
+Finished averaging RNA for cluster 14
+Finished averaging RNA for cluster 15
+Finished averaging RNA for cluster 16
+Finished averaging RNA for cluster 17
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
-Finished averaging integrated for cluster 11
-Finished averaging integrated for cluster 12
-Finished averaging integrated for cluster 13
-Finished averaging integrated for cluster 14
-Finished averaging integrated for cluster 15
-Finished averaging integrated for cluster 16
-Finished averaging integrated for cluster 17
-Finished averaging integrated for cluster 18
-Finished averaging integrated for cluster 19
-Finished averaging integrated for cluster 20
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
+Finished averaging RNA for cluster 11
+Finished averaging RNA for cluster 12
+Finished averaging RNA for cluster 13
+Finished averaging RNA for cluster 14
+Finished averaging RNA for cluster 15
+Finished averaging RNA for cluster 16
+Finished averaging RNA for cluster 17
+Finished averaging RNA for cluster 18
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
-Finished averaging integrated for cluster 11
-Finished averaging integrated for cluster 12
-Finished averaging integrated for cluster 13
-Finished averaging integrated for cluster 14
-Finished averaging integrated for cluster 15
-Finished averaging integrated for cluster 16
-Finished averaging integrated for cluster 17
-Finished averaging integrated for cluster 18
-Finished averaging integrated for cluster 19
-Finished averaging integrated for cluster 20
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
+Finished averaging RNA for cluster 11
+Finished averaging RNA for cluster 12
+Finished averaging RNA for cluster 13
+Finished averaging RNA for cluster 14
+Finished averaging RNA for cluster 15
+Finished averaging RNA for cluster 16
+Finished averaging RNA for cluster 17
+Finished averaging RNA for cluster 18
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
-Finished averaging integrated for cluster 11
-Finished averaging integrated for cluster 12
-Finished averaging integrated for cluster 13
-Finished averaging integrated for cluster 14
-Finished averaging integrated for cluster 15
-Finished averaging integrated for cluster 16
-Finished averaging integrated for cluster 17
-Finished averaging integrated for cluster 18
-Finished averaging integrated for cluster 19
-Finished averaging integrated for cluster 20
-Finished averaging integrated for cluster 21
-Finished averaging integrated for cluster 22
-Finished averaging integrated for cluster 23
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
+Finished averaging RNA for cluster 11
+Finished averaging RNA for cluster 12
+Finished averaging RNA for cluster 13
+Finished averaging RNA for cluster 14
+Finished averaging RNA for cluster 15
+Finished averaging RNA for cluster 16
+Finished averaging RNA for cluster 17
+Finished averaging RNA for cluster 18
+Finished averaging RNA for cluster 19
+Finished averaging RNA for cluster 20
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
-Finished averaging integrated for cluster 11
-Finished averaging integrated for cluster 12
-Finished averaging integrated for cluster 13
-Finished averaging integrated for cluster 14
-Finished averaging integrated for cluster 15
-Finished averaging integrated for cluster 16
-Finished averaging integrated for cluster 17
-Finished averaging integrated for cluster 18
-Finished averaging integrated for cluster 19
-Finished averaging integrated for cluster 20
-Finished averaging integrated for cluster 21
-Finished averaging integrated for cluster 22
-Finished averaging integrated for cluster 23
-Finished averaging integrated for cluster 24
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
+Finished averaging RNA for cluster 11
+Finished averaging RNA for cluster 12
+Finished averaging RNA for cluster 13
+Finished averaging RNA for cluster 14
+Finished averaging RNA for cluster 15
+Finished averaging RNA for cluster 16
+Finished averaging RNA for cluster 17
+Finished averaging RNA for cluster 18
+Finished averaging RNA for cluster 19
+Finished averaging RNA for cluster 20
+Finished averaging RNA for cluster 21
+Finished averaging RNA for cluster 22
+Finished averaging RNA for cluster 23
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
-Finished averaging integrated for cluster 11
-Finished averaging integrated for cluster 12
-Finished averaging integrated for cluster 13
-Finished averaging integrated for cluster 14
-Finished averaging integrated for cluster 15
-Finished averaging integrated for cluster 16
-Finished averaging integrated for cluster 17
-Finished averaging integrated for cluster 18
-Finished averaging integrated for cluster 19
-Finished averaging integrated for cluster 20
-Finished averaging integrated for cluster 21
-Finished averaging integrated for cluster 22
-Finished averaging integrated for cluster 23
-Finished averaging integrated for cluster 24
-Finished averaging integrated for cluster 25
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
+Finished averaging RNA for cluster 11
+Finished averaging RNA for cluster 12
+Finished averaging RNA for cluster 13
+Finished averaging RNA for cluster 14
+Finished averaging RNA for cluster 15
+Finished averaging RNA for cluster 16
+Finished averaging RNA for cluster 17
+Finished averaging RNA for cluster 18
+Finished averaging RNA for cluster 19
+Finished averaging RNA for cluster 20
+Finished averaging RNA for cluster 21
+Finished averaging RNA for cluster 22
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
-Finished averaging integrated for cluster 11
-Finished averaging integrated for cluster 12
-Finished averaging integrated for cluster 13
-Finished averaging integrated for cluster 14
-Finished averaging integrated for cluster 15
-Finished averaging integrated for cluster 16
-Finished averaging integrated for cluster 17
-Finished averaging integrated for cluster 18
-Finished averaging integrated for cluster 19
-Finished averaging integrated for cluster 20
-Finished averaging integrated for cluster 21
-Finished averaging integrated for cluster 22
-Finished averaging integrated for cluster 23
-Finished averaging integrated for cluster 24
-Finished averaging integrated for cluster 25
-Finished averaging integrated for cluster 26
-Finished averaging integrated for cluster 27
-Finished averaging integrated for cluster 28
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
+Finished averaging RNA for cluster 11
+Finished averaging RNA for cluster 12
+Finished averaging RNA for cluster 13
+Finished averaging RNA for cluster 14
+Finished averaging RNA for cluster 15
+Finished averaging RNA for cluster 16
+Finished averaging RNA for cluster 17
+Finished averaging RNA for cluster 18
+Finished averaging RNA for cluster 19
+Finished averaging RNA for cluster 20
+Finished averaging RNA for cluster 21
+Finished averaging RNA for cluster 22
+Finished averaging RNA for cluster 23
+Finished averaging RNA for cluster 24
+Finished averaging RNA for cluster 25
+Finished averaging RNA for cluster 26
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
-Finished averaging integrated for cluster 11
-Finished averaging integrated for cluster 12
-Finished averaging integrated for cluster 13
-Finished averaging integrated for cluster 14
-Finished averaging integrated for cluster 15
-Finished averaging integrated for cluster 16
-Finished averaging integrated for cluster 17
-Finished averaging integrated for cluster 18
-Finished averaging integrated for cluster 19
-Finished averaging integrated for cluster 20
-Finished averaging integrated for cluster 21
-Finished averaging integrated for cluster 22
-Finished averaging integrated for cluster 23
-Finished averaging integrated for cluster 24
-Finished averaging integrated for cluster 25
-Finished averaging integrated for cluster 26
-Finished averaging integrated for cluster 27
-Finished averaging integrated for cluster 28
-Finished averaging integrated for cluster 29
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
+Finished averaging RNA for cluster 11
+Finished averaging RNA for cluster 12
+Finished averaging RNA for cluster 13
+Finished averaging RNA for cluster 14
+Finished averaging RNA for cluster 15
+Finished averaging RNA for cluster 16
+Finished averaging RNA for cluster 17
+Finished averaging RNA for cluster 18
+Finished averaging RNA for cluster 19
+Finished averaging RNA for cluster 20
+Finished averaging RNA for cluster 21
+Finished averaging RNA for cluster 22
+Finished averaging RNA for cluster 23
+Finished averaging RNA for cluster 24
+Finished averaging RNA for cluster 25
+Finished averaging RNA for cluster 26
+Finished averaging RNA for cluster 27
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
-Finished averaging integrated for cluster 11
-Finished averaging integrated for cluster 12
-Finished averaging integrated for cluster 13
-Finished averaging integrated for cluster 14
-Finished averaging integrated for cluster 15
-Finished averaging integrated for cluster 16
-Finished averaging integrated for cluster 17
-Finished averaging integrated for cluster 18
-Finished averaging integrated for cluster 19
-Finished averaging integrated for cluster 20
-Finished averaging integrated for cluster 21
-Finished averaging integrated for cluster 22
-Finished averaging integrated for cluster 23
-Finished averaging integrated for cluster 24
-Finished averaging integrated for cluster 25
-Finished averaging integrated for cluster 26
-Finished averaging integrated for cluster 27
-Finished averaging integrated for cluster 28
-Finished averaging integrated for cluster 29
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
+Finished averaging RNA for cluster 11
+Finished averaging RNA for cluster 12
+Finished averaging RNA for cluster 13
+Finished averaging RNA for cluster 14
+Finished averaging RNA for cluster 15
+Finished averaging RNA for cluster 16
+Finished averaging RNA for cluster 17
+Finished averaging RNA for cluster 18
+Finished averaging RNA for cluster 19
+Finished averaging RNA for cluster 20
+Finished averaging RNA for cluster 21
+Finished averaging RNA for cluster 22
+Finished averaging RNA for cluster 23
+Finished averaging RNA for cluster 24
+Finished averaging RNA for cluster 25
+Finished averaging RNA for cluster 26
+Finished averaging RNA for cluster 27
+Finished averaging RNA for cluster 28
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-Finished averaging integrated for cluster 0
-Finished averaging integrated for cluster 1
-Finished averaging integrated for cluster 2
-Finished averaging integrated for cluster 3
-Finished averaging integrated for cluster 4
-Finished averaging integrated for cluster 5
-Finished averaging integrated for cluster 6
-Finished averaging integrated for cluster 7
-Finished averaging integrated for cluster 8
-Finished averaging integrated for cluster 9
-Finished averaging integrated for cluster 10
-Finished averaging integrated for cluster 11
-Finished averaging integrated for cluster 12
-Finished averaging integrated for cluster 13
-Finished averaging integrated for cluster 14
-Finished averaging integrated for cluster 15
-Finished averaging integrated for cluster 16
-Finished averaging integrated for cluster 17
-Finished averaging integrated for cluster 18
-Finished averaging integrated for cluster 19
-Finished averaging integrated for cluster 20
-Finished averaging integrated for cluster 21
-Finished averaging integrated for cluster 22
-Finished averaging integrated for cluster 23
-Finished averaging integrated for cluster 24
-Finished averaging integrated for cluster 25
-Finished averaging integrated for cluster 26
-Finished averaging integrated for cluster 27
-Finished averaging integrated for cluster 28
-Finished averaging integrated for cluster 29
-Finished averaging integrated for cluster 30
-Finished averaging integrated for cluster 31
-Finished averaging integrated for cluster 32
+Finished averaging RNA for cluster 0
+Finished averaging RNA for cluster 1
+Finished averaging RNA for cluster 2
+Finished averaging RNA for cluster 3
+Finished averaging RNA for cluster 4
+Finished averaging RNA for cluster 5
+Finished averaging RNA for cluster 6
+Finished averaging RNA for cluster 7
+Finished averaging RNA for cluster 8
+Finished averaging RNA for cluster 9
+Finished averaging RNA for cluster 10
+Finished averaging RNA for cluster 11
+Finished averaging RNA for cluster 12
+Finished averaging RNA for cluster 13
+Finished averaging RNA for cluster 14
+Finished averaging RNA for cluster 15
+Finished averaging RNA for cluster 16
+Finished averaging RNA for cluster 17
+Finished averaging RNA for cluster 18
+Finished averaging RNA for cluster 19
+Finished averaging RNA for cluster 20
+Finished averaging RNA for cluster 21
+Finished averaging RNA for cluster 22
+Finished averaging RNA for cluster 23
+Finished averaging RNA for cluster 24
+Finished averaging RNA for cluster 25
+Finished averaging RNA for cluster 26
+Finished averaging RNA for cluster 27
+Finished averaging RNA for cluster 28
   |                                                                              |...........................................                           |  61%
    inline R code fragments
 
@@ -618,28 +598,23 @@ List of 3
 
 output file: ClusterFinder.module.knit.md
 
-/camp/apps/eb/dev/software/Anaconda2/2019.10/bin/pandoc +RTS -K512m -RTS ClusterFinder.module.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output /camp/stp/babs/working/boeings/Projects/malanchii/nicolas.rabas/422_scRNAseq_liver_4T1/workdir/html_local/ClusterFinder.module.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 5 --variable toc_float=1 --variable toc_selectors=h1,h2,h3,h4,h5 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --variable 'theme:paper' --include-in-header /tmp/slurm_21271820/RtmpidmQY8/rmarkdown-stre37472d60bfc.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
+/camp/apps/eb/dev/software/Anaconda2/2019.10/bin/pandoc +RTS -K512m -RTS ClusterFinder.module.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output /camp/stp/babs/working/boeings/Projects/boeings/stefan.boeing/426_scRNAseq_PBMC_10k/workdir/html_local/ClusterFinder.module.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 5 --variable toc_float=1 --variable toc_selectors=h1,h2,h3,h4,h5 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --variable 'theme:paper' --include-in-header /tmp/slurm_21297026/RtmpTEBlIK/rmarkdown-str2e951fd427f6.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
 
-Output created: /camp/stp/babs/working/boeings/Projects/malanchii/nicolas.rabas/422_scRNAseq_liver_4T1/workdir/html_local/ClusterFinder.module.html
+Output created: /camp/stp/babs/working/boeings/Projects/boeings/stefan.boeing/426_scRNAseq_PBMC_10k/workdir/html_local/ClusterFinder.module.html
 Warning messages:
-1: In FindVariableFeatures.Assay(object = assay.data, selection.method = selection.method,  :
-  selection.method set to 'vst' but count slot is empty; will use data slot instead
-2: In eval(predvars, data, env) : NaNs produced
-3: In hvf.info$variance.expected[not.const] <- 10^fit$fitted :
-  number of items to replace is not a multiple of replacement length
-4: Using `as.character()` on a quosure is deprecated as of rlang 0.3.0.
+1: Using `as.character()` on a quosure is deprecated as of rlang 0.3.0.
 Please use `as_label()` or `as_name()` instead.
 This warning is displayed once per session. 
-5: `data_frame()` is deprecated as of tibble 1.1.0.
+2: `data_frame()` is deprecated as of tibble 1.1.0.
 Please use `tibble()` instead.
 This warning is displayed once every 8 hours.
 Call `lifecycle::last_warnings()` to see where this warning was generated. 
-6: `mutate_()` is deprecated as of dplyr 0.7.0.
+3: `mutate_()` is deprecated as of dplyr 0.7.0.
 Please use `mutate()` instead.
 See vignette('programming') for more help
 This warning is displayed once every 8 hours.
 Call `lifecycle::last_warnings()` to see where this warning was generated. 
-7: In block_exec(params) :
+4: In block_exec(params) :
   Failed to tidy R code in chunk 'AUC_prep_from_file'. Reason:
 Error in base::parse(text = code, keep.source = FALSE) : 
   <text>:11:1: unexpected symbol

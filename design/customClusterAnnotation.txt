@@ -1,0 +1,16 @@
+seurat_clusters	clusterName	clusterColor
+0	Mono_1	#2a9d8f
+1	Memory_1	#e9c46a
+2	Memory_2	#F2DCA6
+3	T_cell	#C4951C
+4	T_killer	#E3B33B
+5	Bcells_1	#264653
+6	Mono_3	#2BA193
+7	Bcells_2	#3A6B7E
+8	Mono_2	#3ECCBB
+9	NK	#8F6C14
+10	DC	#f4a261
+11	C11	#B983FF
+12	C12	#E76BF3
+13	MK	#e76f51
+14	Bcells_3	#274754
