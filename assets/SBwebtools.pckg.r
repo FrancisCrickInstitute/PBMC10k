@@ -9903,7 +9903,7 @@ add.category.to.lab.reference.table.hs <- function(
         
         
     } else {
-        if (!new.lab.category.table){
+        
             dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.ref.db ,host = host)
             
             ## Set default ##
@@ -9933,7 +9933,7 @@ add.category.to.lab.reference.table.hs <- function(
             cat_id = paste(cat.ref.db.table, "__", next.id, sep="")
             
         }
-    }
+    
     dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.ref.db ,host = host)
     df.ref = dbGetQuery(dbDB, "SELECT DISTINCT * FROM js_lab_categories WHERE cat_id = 'not_existing'")
     dbDisconnect(dbDB)

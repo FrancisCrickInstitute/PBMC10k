@@ -6,8 +6,6 @@
 ' IGNORE 1 LINES (gene, cellID, lg10Expr, row_names);"
 "ALTER TABLE PBMC10k_gene_expr_tb ADD UNIQUE(row_names);"
 "CREATE INDEX idx_gene ON PBMC10k_gene_expr_tb (gene);"
-"CREATE USER 'PBMC10k_scData'@'shiny-bioinformatics.crick.ac.uk' IDENTIFIED BY 'BrEcydDT';"
-"CREATE USER 'PBMC10k_scData'@'10.%' IDENTIFIED BY 'BrEcydDT';"
 "GRANT SELECT on immuno_ref_data.PBMC10k_PCA TO PBMC10k_scData@'shiny-bioinformatics.crick.ac.uk';"
 "GRANT SELECT on immuno_ref_data.PBMC10k_PCA TO PBMC10k_scData@'10.%';"
 "GRANT SELECT on immuno_ref_data.PBMC10k_gene_expr_tb TO PBMC10k_scData@'shiny-bioinformatics.crick.ac.uk';"

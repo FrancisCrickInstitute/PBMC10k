@@ -160,3 +160,38 @@ List of 3
  $ echo   : symbol F
  $ results: symbol F
 
+  |                                                                              |.......................................                               |  56%
+  ordinary text without R code
+
+  |                                                                              |............................................                          |  62%
+label: populate_expr_database (with options) 
+List of 3
+ $ eval   : logi TRUE
+ $ echo   : symbol F
+ $ results: symbol F
+
+
+Attaching package: 'gplots'
+
+The following object is masked from 'package:IRanges':
+
+    space
+
+The following object is masked from 'package:S4Vectors':
+
+    space
+
+The following object is masked from 'package:stats':
+
+    lowess
+
+  |                                                                              |................................................                      |  69%
+  ordinary text without R code
+
+  |                                                                              |....................................................                  |  75%
+label: create_ref (with options) 
+List of 3
+ $ eval   : logi TRUE
+ $ echo   : symbol F
+ $ results: symbol F
+
