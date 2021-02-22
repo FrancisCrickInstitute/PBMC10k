@@ -195,3 +195,34 @@ List of 3
  $ echo   : symbol F
  $ results: symbol F
 
+  |                                                                              |.........................................................             |  81%
+  ordinary text without R code
+
+  |                                                                              |.............................................................         |  88%
+label: create_microwebsite (with options) 
+List of 3
+ $ eval   : logi TRUE
+ $ echo   : symbol F
+ $ results: symbol F
+
+  |                                                                              |..................................................................    |  94%
+  ordinary text without R code
+
+  |                                                                              |......................................................................| 100%
+label: documentation (with options) 
+List of 3
+ $ eval   : logi TRUE
+ $ echo   : symbol T
+ $ results: symbol T
+
+
+output file: sc_PartC_Analysis.knit.md
+
+/camp/apps/eb/dev/software/Anaconda2/2019.10/bin/pandoc +RTS -K512m -RTS sc_PartC_Analysis.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output /camp/stp/babs/working/boeings/Projects/boeings/stefan.boeing/426_scRNAseq_PBMC_10k/workdir/sc_PartC_Analysis.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 3 --variable toc_float=1 --variable toc_selectors=h1,h2,h3 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --variable 'theme:bootstrap' --include-in-header /tmp/slurm_21298884/RtmpYfZddz/rmarkdown-str92973c36e9b7.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
+
+Output created: /camp/stp/babs/working/boeings/Projects/boeings/stefan.boeing/426_scRNAseq_PBMC_10k/workdir/sc_PartC_Analysis.html
+Warning messages:
+1: In heatmap.2(m.df1, trace = "none", dendrogram = "both", density.info = "none",  :
+  Discrepancy: Colv is FALSE, while dendrogram is `both'. Omitting column dendogram.
+2: In in_dir(input_dir(), evaluate(code, envir = env, new_device = FALSE,  :
+  You changed the working directory to /camp/stp/babs/working/boeings/Projects/boeings/stefan.boeing/426_scRNAseq_PBMC_10k/workdir (probably via setwd()). It will be restored to /camp/stp/babs/working/boeings/Projects/boeings/stefan.boeing/426_scRNAseq_PBMC_10k/workdir/sc_dev. See the Note section in ?knitr::knit

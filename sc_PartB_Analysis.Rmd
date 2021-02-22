@@ -786,8 +786,8 @@ if (file.exists(FNcol)){
     pos3 <- grep("clusterColor", names(dfClusterAnnotation))
     
     ## Check if clusters match ##
-    inClust <- unique(as.vector(dfClusterAnnotation$seurat_clusters))
-    oClust <- unique(as.vector(OsC@meta.data$seurat_clusters))
+    inClust <- unique(as.character(dfClusterAnnotation$seurat_clusters))
+    oClust <- unique(as.character(OsC@meta.data$seurat_clusters))
     
     
     if (length(pos1) != 0 & length(pos2) != 0 & length(pos3) != 0 ){
@@ -798,8 +798,8 @@ if (file.exists(FNcol)){
         dfClusterAnnotation$clusterName <- gsub("__", "_", dfClusterAnnotation$clusterName)
         dfClusterAnnotation$clusterName <- gsub("_$", "", dfClusterAnnotation$clusterName)
         ## Check if clusters match ##
-        inClust <- unique(as.vector(dfClusterAnnotation$seurat_clusters))
-        oClust <- unique(as.vector(OsC@meta.data$seurat_clusters))
+        inClust <- unique(as.character(dfClusterAnnotation$seurat_clusters))
+        oClust <- unique(as.character(OsC@meta.data$seurat_clusters))
         if (length(inClust) == length(intersect(inClust, oClust))){
             tableValid <- TRUE
         } else {
@@ -4282,6 +4282,10 @@ if (length(geneVec) > 0){
 }
 
 
+## Invert listing order##
+orderVec <- rev(names(Obio@parameterList$cat2HMplotList))
+Obio@parameterList$cat2HMplotList <- Obio@parameterList$cat2HMplotList[orderVec]
+
 for (i in 1:length(Obio@parameterList[["cat2HMplotList"]])){
     tag <- paste0("HM_", names(Obio@parameterList$cat2HMplotList)[i])
     textSize <- 5
@@ -4571,9 +4575,9 @@ if (length(plotList) > 3){
 ```
 
 
-### Heatmap and Dotplot for the top5 cluster defining genes {`r tabVar`}
+### Heatmaps and Dotplots {`r tabVar`}
 
-In this section we will try to determine what are good markers for the clusters in this experiment. 
+In this section heatmaps and dotplots for various gene categories are provided. 
 
 ```{r Cluster_overview, echo=TRUE, eval=TRUE, warning=FALSE, results="asis"}
 
