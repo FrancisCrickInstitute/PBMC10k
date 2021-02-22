@@ -393,6 +393,73 @@ setGeneric(
                 "genome_idx/bowtie2/Danio_rerio.GRCz10.dna_sm.toplevel."
             )
             
+        } else if (obj@parameterList$species == "gallus_gallus"){
+            obj@parameterList$genome  <- "GRCg6a"
+            obj@parameterList$primaryAlignmentGeneID <- "ENSGALG"
+            obj@parameterList$path2GeneIDtable <- paste0(
+                obj@parameterList$hpcMount,
+                "Projects/reference_data/gene_id_annotation_files/",
+                "2021.ENSGALG.biomart.plus.hgnc.txt"
+            )
+            
+            
+            obj@parameterList$GTFfile <- paste0(
+                "/camp/svc/reference/Genomics/babs/gallus_gallus/ensembl/GRCg6a/",
+                obj@parameterList$release,
+                "/gtf/Gallus_gallus.GRCg6a.",releaseID,".rnaseqc.gtf"
+            )
+            
+            
+            obj@parameterList$genomeFa <-  paste0(
+                "/camp/svc/reference/Genomics/babs/gallus_gallus/ensembl/GRCg6a/",
+                obj@parameterList$release,
+                "/genome/Gallus_gallus.GRCg6a.dna_sm.toplevel.fa"
+            )
+            
+            obj@parameterList$genomeFai<- paste0(
+                "/camp/svc/reference/Genomics/babs/gallus_gallus/ensembl/GRCg6a/",
+                obj@parameterList$release,
+                "/genome/Gallus_gallus.GRCg6a.dna_sm.toplevel.fa.fai"
+            )
+            
+            obj@parameterList$rRNAfile  <- paste0(
+                "/camp/svc/reference/Genomics/babs/gallus_gallus/ensembl/GRCg6a/",
+                obj@parameterList$release,
+                "/gtf/Gallus_gallus.GRCg6a.",releaseID,".rRNA.list"
+            )
+            
+            obj@parameterList$geneIDcolumn <- "gg_symbol"
+            
+            obj@parameterList$bedFile <- paste0(
+                "/camp/svc/reference/Genomics/babs/gallus_gallus/ensembl/GRCg6a/",
+                obj@parameterList$release,
+                "/gtf/Gallus_gallus.GRCg6a.",releaseID,".bed"
+            )
+            
+            obj@parameterList$refFlatFile <- paste0(
+                "/camp/svc/reference/Genomics/babs/gallus_gallus/ensembl/GRCg6a/",
+                obj@parameterList$release,
+                "/gtf/Gallus_gallus.GRCg6a.",releaseID,".rRNA.refflat"
+            )
+            
+            obj@parameterList$ribosomalIntervalList <- paste0(
+                "/camp/svc/reference/Genomics/babs/gallus_gallus/ensembl/GRCg6a/",
+                obj@parameterList$release,
+                "/gtf/Gallus_gallus.GRCg6a.",releaseID,".rRNA.interval_list"
+            )
+            
+            obj@parameterList$genomeidx <- paste0(
+                "/camp/svc/reference/Genomics/babs/gallus_gallus/ensembl/GRCg6a/",
+                obj@parameterList$release,
+                "/gtf/Gallus_gallus.GRCg6a.",releaseID,".rRNA.interval_list"
+            )
+            
+            obj@parameterList$genomeidx <- paste0(
+                "/camp/svc/reference/Genomics/babs/gallus_gallus/ensembl/GRCg6a/",
+                obj@parameterList$release,
+                "genome_idx/bowtie2/Gallus_gallus.GRCg6a.dna_sm.toplevel."
+            )    
+            
         } else if (obj@parameterList$species == "homo_sapiens"){
             obj@parameterList$genome  <- "GRCh38"
             obj@parameterList$primaryAlignmentGeneID <- "ENSG"
@@ -9836,7 +9903,7 @@ add.category.to.lab.reference.table.hs <- function(
         
         
     } else {
-        
+        if (!new.lab.category.table){
             dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.ref.db ,host = host)
             
             ## Set default ##
@@ -9865,7 +9932,7 @@ add.category.to.lab.reference.table.hs <- function(
             
             cat_id = paste(cat.ref.db.table, "__", next.id, sep="")
             
-        
+        }
     }
     dbDB = dbConnect(MySQL(), user = user, password = pwd, dbname= cat.ref.db ,host = host)
     df.ref = dbGetQuery(dbDB, "SELECT DISTINCT * FROM js_lab_categories WHERE cat_id = 'not_existing'")
