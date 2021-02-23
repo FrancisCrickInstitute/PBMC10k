@@ -276,35 +276,27 @@ setGeneric(
 DGEtagVec <- as.vector(NULL, mode = "character")
 DGEinputList <- list(
   "comp_1" = list(
-      "name"    = "DGE_Prad_vs_Ctrl",
-      "DGEselCol" = "sampleID",
+      "name"    = "DGE_B_cells_vs_Mono_CD14",
+      "DGEselCol" = "seurat_clusters",
       "DGEsampleList" = list(
-          "Prad"   = c("Prad"),
-          "Ctrl" = c("Ctrl")
+          "B_cells"   = c(5,7),
+          "Mono_CD14" = c(0,11)
       )
   ),
   "comp_2" = list(
-      "name"    = "DGE_Prad_Rest_vs_Ctrl_Rest",
-      "DGEselCol" = "cluster_sample",
+      "name"    = "DGE_B_cells_1_vs_B_cells_2",
+      "DGEselCol" = "seurat_clusters",
       "DGEsampleList" = list(
-          "Prad_Rest"   = c("C0_Prad","C1_Prad","C2_Prad","C3_Prad","C4_Prad","C5_Prad","C6_Prad","C7_Prad","C9_Prad"),
-          "Ctrl_Rest" = c("C0_Ctrl","C1_Ctrl","C2_Ctrl","C3_Ctrl","C4_Ctrl","C5_Ctrl","C6_Ctrl","C7_Ctrl","C9_Ctrl")
+          "B_cells_1"   = c(5),
+          "B_cells_2" = c(7)
       )
   ),
   "comp_3" = list(
-      "name"    = "DGE_Prad_C5_vs_Ctrl_C5",
-      "DGEselCol" = "cluster_sample",
+      "name"    = "DGE_Mono_CD14_vs_Mono_FCGR3",
+      "DGEselCol" = "seurat_clusters",
       "DGEsampleList" = list(
-          "Prad_C5"   = c("C5_Prad"),
-          "Ctrl_C5" = c("C5_Ctrl")
-      )
-  ),
-  "comp_4" = list(
-      "name"    = "DGE_Prad_C9_vs_Ctrl_C9",
-      "DGEselCol" = "cluster_sample",
-      "DGEsampleList" = list(
-          "Prad_C9"   = c("C9_Prad"),
-          "Ctrl_C9" = c("C9_Ctrl")
+          "Mono_CD14"   = c(0,11),
+          "Mono_FCGR3" = c(6)
       )
   )
 )
