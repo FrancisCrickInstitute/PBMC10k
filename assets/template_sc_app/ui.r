@@ -174,23 +174,6 @@ splitOptions <- c(
   "Cell Cycle Phase" = "Phase"
 )
 
-splitAddvec <- c(
-  #XYsel[grep("ClusterTest", XYsel)],
-  XYsel[grep("meta_", XYsel)]
-)
-
-names(splitAddvec) <- splitAddvec
-names(splitAddvec) <- gsub("meta", "", names(splitAddvec))
-names(splitAddvec) <- gsub("Meta", "", names(splitAddvec))
-names(splitAddvec) <- gsub("^_", "", names(splitAddvec))
-
-splitOptions <- c(
-  splitAddvec,
-  splitOptions
-  
-)
-
-
 splitOptions <- splitOptions[splitOptions %in% names(dfCoordSel)]
 
 allColorOptions <- allColorOptions[allColorOptions %in% names(dfCoordSel)]
