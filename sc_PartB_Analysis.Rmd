@@ -853,6 +853,9 @@ if (!file.exists(FNcol) | !tableValid){
 ## Merge into OsC@meta.data                                                  ##
 
 dfAdd <- OsC@meta.data[,c("seurat_clusters", "cellID")]
+dfAdd$seurat_clusters <- as.character(dfAdd$seurat_clusters)
+dfClusterAnnotation$seurat_clusters <- as.character(dfClusterAnnotation$seurat_clusters)
+
 
 dfAdd <- merge(
     dfAdd,
@@ -860,6 +863,8 @@ dfAdd <- merge(
     by.x = "seurat_clusters",
     by.y = "seurat_clusters"
 )
+
+dfAdd <- data.frame(dfAdd, stringsAsFactors = F)
 
 row.names(dfAdd) <- dfAdd$cellID
 dfAdd$cellID <- NULL
@@ -871,6 +876,7 @@ OsC <- addDf2seuratMetaData(
 )
 
 
+#OsC@meta.data$seurat_clusters <- factor(OsC@meta.data$seurat_clusters, levels = c(unique(as.numeric(dfClusterAnnotation$seurat_clusters))))
 
 ## Done                                                                      ##
 ###############################################################################
@@ -1753,6 +1759,8 @@ features <- VariableFeatures(object = OsC)
 features <- intersect(x = features, y = rownames(x = OsC))
 data.avg <- AverageExpression(object = OsC, assays = assay, 
 features = features, slot = "data", verbose = T)[[1]]
+
+
 
 if (ncol(data.avg) > 1){
 data.dist <- dist(x = t(x = data.avg[features, ]))

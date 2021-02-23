@@ -269,23 +269,23 @@ Warning: The following features are not present in the object: FAM64A, HN1, not 
 Warning: The default method for RunUMAP has changed from calling Python UMAP via reticulate to the R-native UWOT using the cosine metric
 To use Python UMAP via reticulate, set umap.method to 'umap-learn' and metric to 'correlation'
 This message will be shown once per session
-01:21:11 UMAP embedding parameters a = 0.9922 b = 1.112
-01:21:11 Read 10185 rows and found 20 numeric columns
-01:21:11 Using Annoy for neighbor search, n_neighbors = 30
-01:21:11 Building Annoy index with metric = cosine, n_trees = 50
+22:56:44 UMAP embedding parameters a = 0.9922 b = 1.112
+22:56:44 Read 10185 rows and found 20 numeric columns
+22:56:44 Using Annoy for neighbor search, n_neighbors = 30
+22:56:44 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-01:21:14 Writing NN index file to temp file /tmp/slurm_21296601/RtmpZFVqJC/file7806f0fa5da
-01:21:14 Searching Annoy index using 1 thread, search_k = 3000
-01:21:18 Annoy recall = 100%
-01:21:23 Commencing smooth kNN distance calibration using 1 thread
-01:21:33 Initializing from normalized Laplacian + noise
-01:21:34 Commencing optimization for 200 epochs, with 430296 positive edges
+22:56:47 Writing NN index file to temp file /tmp/slurm_21312352/Rtmp3y9vu9/filedbb06651fd50
+22:56:47 Searching Annoy index using 1 thread, search_k = 3000
+22:56:51 Annoy recall = 100%
+22:56:53 Commencing smooth kNN distance calibration using 1 thread
+22:56:59 Initializing from normalized Laplacian + noise
+22:57:00 Commencing optimization for 200 epochs, with 430296 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-01:21:53 Optimization finished
+22:57:18 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
@@ -488,7 +488,7 @@ Found 35 outliers - those will be ignored in fitting/regularization step
 Second step: Get residuals using fitted parameters for 19969 genes
 Computing corrected count matrix for 19969 genes
 Calculating gene attributes
-Wall clock passed: Time difference of 16.06973 mins
+Wall clock passed: Time difference of 14.98005 mins
 Determine variable features
 Set 3000 variable features
 Place corrected count matrix in counts slot
@@ -615,27 +615,27 @@ Calculating feature variances of standardized and clipped values
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-01:46:27 UMAP embedding parameters a = 0.9922 b = 1.112
+23:20:58 UMAP embedding parameters a = 0.9922 b = 1.112
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-01:46:27 Read 9200 rows and found 20 numeric columns
-01:46:27 Using Annoy for neighbor search, n_neighbors = 30
+23:20:58 Read 9200 rows and found 20 numeric columns
+23:20:58 Using Annoy for neighbor search, n_neighbors = 30
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-01:46:27 Building Annoy index with metric = cosine, n_trees = 50
+23:20:58 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-01:46:30 Writing NN index file to temp file /tmp/slurm_21296601/RtmpZFVqJC/file78065ed6d47d
-01:46:30 Searching Annoy index using 1 thread, search_k = 3000
-01:46:33 Annoy recall = 100%
-01:46:36 Commencing smooth kNN distance calibration using 1 thread
-01:46:42 Initializing from normalized Laplacian + noise
-01:46:43 Commencing optimization for 500 epochs, with 396298 positive edges
+23:21:01 Writing NN index file to temp file /tmp/slurm_21312352/Rtmp3y9vu9/filedbb02fd40e89
+23:21:01 Searching Annoy index using 1 thread, search_k = 3000
+23:21:04 Annoy recall = 100%
+23:21:07 Commencing smooth kNN distance calibration using 1 thread
+23:21:13 Initializing from normalized Laplacian + noise
+23:21:14 Commencing optimization for 500 epochs, with 396298 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-01:47:32 Optimization finished
+23:21:57 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
@@ -651,27 +651,27 @@ Calculating feature variances of standardized and clipped values
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-03:08:13 UMAP embedding parameters a = 0.9922 b = 1.112
+00:41:18 UMAP embedding parameters a = 0.9922 b = 1.112
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-03:08:13 Read 9200 rows and found 20 numeric columns
-03:08:13 Using Annoy for neighbor search, n_neighbors = 30
+00:41:18 Read 9200 rows and found 20 numeric columns
+00:41:18 Using Annoy for neighbor search, n_neighbors = 30
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-03:08:13 Building Annoy index with metric = cosine, n_trees = 50
+00:41:18 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-03:08:16 Writing NN index file to temp file /tmp/slurm_21296601/RtmpZFVqJC/file780671dc6214
-03:08:16 Searching Annoy index using 1 thread, search_k = 3000
-03:08:19 Annoy recall = 100%
-03:08:23 Commencing smooth kNN distance calibration using 1 thread
-03:08:29 Initializing from normalized Laplacian + noise
-03:08:30 Commencing optimization for 500 epochs, with 396298 positive edges
+00:41:20 Writing NN index file to temp file /tmp/slurm_21312352/Rtmp3y9vu9/filedbb0726fde67
+00:41:20 Searching Annoy index using 1 thread, search_k = 3000
+00:41:24 Annoy recall = 100%
+00:41:27 Commencing smooth kNN distance calibration using 1 thread
+00:41:32 Initializing from normalized Laplacian + noise
+00:41:33 Commencing optimization for 500 epochs, with 396298 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-03:09:09 Optimization finished
+00:42:11 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
@@ -687,27 +687,27 @@ Calculating feature variances of standardized and clipped values
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-04:30:19 UMAP embedding parameters a = 0.9922 b = 1.112
+02:03:51 UMAP embedding parameters a = 0.9922 b = 1.112
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-04:30:19 Read 9200 rows and found 20 numeric columns
-04:30:19 Using Annoy for neighbor search, n_neighbors = 30
+02:03:51 Read 9200 rows and found 20 numeric columns
+02:03:51 Using Annoy for neighbor search, n_neighbors = 30
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-04:30:19 Building Annoy index with metric = cosine, n_trees = 50
+02:03:51 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-04:30:22 Writing NN index file to temp file /tmp/slurm_21296601/RtmpZFVqJC/file78065c0fa31f
-04:30:22 Searching Annoy index using 1 thread, search_k = 3000
-04:30:26 Annoy recall = 100%
-04:30:28 Commencing smooth kNN distance calibration using 1 thread
-04:30:33 Initializing from normalized Laplacian + noise
-04:30:34 Commencing optimization for 500 epochs, with 396298 positive edges
+02:03:54 Writing NN index file to temp file /tmp/slurm_21312352/Rtmp3y9vu9/filedbb02cea456c
+02:03:54 Searching Annoy index using 1 thread, search_k = 3000
+02:03:58 Annoy recall = 100%
+02:04:01 Commencing smooth kNN distance calibration using 1 thread
+02:04:06 Initializing from normalized Laplacian + noise
+02:04:07 Commencing optimization for 500 epochs, with 396298 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-04:31:13 Optimization finished
+02:04:45 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
@@ -723,27 +723,27 @@ Calculating feature variances of standardized and clipped values
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-04:39:46 UMAP embedding parameters a = 0.9922 b = 1.112
+02:13:31 UMAP embedding parameters a = 0.9922 b = 1.112
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-04:39:46 Read 9200 rows and found 20 numeric columns
-04:39:46 Using Annoy for neighbor search, n_neighbors = 30
+02:13:31 Read 9200 rows and found 20 numeric columns
+02:13:31 Using Annoy for neighbor search, n_neighbors = 30
 Found more than one class "dist" in cache; using the first, from namespace 'BiocGenerics'
 Also defined by 'spam'
-04:39:46 Building Annoy index with metric = cosine, n_trees = 50
+02:13:31 Building Annoy index with metric = cosine, n_trees = 50
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-04:39:48 Writing NN index file to temp file /tmp/slurm_21296601/RtmpZFVqJC/file78062a1bdc2f
-04:39:48 Searching Annoy index using 1 thread, search_k = 3000
-04:39:52 Annoy recall = 100%
-04:39:54 Commencing smooth kNN distance calibration using 1 thread
-04:40:00 Initializing from normalized Laplacian + noise
-04:40:00 Commencing optimization for 500 epochs, with 396298 positive edges
+02:13:34 Writing NN index file to temp file /tmp/slurm_21312352/Rtmp3y9vu9/filedbb02fd08cc
+02:13:34 Searching Annoy index using 1 thread, search_k = 3000
+02:13:37 Annoy recall = 100%
+02:13:41 Commencing smooth kNN distance calibration using 1 thread
+02:13:49 Initializing from normalized Laplacian + noise
+02:13:50 Commencing optimization for 500 epochs, with 396298 positive edges
 0%   10   20   30   40   50   60   70   80   90   100%
 [----|----|----|----|----|----|----|----|----|----|
 **************************************************|
-04:40:39 Optimization finished
+02:14:30 Optimization finished
 Computing nearest neighbor graph
 Computing SNN
 0%   10   20   30   40   50   60   70   80   90   100%
@@ -798,7 +798,7 @@ List of 2
 
 output file: sc_PartA_QC.knit.md
 
-/camp/apps/eb/dev/software/Anaconda2/2019.10/bin/pandoc +RTS -K512m -RTS sc_PartA_QC.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output /camp/stp/babs/working/boeings/Projects/boeings/stefan.boeing/426_scRNAseq_PBMC_10k/workdir/html_local/sc_PartA_QC.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 5 --variable toc_float=1 --variable toc_selectors=h1,h2,h3,h4,h5 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --css /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css --variable 'theme:paper' --include-in-header /tmp/slurm_21296601/RtmpZFVqJC/rmarkdown-str780615d4610a.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
+/camp/apps/eb/dev/software/Anaconda2/2019.10/bin/pandoc +RTS -K512m -RTS sc_PartA_QC.utf8.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output /camp/stp/babs/working/boeings/Projects/boeings/stefan.boeing/426_scRNAseq_PBMC_10k/workdir/html_local/sc_PartA_QC.html --email-obfuscation none --self-contained --standalone --section-divs --table-of-contents --toc-depth 5 --variable toc_float=1 --variable toc_selectors=h1,h2,h3,h4,h5 --variable toc_collapsed=1 --variable toc_smooth_scroll=1 --variable toc_print=1 --template /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/h/default.html --no-highlight --variable highlightjs=1 --css /camp/stp/babs/working/boeings/Stefan/protocol_files/github/boeings/templates/style/style.css --variable 'theme:paper' --include-in-header /tmp/slurm_21312352/Rtmp3y9vu9/rmarkdown-strdbb0163e724e.html --mathjax --variable 'mathjax-url:https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML' --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/pagebreak.lua --lua-filter /camp/apps/misc/stp/babs/manual/software/r/r-site-library/bioc-3.9/rmarkdown/rmd/lua/latex-div.lua --variable code_folding=hide --variable code_menu=1 
 
 Output created: /camp/stp/babs/working/boeings/Projects/boeings/stefan.boeing/426_scRNAseq_PBMC_10k/workdir/html_local/sc_PartA_QC.html
 There were 50 or more warnings (use warnings() to see the first 50)

@@ -1,0 +1,16 @@
+seurat_clusters	clusterName	clusterColor
+5	B_cells_1	#EEAABA
+7	B_cells_2	#E16A86
+14	B_Plasma	#D94567
+10	DC_1	#50A315
+12	DC_2	#6BD91C
+13	Mk	#00AD9A
+0	Mono_CD14_1	#F5B800
+8	Mono_CD14_2	#B88A00
+6	Mono_FCGR3A	#7A5C00
+1	Other_1	#C86DD7
+3	Other_2	#DB9FE5
+11	T_CD4_Naive	#5CCEFF
+2	T_CD8_1	#1FBCFF
+4	T_CD8_2	#009ADE
+9	T_NK	#0072A3
